@@ -1,0 +1,1099 @@
+import React, { useState, useEffect, useCallback, memo, useMemo, useRef } from 'react';
+import { useDebounce } from 'use-debounce';
+import { supabase } from '../../integrations/supabase/client';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
+import { Separator } from '../ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Textarea } from '../ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { southAmericaBatchService } from '../../services/southAmericaBatchService';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import {
+  Globe,
+  Filter,
+  Search,
+  Check,
+  Clock,
+  AlertTriangle,
+  Zap,
+  Database,
+  MapPin,
+  Edit,
+  Eye,
+  Plus,
+  X,
+  Play
+} from 'lucide-react';
+
+interface SpiritualRegion {
+  id: string;
+  name: string;
+  region_type: string;
+  status: string;
+  data_source: string;
+  created_at: string;
+  updated_at: string;
+  country_code?: string;
+  parent_id?: string;
+  coordinates?: any;
+  spiritual_data?: any;
+}
+
+interface SpiritualData {
+  nome_local: string;
+  palavra_profetica: string;
+  alvos_intercessao: string[];
+  alertas_espirituais: string[];
+  sistema_geopolitico: {
+    tipo_governo: string;
+    cargos_principais: string[];
+    locais_fisicos: Record<string, string>;
+    filosofia_dominante: string[];
+  };
+  influencias_espirituais: string[];
+  bases_missionarias: string[];
+  testemunhos_avivamento: string[];
+  acoes_intercessores: string[];
+}
+
+// Componente Input usando refs - SEM STATE
+const StaticInput = memo(({ 
+  defaultValue, 
+  onSave, 
+  placeholder = "", 
+  type = "text",
+  ...props 
+}: { 
+  defaultValue: string | number; 
+  onSave: (value: string) => void; 
+  placeholder?: string;
+  type?: string;
+  [key: string]: any;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.value = String(defaultValue);
+    }
+  }, [defaultValue]);
+
+  const handleBlur = useCallback(() => {
+    if (inputRef.current) {
+      onSave(inputRef.current.value);
+    }
+  }, [onSave]);
+
+  return (
+    <Input
+      {...props}
+      ref={inputRef}
+      type={type}
+      defaultValue={String(defaultValue)}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+    />
+  );
+});
+
+// Componente Textarea usando refs - SEM STATE  
+const StaticTextarea = memo(({ 
+  defaultValue, 
+  onSave, 
+  placeholder = "", 
+  rows = 3,
+  ...props 
+}: { 
+  defaultValue: string; 
+  onSave: (value: string) => void; 
+  placeholder?: string;
+  rows?: number;
+  [key: string]: any;
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.value = defaultValue;
+    }
+  }, [defaultValue]);
+
+  const handleBlur = useCallback(() => {
+    if (textareaRef.current) {
+      onSave(textareaRef.current.value);
+    }
+  }, [onSave]);
+
+  return (
+    <Textarea
+      {...props}
+      ref={textareaRef}
+      defaultValue={defaultValue}
+      onBlur={handleBlur}
+      placeholder={placeholder}
+      rows={rows}
+    />
+  );
+});
+
+// Componente memoizado para arrays de strings
+const ArrayEditor = memo(({ 
+  title, 
+  icon, 
+  items, 
+  placeholder, 
+  onAdd, 
+  onUpdate, 
+  onRemove 
+}: {
+  title: string;
+  icon: string;
+  items: string[];
+  placeholder: string;
+  onAdd: () => void;
+  onUpdate: (index: number, value: string) => void;
+  onRemove: (index: number) => void;
+}) => {
+  const memoizedItems = useMemo(() => items, [items]);
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          {icon} {title} ({memoizedItems.length})
+          <Button onClick={onAdd} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {memoizedItems.map((item, index) => (
+          <div key={`${title}-${index}`} className="flex gap-2">
+            <StaticInput
+              defaultValue={item}
+              onSave={(value) => onUpdate(index, value)}
+              placeholder={placeholder}
+            />
+            <Button 
+              variant="destructive" 
+              size="sm"
+              onClick={() => onRemove(index)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+});
+
+const RegionsTab = () => {
+  const [regions, setRegions] = useState<SpiritualRegion[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [isGoogleMapsReady, setIsGoogleMapsReady] = useState(false);
+  const [existingData, setExistingData] = useState({
+    countries: 0,
+    states: 0,
+    cities: 0,
+    total: 0
+  });
+  const [selectedRegion, setSelectedRegion] = useState<SpiritualRegion | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPopulateModal, setShowPopulateModal] = useState(false);
+  const [spiritualData, setSpiritualData] = useState<SpiritualData | null>(null);
+  const [isUpdatingSpiritualData, setIsUpdatingSpiritualData] = useState(false);
+
+  // Carregar dados reais do Supabase
+  useEffect(() => {
+    loadRegionsData();
+  }, []);
+
+  const loadRegionsData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('spiritual_regions')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Erro ao carregar regiões:', error);
+        return;
+      }
+
+      if (data) {
+        setRegions(data);
+        
+        // Calcular estatísticas
+        const countries = data.filter(r => r.region_type === 'country').length;
+        const states = data.filter(r => r.region_type === 'state').length;
+        const cities = data.filter(r => r.region_type === 'city').length;
+        
+        setExistingData({
+          countries,
+          states,
+          cities,
+          total: countries + states + cities
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      draft: { color: 'bg-gray-100 text-gray-800', label: 'Rascunho' },
+      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendente' },
+      approved: { color: 'bg-green-100 text-green-800', label: 'Aprovado' },
+      rejected: { color: 'bg-red-100 text-red-800', label: 'Rejeitado' }
+    };
+    
+    const config = statusConfig[status as keyof typeof statusConfig];
+    return (
+      <Badge className={config.color}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getTypeBadge = (type: string) => {
+    const typeConfig = {
+      country: { color: 'bg-blue-100 text-blue-800', label: 'País' },
+      state: { color: 'bg-purple-100 text-purple-800', label: 'Estado' },
+      city: { color: 'bg-orange-100 text-orange-800', label: 'Cidade' },
+      neighborhood: { color: 'bg-pink-100 text-pink-800', label: 'Bairro' }
+    };
+    
+    const config = typeConfig[type as keyof typeof typeConfig];
+    return (
+      <Badge variant="outline" className={config.color}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getSourceBadge = (source: string) => {
+    const sourceConfig = {
+      manual: { color: 'bg-green-50 text-green-700', label: 'Manual' },
+      ai_generated: { color: 'bg-blue-50 text-blue-700', label: 'IA' },
+      imported: { color: 'bg-orange-50 text-orange-700', label: 'Importado' }
+    };
+    
+    const config = sourceConfig[source as keyof typeof sourceConfig];
+    return (
+      <Badge variant="secondary" className={config.color}>
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const filteredRegions = regions.filter(region => {
+    const matchesSearch = region.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || region.status === statusFilter;
+    const matchesType = typeFilter === 'all' || region.region_type === typeFilter;
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  const handleApprove = (id: string) => {
+    console.log('Aprovando região:', id);
+    // TODO: Implementar aprovação
+  };
+
+  const handleReject = (id: string) => {
+    console.log('Rejeitando região:', id);
+    // TODO: Implementar rejeição
+  };
+
+  // Google Maps Status Card
+  const GoogleMapsStatusCard = () => {
+    const [status, setStatus] = useState({
+      loaded: false,
+      geocoderReady: false
+    });
+
+    useEffect(() => {
+      const checkStatus = () => {
+        const loaded = typeof window !== 'undefined' && window.google && window.google.maps;
+        const geocoderReady = loaded && Boolean(window.google.maps.Geocoder);
+        const isReady = loaded && geocoderReady;
+        
+        setStatus({ loaded: Boolean(loaded), geocoderReady });
+        setIsGoogleMapsReady(Boolean(isReady));
+      };
+
+      checkStatus();
+      const interval = setInterval(checkStatus, 1000);
+      return () => clearInterval(interval);
+    }, []);
+
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <span className="text-lg">🗺️</span>
+            Google Maps Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">API:</span>
+            <Badge variant={status.loaded ? "secondary" : "destructive"}>
+              {status.loaded ? '✅ Carregado' : '⏳ Carregando'}
+            </Badge>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Geocoder:</span>
+            <Badge variant={status.geocoderReady ? "secondary" : "destructive"}>
+              {status.geocoderReady ? '✅ Pronto' : '⏳ Aguardando'}
+            </Badge>
+          </div>
+          <Separator className="my-2" />
+          <div className="flex justify-between items-center font-medium">
+            <span className="text-sm">Status:</span>
+            <Badge variant={isGoogleMapsReady ? "default" : "destructive"}>
+              {isGoogleMapsReady ? '🎉 Operacional' : '⚠️ Aguardando'}
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Existing Data Card
+  const ExistingDataCard = () => (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Database className="w-4 h-4" />
+          Dados Existentes
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">🇧🇷 Países:</span>
+          <Badge variant={existingData.countries > 0 ? "secondary" : "outline"}>
+            {existingData.countries}
+          </Badge>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">🏛️ Estados:</span>
+          <Badge variant={existingData.states > 0 ? "secondary" : "outline"}>
+            {existingData.states}
+          </Badge>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-muted-foreground">🏙️ Cidades:</span>
+          <Badge variant={existingData.cities > 0 ? "secondary" : "outline"}>
+            {existingData.cities}
+          </Badge>
+        </div>
+        <Separator className="my-2" />
+        <div className="flex justify-between items-center font-medium">
+          <span className="text-sm">📊 Total:</span>
+          <Badge variant={existingData.total > 0 ? "default" : "outline"}>
+            {existingData.total}
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // Função para visualizar região
+  const handleView = async (region: SpiritualRegion) => {
+    setSelectedRegion(region);
+    
+    // Carregar dados espirituais se existirem
+    if (region.spiritual_data) {
+      setSpiritualData(region.spiritual_data);
+    } else {
+      // Criar dados espirituais vazios para nova região
+      setSpiritualData({
+        nome_local: '',
+        palavra_profetica: '',
+        alvos_intercessao: [],
+        alertas_espirituais: [],
+        sistema_geopolitico: {
+          tipo_governo: '',
+          cargos_principais: [],
+          locais_fisicos: {},
+          filosofia_dominante: [],
+        },
+        influencias_espirituais: [],
+        bases_missionarias: [],
+        testemunhos_avivamento: [],
+        acoes_intercessores: [],
+      });
+    }
+    
+    setShowViewModal(true);
+  };
+
+  // Função para editar região
+  const handleEdit = async (region: SpiritualRegion) => {
+    setSelectedRegion(region);
+    
+    // Carregar dados espirituais para edição
+    if (region.spiritual_data) {
+      setSpiritualData(region.spiritual_data);
+    } else {
+      setSpiritualData({
+        nome_local: '',
+        palavra_profetica: '',
+        alvos_intercessao: [],
+        alertas_espirituais: [],
+        sistema_geopolitico: {
+          tipo_governo: '',
+          cargos_principais: [],
+          locais_fisicos: {},
+          filosofia_dominante: [],
+        },
+        influencias_espirituais: [],
+        bases_missionarias: [],
+        testemunhos_avivamento: [],
+        acoes_intercessores: [],
+      });
+    }
+    
+    setShowEditModal(true);
+  };
+
+  // Função otimizada para salvar dados espirituais
+  const handleSaveSpiritualData = useCallback(async () => {
+    if (!selectedRegion || !spiritualData) return;
+    
+    setIsUpdatingSpiritualData(true);
+    
+    try {
+      const { error } = await supabase
+        .from('spiritual_regions')
+        .update({
+          spiritual_data: spiritualData as any,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedRegion.id);
+      
+      if (error) throw error;
+      
+      console.log('✅ Dados espirituais salvos com sucesso!');
+      
+      // Recarregar dados
+      await loadRegionsData();
+      setShowEditModal(false);
+      
+    } catch (error) {
+      console.error('❌ Erro ao salvar dados espirituais:', error);
+    } finally {
+      setIsUpdatingSpiritualData(false);
+    }
+  }, [selectedRegion, spiritualData]);
+
+  // Função otimizada para atualizar dados com debounce
+  const updateSpiritualField = useCallback((field: keyof SpiritualData, value: any, index?: number, subField?: string) => {
+    setSpiritualData(prev => {
+      if (!prev) return prev;
+      
+      const newData = { ...prev };
+      
+      if (field === 'sistema_geopolitico' && subField) {
+        newData.sistema_geopolitico = { ...prev.sistema_geopolitico };
+        if (subField === 'cargos_principais' || subField === 'filosofia_dominante') {
+          (newData.sistema_geopolitico as any)[subField] = value;
+        } else if (subField.startsWith('locais_fisicos.')) {
+          const localKey = subField.replace('locais_fisicos.', '');
+          newData.sistema_geopolitico.locais_fisicos = { 
+            ...prev.sistema_geopolitico.locais_fisicos, 
+            [localKey]: value 
+          };
+        } else {
+          (newData.sistema_geopolitico as any)[subField] = value;
+        }
+      } else if (Array.isArray(prev[field])) {
+        if (index !== undefined) {
+          const sectionArray = [...(prev[field] as string[])];
+          sectionArray[index] = value;
+          (newData as any)[field] = sectionArray;
+        } else {
+          (newData as any)[field] = value;
+        }
+      } else {
+        (newData as any)[field] = value;
+      }
+      
+      return newData;
+    });
+  }, []);
+
+  // Função para adicionar item em array
+  const addToArray = useCallback((field: keyof SpiritualData, defaultValue = '') => {
+    setSpiritualData(prev => {
+      if (!prev) return prev;
+      const currentArray = prev[field] as string[] || [];
+      return {
+        ...prev,
+        [field]: [...currentArray, defaultValue]
+      };
+    });
+  }, []);
+
+  // Função para remover item de array
+  const removeFromArray = useCallback((field: keyof SpiritualData, index: number) => {
+    setSpiritualData(prev => {
+      if (!prev) return prev;
+      const currentArray = prev[field] as string[] || [];
+      return {
+        ...prev,
+        [field]: currentArray.filter((_, i) => i !== index)
+      };
+    });
+  }, []);
+
+  // Modal COMPLETAMENTE isolado - sem dependências do state do pai
+  const EditModal = memo(() => {
+    // Estado próprio isolado do modal
+    const [isOpen, setIsOpen] = useState(false);
+    const [regionData, setRegionData] = useState<any>(null);
+    const [saving, setSaving] = useState(false);
+
+    // Sincronizar apenas quando necessário
+    useEffect(() => {
+      setIsOpen(showEditModal);
+      if (showEditModal && selectedRegion && spiritualData) {
+        setRegionData({
+          region: selectedRegion,
+          spiritual: { ...spiritualData }
+        });
+      }
+    }, [showEditModal, selectedRegion?.id, spiritualData?.nome_local]);
+
+    const handleClose = useCallback(() => {
+      setShowEditModal(false);
+      setIsOpen(false);
+    }, []);
+
+    const handleSave = useCallback(async () => {
+      if (!regionData?.region?.id || !regionData?.spiritual) return;
+      
+      setSaving(true);
+      try {
+        const { error } = await supabase
+          .from('spiritual_regions')
+          .update({ 
+            spiritual_data: regionData.spiritual,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', regionData.region.id);
+
+        if (error) throw error;
+        
+        // Recarregar dados
+        await loadRegionsData();
+        handleClose();
+      } catch (error) {
+        console.error('Erro ao salvar:', error);
+      } finally {
+        setSaving(false);
+      }
+    }, [regionData]);
+
+    const updateField = useCallback((field: string, value: any) => {
+      setRegionData((prev: any) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          spiritual: {
+            ...prev.spiritual,
+            [field]: value
+          }
+        };
+      });
+    }, []);
+
+    if (!isOpen || !regionData) return null;
+
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              🌍 Dados Espirituais: {regionData.region.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Nome Local */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Nome do Local</label>
+              <StaticInput
+                defaultValue={regionData.spiritual.nome_local || ''}
+                onSave={(value) => updateField('nome_local', value)}
+                placeholder="Nome da região espiritual"
+              />
+            </div>
+
+            {/* Palavra Profética */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">🔥 Palavra Profética</label>
+              <StaticTextarea
+                defaultValue={regionData.spiritual.palavra_profetica || ''}
+                onSave={(value) => updateField('palavra_profetica', value)}
+                placeholder="Digite aqui a palavra profética completa..."
+                rows={6}
+              />
+            </div>
+
+            {/* Alvos de Intercessão */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">🎯 Alvos de Intercessão</label>
+              {(regionData.spiritual.alvos_intercessao || []).map((alvo: string, index: number) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <StaticInput
+                    defaultValue={alvo}
+                    onSave={(value) => {
+                      const newAlvos = [...(regionData.spiritual.alvos_intercessao || [])];
+                      newAlvos[index] = value;
+                      updateField('alvos_intercessao', newAlvos);
+                    }}
+                    placeholder="Alvo de intercessão..."
+                  />
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => {
+                      const newAlvos = regionData.spiritual.alvos_intercessao.filter((_: any, i: number) => i !== index);
+                      updateField('alvos_intercessao', newAlvos);
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button 
+                onClick={() => {
+                  const newAlvos = [...(regionData.spiritual.alvos_intercessao || []), ''];
+                  updateField('alvos_intercessao', newAlvos);
+                }}
+                size="sm"
+                variant="outline"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Alvo
+              </Button>
+            </div>
+
+            {/* Botões */}
+            <div className="flex justify-end gap-4 pt-4">
+              <Button variant="outline" onClick={handleClose}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  });
+
+  // Modal de Visualização simples
+  const ViewModal = memo(() => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [viewData, setViewData] = useState<any>(null);
+
+    useEffect(() => {
+      setIsOpen(showViewModal);
+      if (showViewModal && selectedRegion) {
+        setViewData({
+          region: selectedRegion,
+          spiritual: selectedRegion.spiritual_data || {}
+        });
+      }
+    }, [showViewModal, selectedRegion?.id]);
+
+    const handleClose = useCallback(() => {
+      setShowViewModal(false);
+      setIsOpen(false);
+    }, []);
+
+    if (!isOpen || !viewData) return null;
+
+    const spiritual = viewData.spiritual;
+
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              👁️ Visualizar: {viewData.region.name}
+            </DialogTitle>
+            <DialogDescription>
+              Dados espirituais salvos para esta região
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {/* Nome Local */}
+            {spiritual.nome_local && (
+              <div>
+                <h3 className="font-semibold text-lg">🌍 Nome Local</h3>
+                <p className="text-gray-700 mt-2">{spiritual.nome_local}</p>
+              </div>
+            )}
+
+            {/* Palavra Profética */}
+            {spiritual.palavra_profetica && (
+              <div>
+                <h3 className="font-semibold text-lg">🔥 Palavra Profética</h3>
+                <div className="bg-blue-50 p-4 rounded-lg mt-2">
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                    {spiritual.palavra_profetica}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Alvos de Intercessão */}
+            {spiritual.alvos_intercessao && spiritual.alvos_intercessao.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">🎯 Alvos de Intercessão ({spiritual.alvos_intercessao.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.alvos_intercessao.map((alvo: string, index: number) => (
+                    <li key={index} className="text-gray-700">{alvo}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Alertas Espirituais */}
+            {spiritual.alertas_espirituais && spiritual.alertas_espirituais.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">⚠️ Alertas Espirituais ({spiritual.alertas_espirituais.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.alertas_espirituais.map((alerta: string, index: number) => (
+                    <li key={index} className="text-red-700">{alerta}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Influências Espirituais */}
+            {spiritual.influencias_espirituais && spiritual.influencias_espirituais.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">👑 Influências Espirituais ({spiritual.influencias_espirituais.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.influencias_espirituais.map((influencia: string, index: number) => (
+                    <li key={index} className="text-purple-700">{influencia}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Bases Missionárias */}
+            {spiritual.bases_missionarias && spiritual.bases_missionarias.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">🏢 Bases Missionárias ({spiritual.bases_missionarias.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.bases_missionarias.map((base: string, index: number) => (
+                    <li key={index} className="text-green-700">{base}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Testemunhos de Avivamento */}
+            {spiritual.testemunhos_avivamento && spiritual.testemunhos_avivamento.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">🔥 Testemunhos de Avivamento ({spiritual.testemunhos_avivamento.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.testemunhos_avivamento.map((testemunho: string, index: number) => (
+                    <li key={index} className="text-orange-700">{testemunho}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Ações para Intercessores */}
+            {spiritual.acoes_intercessores && spiritual.acoes_intercessores.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-lg">📿 Ações para Intercessores ({spiritual.acoes_intercessores.length})</h3>
+                <ul className="list-disc list-inside mt-2 space-y-1">
+                  {spiritual.acoes_intercessores.map((acao: string, index: number) => (
+                    <li key={index} className="text-indigo-700">{acao}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Sistema Geopolítico */}
+            {spiritual.sistema_geopolitico?.tipo_governo && (
+              <div>
+                <h3 className="font-semibold text-lg">🏛️ Sistema Geopolítico</h3>
+                <p className="text-gray-700 mt-2">
+                  <strong>Tipo de Governo:</strong> {spiritual.sistema_geopolitico.tipo_governo}
+                </p>
+              </div>
+            )}
+
+            {/* Mensagem se não há dados */}
+            {!spiritual.nome_local && !spiritual.palavra_profetica && (!spiritual.alvos_intercessao || spiritual.alvos_intercessao.length === 0) && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Nenhum dado espiritual foi cadastrado para esta região ainda.</p>
+                <Button 
+                  className="mt-4" 
+                  onClick={() => {
+                    handleClose();
+                    handleEdit(viewData.region);
+                  }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Adicionar Dados Espirituais
+                </Button>
+              </div>
+            )}
+
+            {/* Botão para fechar */}
+            <div className="flex justify-end pt-4">
+              <Button variant="outline" onClick={handleClose}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">🗺️ Mapeamento Global</h2>
+          <p className="text-gray-600">Visualize e gerencie regiões espirituais, dados geográficos e informações ministeriais</p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            className="bg-green-600 hover:bg-green-700"
+            onClick={() => setShowPopulateModal(true)}
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            Expansão Global
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Região
+          </Button>
+        </div>
+      </div>
+
+      {/* Google Maps Status e Dados Existentes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <GoogleMapsStatusCard />
+        <ExistingDataCard />
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Globe className="h-4 w-4 text-blue-500" />
+              <div>
+                <p className="text-2xl font-bold">{regions.length}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Check className="h-4 w-4 text-green-500" />
+              <div>
+                <p className="text-2xl font-bold">{regions.filter(r => r.status === 'approved').length}</p>
+                <p className="text-xs text-muted-foreground">Aprovadas</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-yellow-500" />
+              <div>
+                <p className="text-2xl font-bold">{regions.filter(r => r.status === 'pending').length}</p>
+                <p className="text-xs text-muted-foreground">Pendentes</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <MapPin className="h-4 w-4 text-purple-500" />
+              <div>
+                <p className="text-2xl font-bold">{regions.filter(r => r.data_source === 'ai_generated').length}</p>
+                <p className="text-xs text-muted-foreground">Geradas por IA</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Filter className="w-4 h-4 mr-2" />
+            Filtros
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Buscar</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <StaticInput
+                  placeholder="Nome da região..."
+                  className="pl-9"
+                  defaultValue={searchTerm}
+                  onSave={setSearchTerm}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="draft">Rascunho</SelectItem>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="approved">Aprovado</SelectItem>
+                  <SelectItem value="rejected">Rejeitado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo</label>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos os tipos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="country">País</SelectItem>
+                  <SelectItem value="state">Estado</SelectItem>
+                  <SelectItem value="city">Cidade</SelectItem>
+                  <SelectItem value="neighborhood">Bairro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Regions Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Regiões Mapeadas ({filteredRegions.length})</CardTitle>
+          <CardDescription>
+            Lista de todas as regiões geográficas e espirituais cadastradas no sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Origem</TableHead>
+                <TableHead>Atualizado</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRegions.map((region) => (
+                <TableRow key={region.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{region.name}</span>
+                      {region.country_code && (
+                        <Badge variant="outline" className="text-xs">
+                          {region.country_code}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getTypeBadge(region.region_type)}</TableCell>
+                  <TableCell>{getStatusBadge(region.status)}</TableCell>
+                  <TableCell>{getSourceBadge(region.data_source)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {new Date(region.updated_at).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleView(region)}>
+                        <Eye className="w-3 h-3" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(region)}>
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      {region.status === 'pending' && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-green-600 hover:text-green-700"
+                            onClick={() => handleApprove(region.id)}
+                          >
+                            <Check className="w-3 h-3" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => handleReject(region.id)}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Modais */}
+      <ViewModal />
+      <EditModal />
+    </div>
+  );
+};
+
+export default RegionsTab; 

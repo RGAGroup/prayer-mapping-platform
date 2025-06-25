@@ -1,0 +1,77 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system with celestial theme */
+
+@layer base {
+  :root {
+    --background: 220 25% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 25% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 224 25% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222.2 84% 4.9%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 45 93% 47%;
+    --accent-foreground: 222.2 84% 4.9%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 224 25% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 222.2 84% 4.9%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    background-attachment: fixed;
+  }
+
+  .celestial-text {
+    color: #1e40af;
+    font-weight: 600;
+    text-shadow: none;
+  }
+
+  .divine-glow {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .prayer-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+}
