@@ -636,64 +636,59 @@ const RegionsTab = () => {
           </DialogHeader>
           
           <div className="space-y-6">
-            {/* Nome Local */}
+            
+            {/* Sistema Geopolítico */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Nome do Local</label>
-              <StaticInput
-                defaultValue={regionData.spiritual.nome_local || ''}
-                onSave={(value) => updateField('nome_local', value)}
-                placeholder="Nome da região espiritual"
-              />
-            </div>
-
-            {/* Palavra Profética */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">🔥 Palavra Profética</label>
+              <label className="text-lg font-semibold mb-3 block">🏛️ Sistema Geopolítico</label>
               <StaticTextarea
-                defaultValue={regionData.spiritual.palavra_profetica || ''}
-                onSave={(value) => updateField('palavra_profetica', value)}
-                placeholder="Digite aqui a palavra profética completa..."
-                rows={6}
+                defaultValue={regionData.spiritual.sistema_geopolitico_completo || ''}
+                onSave={(value) => updateField('sistema_geopolitico_completo', value)}
+                placeholder={`Digite as informações do sistema geopolítico desta região:
+
+Exemplo:
+🏛️ Sistema Geopolítico:
+Tipo de governo:
+República Federal Parlamentarista
+
+Cargos principais:
+Primeiro-Ministro, Presidente, Membros do Parlamento
+
+Locais físicos de poder:
+Parlamento, Residência do Presidente, Escritórios governamentais
+
+Filosofia dominante:
+Descreva a filosofia política e espiritual dominante...`}
+                rows={12}
+                className="text-sm"
               />
             </div>
 
             {/* Alvos de Intercessão */}
             <div>
-              <label className="text-sm font-medium mb-2 block">🎯 Alvos de Intercessão</label>
-              {(regionData.spiritual.alvos_intercessao || []).map((alvo: string, index: number) => (
-                <div key={index} className="flex gap-2 mb-2">
-                  <StaticInput
-                    defaultValue={alvo}
-                    onSave={(value) => {
-                      const newAlvos = [...(regionData.spiritual.alvos_intercessao || [])];
-                      newAlvos[index] = value;
-                      updateField('alvos_intercessao', newAlvos);
-                    }}
-                    placeholder="Alvo de intercessão..."
-                  />
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={() => {
-                      const newAlvos = regionData.spiritual.alvos_intercessao.filter((_: any, i: number) => i !== index);
-                      updateField('alvos_intercessao', newAlvos);
-                    }}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button 
-                onClick={() => {
-                  const newAlvos = [...(regionData.spiritual.alvos_intercessao || []), ''];
-                  updateField('alvos_intercessao', newAlvos);
-                }}
-                size="sm"
-                variant="outline"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Alvo
-              </Button>
+              <label className="text-lg font-semibold mb-3 block">🔥 Alvos de Intercessão</label>
+              <StaticTextarea
+                defaultValue={regionData.spiritual.alvos_intercessao_completo || ''}
+                onSave={(value) => updateField('alvos_intercessao_completo', value)}
+                placeholder={`Digite os alvos de intercessão para esta região:
+
+Exemplo:
+🔥 Alvos de Intercessão:
+Quebra do sistema de castas e das fortalezas espirituais associadas
+
+Intercessão pelas regiões onde cristãos são perseguidos
+
+Derrubada de altares consagrados ao controle territorial e político
+
+Conversão de líderes influentes para Cristo
+
+Levantamento de intercessores e evangelistas nativos com ousadia
+
+Cobertura espiritual sobre missionários em campo
+
+Que o Reino de Deus avance em meio à perseguição`}
+                rows={12}
+                className="text-sm"
+              />
             </div>
 
             {/* Botões */}
@@ -748,112 +743,36 @@ const RegionsTab = () => {
           </DialogHeader>
           
           <div className="space-y-6">
-            {/* Nome Local */}
-            {spiritual.nome_local && (
+            
+            {/* Sistema Geopolítico */}
+            {spiritual.sistema_geopolitico_completo && (
               <div>
-                <h3 className="font-semibold text-lg">🌍 Nome Local</h3>
-                <p className="text-gray-700 mt-2">{spiritual.nome_local}</p>
-              </div>
-            )}
-
-            {/* Palavra Profética */}
-            {spiritual.palavra_profetica && (
-              <div>
-                <h3 className="font-semibold text-lg">🔥 Palavra Profética</h3>
+                <h3 className="font-semibold text-lg">🏛️ Sistema Geopolítico</h3>
                 <div className="bg-blue-50 p-4 rounded-lg mt-2">
-                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-                    {spiritual.palavra_profetica}
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-sm">
+                    {spiritual.sistema_geopolitico_completo}
                   </p>
                 </div>
               </div>
             )}
 
             {/* Alvos de Intercessão */}
-            {spiritual.alvos_intercessao && spiritual.alvos_intercessao.length > 0 && (
+            {spiritual.alvos_intercessao_completo && (
               <div>
-                <h3 className="font-semibold text-lg">🎯 Alvos de Intercessão ({spiritual.alvos_intercessao.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.alvos_intercessao.map((alvo: string, index: number) => (
-                    <li key={index} className="text-gray-700">{alvo}</li>
-                  ))}
-                </ul>
+                <h3 className="font-semibold text-lg">🔥 Alvos de Intercessão</h3>
+                <div className="bg-red-50 p-4 rounded-lg mt-2">
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-sm">
+                    {spiritual.alvos_intercessao_completo}
+                  </p>
+                </div>
               </div>
             )}
 
-            {/* Alertas Espirituais */}
-            {spiritual.alertas_espirituais && spiritual.alertas_espirituais.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-lg">⚠️ Alertas Espirituais ({spiritual.alertas_espirituais.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.alertas_espirituais.map((alerta: string, index: number) => (
-                    <li key={index} className="text-red-700">{alerta}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Influências Espirituais */}
-            {spiritual.influencias_espirituais && spiritual.influencias_espirituais.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-lg">👑 Influências Espirituais ({spiritual.influencias_espirituais.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.influencias_espirituais.map((influencia: string, index: number) => (
-                    <li key={index} className="text-purple-700">{influencia}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Bases Missionárias */}
-            {spiritual.bases_missionarias && spiritual.bases_missionarias.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-lg">🏢 Bases Missionárias ({spiritual.bases_missionarias.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.bases_missionarias.map((base: string, index: number) => (
-                    <li key={index} className="text-green-700">{base}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Testemunhos de Avivamento */}
-            {spiritual.testemunhos_avivamento && spiritual.testemunhos_avivamento.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-lg">🔥 Testemunhos de Avivamento ({spiritual.testemunhos_avivamento.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.testemunhos_avivamento.map((testemunho: string, index: number) => (
-                    <li key={index} className="text-orange-700">{testemunho}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Ações para Intercessores */}
-            {spiritual.acoes_intercessores && spiritual.acoes_intercessores.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-lg">📿 Ações para Intercessores ({spiritual.acoes_intercessores.length})</h3>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  {spiritual.acoes_intercessores.map((acao: string, index: number) => (
-                    <li key={index} className="text-indigo-700">{acao}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Sistema Geopolítico */}
-            {spiritual.sistema_geopolitico?.tipo_governo && (
-              <div>
-                <h3 className="font-semibold text-lg">🏛️ Sistema Geopolítico</h3>
-                <p className="text-gray-700 mt-2">
-                  <strong>Tipo de Governo:</strong> {spiritual.sistema_geopolitico.tipo_governo}
-                </p>
-              </div>
-            )}
-
-            {/* Mensagem se não há dados */}
-            {!spiritual.nome_local && !spiritual.palavra_profetica && (!spiritual.alvos_intercessao || spiritual.alvos_intercessao.length === 0) && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Nenhum dado espiritual foi cadastrado para esta região ainda.</p>
+            {/* Dados não encontrados */}
+            {!spiritual.sistema_geopolitico_completo && !spiritual.alvos_intercessao_completo && (
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-lg">📝 Nenhum dado espiritual cadastrado ainda</p>
+                <p className="text-sm mt-2">Clique em "Editar" para adicionar informações</p>
                 <Button 
                   className="mt-4" 
                   onClick={() => {
