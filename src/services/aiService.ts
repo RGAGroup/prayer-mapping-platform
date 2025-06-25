@@ -78,11 +78,11 @@ class AIService {
   }
 
   private initializeOpenAI() {
-    // Use environment variable for API key
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    // Use environment variable for API key (Vite only)
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     
     if (!apiKey) {
-      console.warn('⚠️ Chave API da OpenAI não configurada. Defina VITE_OPENAI_API_KEY no arquivo .env');
+      console.warn('⚠️ Chave API da OpenAI não configurada. Funcionalidade AI desabilitada.');
       this.isConfigured = false;
       return;
     }
