@@ -148,72 +148,62 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
             {/* Conteúdo */}
             <div className="space-y-4">
-              {/* Status Espiritual */}
-              <div className={`p-3 rounded-lg border-2 ${getAlertColor(data.spiritualStatus.alertLevel)}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4" />
-                  <span className="font-semibold text-gray-800">Status Espiritual</span>
+              {/* Sistema Geopolítico */}
+              <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Globe className="w-5 h-5 text-blue-600" />
+                  <span className="font-semibold text-blue-800">🏛️ Sistema Geopolítico</span>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">Nível de Avivamento:</span>
-                    <span className={`text-sm capitalize ${getRevivalColor(data.spiritualStatus.revivalLevel)}`}>
-                      {data.spiritualStatus.revivalLevel}
-                    </span>
-                  </div>
-                  <p className="text-sm">{data.spiritualStatus.description}</p>
+                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
+                   'Informações sobre o sistema geopolítico não disponíveis.'}
+                </div>
+              </div>
+
+              {/* Alvos de Intercessão */}
+              <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Heart className="w-5 h-5 text-red-600" />
+                  <span className="font-semibold text-red-800">🔥 Alvos de Intercessão</span>
+                </div>
+                <div className="space-y-2">
+                  {data.prayerTargets.map((target, index) => (
+                    <div key={target.id} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="text-red-600 font-bold mt-0.5">•</span>
+                      <span className="leading-relaxed">{target.description}</span>
+                    </div>
+                  ))}
+                  {data.prayerTargets.length === 0 && (
+                    <div className="text-sm text-gray-500 italic">
+                      Nenhum alvo de intercessão definido ainda.
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Estatísticas */}
               <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                  <Users className="w-4 h-4" />
-                  Estatísticas
+                <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                  <Users className="w-5 h-5" />
+                  📊 Estatísticas
                 </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-blue-50 p-2 rounded">
-                    <div className="font-semibold text-blue-700">{data.stats.totalIntercessors}</div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
                     <div className="text-blue-600">Intercessores</div>
                   </div>
-                  <div className="bg-green-50 p-2 rounded">
-                    <div className="font-semibold text-green-700">{data.stats.activePrayers}</div>
+                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                    <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
                     <div className="text-green-600">Orações Ativas</div>
                   </div>
-                  <div className="bg-purple-50 p-2 rounded">
-                    <div className="font-semibold text-purple-700">{data.stats.propheticWords}</div>
-                    <div className="text-purple-600">Palavras Proféticas</div>
+                  <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                    <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
+                    <div className="text-purple-600">Dados Atualizados</div>
                   </div>
-                  <div className="bg-orange-50 p-2 rounded">
-                    <div className="font-semibold text-orange-700">{data.stats.testimonies}</div>
-                    <div className="text-orange-600">Testemunhos</div>
+                  <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                    <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
+                    <div className="text-orange-600">Alvos Definidos</div>
                   </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Alvos de Oração Principais */}
-              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                  <Heart className="w-4 h-4 text-red-500" />
-                  Alvos de Oração Prioritários
-                </h4>
-                <div className="space-y-2">
-                  {data.prayerTargets.slice(0, 3).map((target) => (
-                    <div key={target.id} className="border rounded-lg p-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <h5 className="font-medium text-sm">{target.title}</h5>
-                        <Badge className={`text-xs ${getPriorityColor(target.priority)}`}>
-                          {target.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-gray-600 mb-1">{target.description}</p>
-                      <div className="text-xs text-blue-600">
-                        {target.intercessors} intercessores orando
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -314,45 +304,61 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
         {/* Conteúdo scrollável */}
         <div className="px-4 pb-4 h-full overflow-y-auto">
           <div className="space-y-4">
-            {/* Status Espiritual */}
-            <div className={`p-3 rounded-lg border-2 ${getAlertColor(data.spiritualStatus.alertLevel)}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <Shield className="w-4 h-4" />
-                <span className="font-semibold text-gray-800">Status Espiritual</span>
+            {/* Sistema Geopolítico */}
+            <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
+              <div className="flex items-center gap-2 mb-3">
+                <Globe className="w-5 h-5 text-blue-600" />
+                <span className="font-semibold text-blue-800">🏛️ Sistema Geopolítico</span>
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">Nível de Avivamento:</span>
-                  <span className={`text-sm capitalize ${getRevivalColor(data.spiritualStatus.revivalLevel)}`}>
-                    {data.spiritualStatus.revivalLevel}
-                  </span>
-                </div>
-                <p className="text-sm">{data.spiritualStatus.description}</p>
+              <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
+                 'Informações sobre o sistema geopolítico não disponíveis.'}
+              </div>
+            </div>
+
+            {/* Alvos de Intercessão */}
+            <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
+              <div className="flex items-center gap-2 mb-3">
+                <Heart className="w-5 h-5 text-red-600" />
+                <span className="font-semibold text-red-800">🔥 Alvos de Intercessão</span>
+              </div>
+              <div className="space-y-2">
+                {data.prayerTargets.map((target, index) => (
+                  <div key={target.id} className="text-sm text-gray-700 flex items-start gap-2">
+                    <span className="text-red-600 font-bold mt-0.5">•</span>
+                    <span className="leading-relaxed">{target.description}</span>
+                  </div>
+                ))}
+                {data.prayerTargets.length === 0 && (
+                  <div className="text-sm text-gray-500 italic">
+                    Nenhum alvo de intercessão definido ainda.
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Estatísticas - Grid adaptado para mobile */}
             <div>
-                             <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                 <Users className="w-4 h-4" />
-                 Estatísticas
-               </h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="bg-blue-50 p-3 rounded">
-                  <div className="font-semibold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
+                <Users className="w-5 h-5" />
+                📊 Estatísticas
+              </h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
                   <div className="text-blue-600">Intercessores</div>
                 </div>
-                <div className="bg-green-50 p-3 rounded">
-                  <div className="font-semibold text-green-700 text-lg">{data.stats.activePrayers}</div>
+                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                  <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
                   <div className="text-green-600">Orações Ativas</div>
                 </div>
-                <div className="bg-purple-50 p-3 rounded">
-                  <div className="font-semibold text-purple-700 text-lg">{data.stats.propheticWords}</div>
-                  <div className="text-purple-600">Palavras Proféticas</div>
+                <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                  <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
+                  <div className="text-purple-600">Dados Atualizados</div>
                 </div>
-                <div className="bg-orange-50 p-3 rounded">
-                  <div className="font-semibold text-orange-700 text-lg">{data.stats.testimonies}</div>
-                  <div className="text-orange-600">Testemunhos</div>
+                <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
+                  <div className="text-orange-600">Alvos Definidos</div>
                 </div>
               </div>
             </div>

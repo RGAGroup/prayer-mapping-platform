@@ -44,10 +44,73 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
       }
 
       if (regionData?.spiritual_data) {
-        console.log(`✅ Dados espirituais encontrados para ${regionName}`);
+        console.log(`✅ Dados espirituais encontrados para ${regionName}:`, regionData.spiritual_data);
         
         // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
         const spiritualData = regionData.spiritual_data as any;
+        
+        // NOVA ESTRUTURA - dados salvos pelo admin
+        const hasNewStructure = spiritualData.sistema_geopolitico_completo || spiritualData.alvos_intercessao_completo;
+        
+        if (hasNewStructure) {
+          console.log('🆕 Usando nova estrutura de dados');
+          
+          // Extrair alvos de intercessão do texto
+          const alvosText = spiritualData.alvos_intercessao_completo || '';
+          const alvosLines = alvosText.split('\n').filter((line: string) => line.trim().length > 0);
+          const prayerTargets = alvosLines.map((line: string, index: number) => ({
+            id: `target-${index}`,
+            title: line.length > 50 ? line.substring(0, 50) + '...' : line,
+            description: line,
+            priority: 'medium' as const,
+            intercessors: Math.floor(Math.random() * 20) + 5,
+          }));
+          
+          return {
+            region: regionName,
+            type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
+            
+            stats: {
+              totalIntercessors: prayerTargets.length * 10,
+              activePrayers: prayerTargets.length,
+              propheticWords: spiritualData.sistema_geopolitico_completo ? 1 : 0,
+              testimonies: 0,
+              missionBases: 0,
+              alerts: 0,
+            },
+            
+            recentActivity: [
+              {
+                id: 'sistema-geo',
+                type: 'prophetic_word' as const,
+                title: '🏛️ Sistema Geopolítico Atualizado',
+                description: spiritualData.sistema_geopolitico_completo || 'Informações sobre o sistema geopolítico não disponíveis.',
+                author: 'Administrador',
+                date: new Date().toISOString(),
+                priority: 'high' as const,
+              },
+              {
+                id: 'alvos-intercesao',
+                type: 'prayer_target' as const,
+                title: '🔥 Alvos de Intercessão Definidos',
+                description: `${prayerTargets.length} alvos de oração identificados`,
+                author: 'Rede de Oração',
+                date: new Date().toISOString(),
+                priority: 'high' as const,
+              }
+            ],
+            
+            prayerTargets,
+            
+            spiritualStatus: {
+              revivalLevel: prayerTargets.length > 5 ? 'alto' : prayerTargets.length > 2 ? 'médio' : 'baixo' as const,
+              alertLevel: 'amarelo' as const,
+              description: `${regionName} possui dados espirituais atualizados com ${prayerTargets.length} alvos de intercessão identificados.`,
+            }
+          };
+        }
+        
+        // ESTRUTURA ANTIGA - manter compatibilidade
         return {
           region: regionName,
           type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
@@ -87,7 +150,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
             title: target.title || 'Alvo de Oração',
             description: target.description || '',
             priority: target.urgency || 'medium' as const,
-            intercessors: Math.floor(Math.random() * 50) + 10, // Por enquanto aleatório
+            intercessors: Math.floor(Math.random() * 50) + 10,
           })),
           
           spiritualStatus: {

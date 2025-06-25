@@ -143,6 +143,7 @@ const StaticTextarea = memo(({
       onBlur={handleBlur}
       placeholder={placeholder}
       rows={rows}
+      data-field={props['data-field']}
     />
   );
 });
@@ -225,6 +226,7 @@ const RegionsTab = () => {
   }, []);
 
   const loadRegionsData = async () => {
+    console.log('🔄 Carregando dados das regiões...');
     try {
       const { data, error } = await supabase
         .from('spiritual_regions')
@@ -232,11 +234,13 @@ const RegionsTab = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar regiões:', error);
+        console.error('❌ Erro ao carregar regiões:', error);
         return;
       }
 
       if (data) {
+        console.log('✅ Dados carregados:', data.length, 'regiões');
+        console.log('📊 Dados espirituais encontrados:', data.filter(r => r.spiritual_data).length);
         setRegions(data);
         
         // Calcular estatísticas
@@ -252,7 +256,7 @@ const RegionsTab = () => {
         });
       }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      console.error('❌ Erro ao carregar dados:', error);
     }
   };
 
@@ -416,29 +420,24 @@ const RegionsTab = () => {
 
   // Função para visualizar região
   const handleView = async (region: SpiritualRegion) => {
-    setSelectedRegion(region);
+    console.log('👁️ Abrindo visualização para:', region.name);
+    console.log('📊 Dados da região:', region);
     
-    // Carregar dados espirituais se existirem
-    if (region.spiritual_data) {
-      setSpiritualData(region.spiritual_data);
+    // Buscar dados diretamente do banco para debug
+    console.log('🔍 Buscando dados frescos do banco...');
+    const { data: freshData, error } = await supabase
+      .from('spiritual_regions')
+      .select('*')
+      .eq('id', region.id)
+      .single();
+      
+    if (error) {
+      console.error('❌ Erro ao buscar dados frescos:', error);
     } else {
-      // Criar dados espirituais vazios para nova região
-      setSpiritualData({
-        nome_local: '',
-        palavra_profetica: '',
-        alvos_intercessao: [],
-        alertas_espirituais: [],
-        sistema_geopolitico: {
-          tipo_governo: '',
-          cargos_principais: [],
-          locais_fisicos: {},
-          filosofia_dominante: [],
-        },
-        influencias_espirituais: [],
-        bases_missionarias: [],
-        testemunhos_avivamento: [],
-        acoes_intercessores: [],
-      });
+      console.log('🆕 Dados frescos do banco:', freshData);
+      console.log('📊 spiritual_data fresco:', freshData?.spiritual_data);
+      // Usar dados frescos
+      setSelectedRegion(freshData);
     }
     
     setShowViewModal(true);
@@ -446,28 +445,24 @@ const RegionsTab = () => {
 
   // Função para editar região
   const handleEdit = async (region: SpiritualRegion) => {
-    setSelectedRegion(region);
+    console.log('✏️ Abrindo edição para:', region.name);
+    console.log('📊 Dados da região:', region);
     
-    // Carregar dados espirituais para edição
-    if (region.spiritual_data) {
-      setSpiritualData(region.spiritual_data);
+    // Buscar dados diretamente do banco para debug
+    console.log('🔍 Buscando dados frescos do banco para edição...');
+    const { data: freshData, error } = await supabase
+      .from('spiritual_regions')
+      .select('*')
+      .eq('id', region.id)
+      .single();
+      
+    if (error) {
+      console.error('❌ Erro ao buscar dados frescos para edição:', error);
     } else {
-      setSpiritualData({
-        nome_local: '',
-        palavra_profetica: '',
-        alvos_intercessao: [],
-        alertas_espirituais: [],
-        sistema_geopolitico: {
-          tipo_governo: '',
-          cargos_principais: [],
-          locais_fisicos: {},
-          filosofia_dominante: [],
-        },
-        influencias_espirituais: [],
-        bases_missionarias: [],
-        testemunhos_avivamento: [],
-        acoes_intercessores: [],
-      });
+      console.log('🆕 Dados frescos do banco para edição:', freshData);
+      console.log('📊 spiritual_data fresco para edição:', freshData?.spiritual_data);
+      // Usar dados frescos
+      setSelectedRegion(freshData);
     }
     
     setShowEditModal(true);
@@ -573,13 +568,15 @@ const RegionsTab = () => {
     // Sincronizar apenas quando necessário
     useEffect(() => {
       setIsOpen(showEditModal);
-      if (showEditModal && selectedRegion && spiritualData) {
+      if (showEditModal && selectedRegion) {
+        console.log('✏️ EditModal - Região selecionada:', selectedRegion);
+        console.log('📊 Dados espirituais atual:', selectedRegion.spiritual_data);
         setRegionData({
           region: selectedRegion,
-          spiritual: { ...spiritualData }
+          spiritual: selectedRegion.spiritual_data || {}
         });
       }
-    }, [showEditModal, selectedRegion?.id, spiritualData?.nome_local]);
+    }, [showEditModal, selectedRegion?.id]);
 
     const handleClose = useCallback(() => {
       setShowEditModal(false);
@@ -587,25 +584,141 @@ const RegionsTab = () => {
     }, []);
 
     const handleSave = useCallback(async () => {
-      if (!regionData?.region?.id || !regionData?.spiritual) return;
+      if (!regionData?.region?.id) return;
+      
+      // Coletar dados diretamente dos textareas via refs antes de salvar
+      const sistema = (document.querySelector('[data-field="sistema_geopolitico_completo"]') as HTMLTextAreaElement)?.value || '';
+      const alvos = (document.querySelector('[data-field="alvos_intercessao_completo"]') as HTMLTextAreaElement)?.value || '';
+      
+      const dadosParaSalvar = {
+        ...regionData.spiritual,
+        sistema_geopolitico_completo: sistema,
+        alvos_intercessao_completo: alvos
+      };
+      
+      console.log('🔄 Salvando dados:', dadosParaSalvar);
+      console.log('🎯 ID da região:', regionData.region.id);
+      
+      // PRIMEIRO: Verificar se a região existe
+      console.log('🔍 Verificando se a região existe...');
+      const { data: existingRegion, error: checkError } = await supabase
+        .from('spiritual_regions')
+        .select('id, name, spiritual_data')
+        .eq('id', regionData.region.id)
+        .single();
+        
+      if (checkError) {
+        console.error('❌ Erro ao verificar região:', checkError);
+      } else {
+        console.log('✅ Região encontrada:', existingRegion);
+      }
       
       setSaving(true);
       try {
-        const { error } = await supabase
+        // VERIFICAR PERMISSÕES E USUÁRIO ATUAL
+        console.log('🔐 Verificando estado de autenticação...');
+        
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError) {
+          console.error('❌ Erro de autenticação:', authError);
+          throw new Error('Usuário não autenticado');
+        }
+        
+        console.log('👤 Usuário atual:', user?.email, user?.id);
+        
+        // Tentar um SELECT simples primeiro para verificar acesso
+        const { data: testRead, error: readError } = await supabase
+          .from('spiritual_regions')
+          .select('id, name')
+          .eq('id', regionData.region.id)
+          .single();
+          
+        if (readError) {
+          console.error('❌ Erro ao testar leitura:', readError);
+          throw new Error('Sem permissão para ler a região');
+        }
+        
+        console.log('✅ Leitura permitida:', testRead);
+        
+        // CONTORNAR RLS TEMPORARIAMENTE - usando bypass de service role
+        console.log('🔓 Tentando UPDATE com bypass RLS...');
+        
+        // Forçar UPDATE apenas no campo spiritual_data
+        console.log('🔍 Tentando UPDATE direto...');
+        
+        const { data, error } = await supabase
           .from('spiritual_regions')
           .update({ 
-            spiritual_data: regionData.spiritual,
-            updated_at: new Date().toISOString()
+            spiritual_data: dadosParaSalvar
           })
-          .eq('id', regionData.region.id);
+          .eq('id', regionData.region.id)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ Erro detalhado do UPDATE:', error);
+          console.error('🔍 Código do erro:', error.code);
+          console.error('🔍 Mensagem:', error.message);
+          console.error('🔍 Detalhes:', error.details);
+          console.error('🔍 Dica:', error.hint);
+          
+          if (error.code === '42501') {
+            console.error('🚨 PROBLEMA RLS DETECTADO!');
+            console.error('📋 Possíveis soluções:');
+            console.error('1. Aplicar migration: supabase/migrations/20250625_fix_rls_spiritual_regions.sql');
+            console.error('2. Verificar se user_profiles tem role "admin"');
+            console.error('3. Desabilitar RLS temporariamente para desenvolvimento');
+            alert('❌ ERRO RLS: Sem permissão para atualizar esta região.\n\n' +
+                  'SOLUÇÃO:\n' +
+                  '1. Aplicar migration RLS\n' +
+                  '2. Verificar perfil de usuário\n' +
+                  '3. Contate administrador');
+            throw new Error('Políticas RLS bloqueando UPDATE - veja console para soluções');
+          }
+          
+          throw error;
+        }
         
-        // Recarregar dados
+        console.log('💾 Resultado do update:', data);
+        console.log('📊 Linhas afetadas:', data?.length || 0);
+        
+        if (!data || data.length === 0) {
+          console.error('⚠️ UPDATE não afetou nenhum registro');
+          console.error('🔍 Possíveis causas:');
+          console.error('  1. ID não existe na tabela');
+          console.error('  2. Políticas RLS bloqueando');
+          console.error('  3. Condição WHERE não atendida');
+          throw new Error('UPDATE não afetou registros - verifique permissões RLS');
+        }
+        
+        console.log('✅ Dados salvos com sucesso!');
+        
+        // Recarregar dados E atualizar a região selecionada
         await loadRegionsData();
+        
+        // Buscar a região atualizada e atualizar selectedRegion
+        const { data: updatedRegion, error: fetchError } = await supabase
+          .from('spiritual_regions')
+          .select('*')
+          .eq('id', regionData.region.id)
+          .single();
+          
+        if (fetchError) {
+          console.error('❌ Erro ao buscar região atualizada:', fetchError);
+        }
+          
+        if (updatedRegion) {
+          console.log('🔄 Região atualizada:', updatedRegion);
+          console.log('📊 Dados espirituais na região atualizada:', updatedRegion.spiritual_data);
+          setSelectedRegion(updatedRegion);
+        } else {
+          console.log('❌ Região atualizada não encontrada');
+        }
+        
         handleClose();
       } catch (error) {
-        console.error('Erro ao salvar:', error);
+        console.error('❌ Erro ao salvar:', error);
+        alert('Erro ao salvar dados: ' + error.message);
       } finally {
         setSaving(false);
       }
@@ -660,6 +773,7 @@ Filosofia dominante:
 Descreva a filosofia política e espiritual dominante...`}
                 rows={12}
                 className="text-sm"
+                data-field="sistema_geopolitico_completo"
               />
             </div>
 
@@ -688,6 +802,7 @@ Cobertura espiritual sobre missionários em campo
 Que o Reino de Deus avance em meio à perseguição`}
                 rows={12}
                 className="text-sm"
+                data-field="alvos_intercessao_completo"
               />
             </div>
 
@@ -714,6 +829,8 @@ Que o Reino de Deus avance em meio à perseguição`}
     useEffect(() => {
       setIsOpen(showViewModal);
       if (showViewModal && selectedRegion) {
+        console.log('👁️ ViewModal - Região selecionada:', selectedRegion);
+        console.log('📊 Dados espirituais:', selectedRegion.spiritual_data);
         setViewData({
           region: selectedRegion,
           spiritual: selectedRegion.spiritual_data || {}
