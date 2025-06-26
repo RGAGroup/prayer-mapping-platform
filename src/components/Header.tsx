@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Shield, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { LanguageSelector } from './LanguageSelector';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HeaderProps {
   onAuthClick: () => void;
@@ -12,6 +14,7 @@ interface HeaderProps {
 
 const Header = ({ onAuthClick }: HeaderProps) => {
   const { isAuthenticated, userProfile, signOut } = useAuth();
+  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -27,7 +30,7 @@ const Header = ({ onAuthClick }: HeaderProps) => {
             </div>
             <div>
               <h1 className="text-xl font-bold celestial-text">
-                Mapa Global de Intercessão
+                {t('map.title')}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Rede mundial de oração estratégica
@@ -36,6 +39,9 @@ const Header = ({ onAuthClick }: HeaderProps) => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Seletor de Idiomas */}
+            <LanguageSelector variant="compact" />
+            
             <div className="hidden md:flex items-center space-x-6 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -56,12 +62,12 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                       className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
                     >
                       <Shield className="w-4 h-4 mr-2" />
-                      Admin
+                      {t('navigation.admin')}
                     </Button>
                   </Link>
                 )}
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium">{userProfile?.display_name || 'Intercessor'}</p>
+                  <p className="text-sm font-medium">{userProfile?.display_name || t('spiritualPopup.intercessors')}</p>
                   <p className="text-xs text-muted-foreground">
                     {userProfile?.role === 'admin' ? 'Administrador' : 
                      userProfile?.role === 'moderator' ? 'Moderador' : 'Vigia Ativo'}
@@ -84,7 +90,7 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                 onClick={onAuthClick}
                 className="bg-gradient-to-r from-celestial-600 to-divine-600 hover:from-celestial-700 hover:to-divine-700 text-white border-0 divine-glow"
               >
-                Entrar na Rede
+                {t('auth.login')}
               </Button>
             )}
           </div>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface SpiritualData {
   region: string;
@@ -51,6 +52,7 @@ interface SpiritualPopupProps {
   data: SpiritualData;
   position: { x: number; y: number };
   onClose: () => void;
+  onStartPrayer?: (regionName: string, regionData: SpiritualData) => void;
 }
 
 const getActivityIcon = (type: string) => {
@@ -94,9 +96,17 @@ const getAlertColor = (level: string) => {
   }
 };
 
-export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose }) => {
+export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose, onStartPrayer }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation();
+
+  const handleStartPrayer = () => {
+    console.log(`🙏 Iniciando oração por ${data.region}`);
+    if (onStartPrayer) {
+      onStartPrayer(data.region, data);
+    }
+  };
 
   // Debug - verificar dados recebidos
   console.log(`🎯 SpiritualPopup renderizado com dados:`, data);
@@ -242,8 +252,13 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
               {/* Botões de Ação */}
               <div className="flex gap-2 pt-2">
-                <Button size="sm" className="flex-1">
-                  Contribuir
+                <Button 
+                  size="sm" 
+                  variant="default" 
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={handleStartPrayer}
+                >
+                  🙏 Orar por {data.region}
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1">
                   Ver Detalhes
@@ -267,12 +282,12 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
       
       {/* Bottom Sheet Mobile */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 transition-transform duration-300 ${
-          isExpanded ? 'h-[90vh]' : 'h-[50vh]'
+        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 transition-transform duration-300 flex flex-col ${
+          isExpanded ? 'h-[90vh]' : 'h-[60vh]'
         }`}
       >
         {/* Handle para arrastar */}
-        <div className="w-full p-4 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="w-full p-4 cursor-pointer flex-shrink-0" onClick={() => setIsExpanded(!isExpanded)}>
           <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3"></div>
           
           {/* Header compacto */}
@@ -301,9 +316,9 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
           </div>
         </div>
 
-        {/* Conteúdo scrollável */}
-        <div className="px-4 pb-4 h-full overflow-y-auto">
-          <div className="space-y-4">
+        {/* Conteúdo scrollável - agora com flex-1 para ocupar espaço disponível */}
+        <div className="flex-1 overflow-y-auto px-4">
+          <div className="space-y-4 pb-4">
             {/* Sistema Geopolítico */}
             <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
               <div className="flex items-center gap-2 mb-3">
@@ -370,10 +385,10 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
                 {/* Alvos de Oração Principais */}
                 <div>
-                                     <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                     <Heart className="w-4 h-4 text-red-500" />
-                     Alvos de Oração Prioritários
-                   </h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
+                    <Heart className="w-4 h-4 text-red-500" />
+                    Alvos de Oração Prioritários
+                  </h4>
                   <div className="space-y-2">
                     {data.prayerTargets.slice(0, 3).map((target) => (
                       <div key={target.id} className="border rounded-lg p-3">
@@ -396,10 +411,10 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
                 {/* Atividade Recente */}
                 <div>
-                                     <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                     <Calendar className="w-4 h-4" />
-                     Atividade Recente
-                   </h4>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
+                    <Calendar className="w-4 h-4" />
+                    Atividade Recente
+                  </h4>
                   <div className="space-y-2">
                     {data.recentActivity.slice(0, 4).map((activity) => (
                       <div key={activity.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded">
@@ -426,16 +441,23 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 </div>
               </>
             )}
+          </div>
+        </div>
 
-            {/* Botões de Ação - sempre visíveis */}
-            <div className="flex gap-2 pt-2">
-              <Button size="default" className="flex-1">
-                Contribuir
-              </Button>
-              <Button size="default" variant="outline" className="flex-1">
-                Ver Detalhes
-              </Button>
-            </div>
+        {/* Botões de Ação - FIXOS na parte inferior, fora do scroll */}
+        <div className="flex-shrink-0 p-4 border-t bg-white">
+          <div className="flex gap-2">
+            <Button 
+              size="default" 
+              variant="default" 
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              onClick={handleStartPrayer}
+            >
+              🙏 Orar por {data.region}
+            </Button>
+            <Button size="default" variant="outline" className="flex-1">
+              Ver Detalhes
+            </Button>
           </div>
         </div>
       </div>

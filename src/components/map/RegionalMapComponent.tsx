@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { LocationData } from '@/types/Location';
 import { SpiritualPopup } from './SpiritualPopup';
 import { RegionalSidebar } from './RegionalSidebar';
+import { PrayerTimer } from '../PrayerTimer';
+import { PropheticWordModal } from '../PropheticWordModal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface RegionalMapComponentProps {
@@ -24,6 +26,14 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
   const [isMobile, setIsMobile] = useState(false);
   const [spiritualData, setSpiritualData] = useState<any>(null);
   const [loadingSpiritualData, setLoadingSpiritualData] = useState(false);
+
+  // Estados para o cronômetro de oração
+  const [showPrayerTimer, setShowPrayerTimer] = useState(false);
+  const [currentPrayerRegion, setCurrentPrayerRegion] = useState<string>('');
+
+  // Estados para palavra profética
+  const [showPropheticModal, setShowPropheticModal] = useState(false);
+  const [prayerDuration, setPrayerDuration] = useState(0);
 
 
   const getSpiritualData = async (regionName: string, regionType: string) => {
@@ -638,6 +648,39 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
     setShowSidebar(false);
   };
 
+  const handleStartPrayer = (regionName: string, regionData: any) => {
+    console.log(`🙏 Iniciando oração por ${regionName}`);
+    console.log('📊 Dados da região:', regionData);
+    
+    // Fechar popup e abrir cronômetro
+    setShowPopup(false);
+    setCurrentPrayerRegion(regionName);
+    setShowPrayerTimer(true);
+  };
+
+  const handleFinishPrayer = (duration: number) => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    
+    console.log(`✅ Oração finalizada! Região: ${currentPrayerRegion}, Duração: ${minutes}m ${seconds}s`);
+    
+    // Fechar cronômetro e abrir modal de palavra profética
+    setShowPrayerTimer(false);
+    setPrayerDuration(duration);
+    setShowPropheticModal(true);
+  };
+
+  const handleClosePrayerTimer = () => {
+    setShowPrayerTimer(false);
+    setCurrentPrayerRegion('');
+  };
+
+  const handleClosePropheticModal = () => {
+    setShowPropheticModal(false);
+    setCurrentPrayerRegion('');
+    setPrayerDuration(0);
+  };
+
   // Se Google Maps não carregou ainda, mostrar loading
   if (!isGoogleLoaded) {
     return (
@@ -712,6 +755,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
           onClose={handleClosePopup}
           position={popupPosition}
           data={spiritualData}
+          onStartPrayer={handleStartPrayer}
         />
       )}
 
@@ -731,6 +775,26 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
           isOpen={showSidebar}
           onClose={handleCloseSidebar}
           data={spiritualData}
+        />
+      )}
+
+      {/* Cronômetro de Oração */}
+      {showPrayerTimer && currentPrayerRegion && (
+        <PrayerTimer
+          regionName={currentPrayerRegion}
+          onFinishPrayer={handleFinishPrayer}
+          onClose={handleClosePrayerTimer}
+        />
+      )}
+
+      {/* Modal de Palavra Profética */}
+      {showPropheticModal && currentPrayerRegion && (
+        <PropheticWordModal
+          isOpen={showPropheticModal}
+          onClose={handleClosePropheticModal}
+          regionName={currentPrayerRegion}
+          prayerDuration={prayerDuration}
+          spiritualData={spiritualData}
         />
       )}
     </div>

@@ -21,9 +21,9 @@ import {
 } from 'lucide-react';
 import { useAdminData } from '@/hooks/useAdminData';
 import RegionsTab from '@/components/admin/RegionsTab';
-import AIQueueTab from '@/components/admin/AIQueueTab';
-import AITestComponent from '@/components/admin/AITestComponent';
-import { SimpleBatchProcessor } from '@/components/admin/SimpleBatchProcessor';
+import { PrayerStatsTab } from '@/components/admin/PrayerStatsTab';
+import { QueueBuilderTab } from '@/components/admin/QueueBuilderTab';
+import { WorldMappingTab } from '@/components/admin/WorldMappingTab';
 
 
 const AdminDashboard = () => {
@@ -96,12 +96,13 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="regions">🗺️ Mapeamento</TabsTrigger>
-            <TabsTrigger value="users">👥 Usuários</TabsTrigger>
-            <TabsTrigger value="ai-queue">🤖 Queue AI</TabsTrigger>
-            <TabsTrigger value="analytics">📊 Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="overview">📊 Visão Geral</TabsTrigger>
+            <TabsTrigger value="world-mapping">🌍 Mapeamento Mundial</TabsTrigger>
+            <TabsTrigger value="regions">🗺️ Mapeamento Global</TabsTrigger>
+            <TabsTrigger value="prayer-stats">🙏 Oração</TabsTrigger>
+            <TabsTrigger value="queue-builder">🤖 IA</TabsTrigger>
+            <TabsTrigger value="analytics">📈 Analytics</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -291,40 +292,24 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
+          {/* World Mapping Tab */}
+          <TabsContent value="world-mapping">
+            <WorldMappingTab />
+          </TabsContent>
+
           {/* Regions Tab */}
           <TabsContent value="regions">
             <RegionsTab />
           </TabsContent>
 
-          {/* Users Tab */}
-          <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gerenciamento de Usuários</CardTitle>
-                <CardDescription>Em desenvolvimento...</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Interface de gerenciamento de usuários será implementada aqui.</p>
-              </CardContent>
-            </Card>
+          {/* Prayer Stats Tab */}
+          <TabsContent value="prayer-stats">
+            <PrayerStatsTab />
           </TabsContent>
 
-          {/* AI Queue Tab */}
-          <TabsContent value="ai-queue" className="space-y-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">🌎 Processamento em Lote - América do Sul</h2>
-              <SimpleBatchProcessor />
-            </div>
-            
-            <div>
-              <h2 className="text-xl font-semibold mb-4">📋 Gerenciamento de Queue</h2>
-              <AIQueueTab />
-            </div>
-            
-            <div>
-              <h2 className="text-xl font-semibold mb-4">🧪 Teste de IA Individual</h2>
-              <AITestComponent />
-            </div>
+          {/* Queue Builder Tab */}
+          <TabsContent value="queue-builder">
+            <QueueBuilderTab />
           </TabsContent>
 
 

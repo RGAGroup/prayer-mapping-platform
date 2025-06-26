@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS spiritual_regions (
   spiritual_data JSONB,
   
   -- Metadados
-  source VARCHAR(50) DEFAULT 'ai_generated' CHECK (source IN ('ai_generated', 'manual', 'imported')),
+  data_source VARCHAR(50) DEFAULT 'ai_generated' CHECK (data_source IN ('ai_generated', 'manual', 'imported')),
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'needs_review')),
   confidence_score INTEGER DEFAULT 0 CHECK (confidence_score >= 0 AND confidence_score <= 100),
   
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS spiritual_activities (
   
   -- Auditoria
   created_by UUID REFERENCES auth.users(id),
-  source VARCHAR(50) DEFAULT 'user_input'
+  data_source VARCHAR(50) DEFAULT 'user_input'
 );
 
 -- 4. ÍNDICES PARA PERFORMANCE
@@ -108,8 +108,8 @@ CREATE INDEX IF NOT EXISTS idx_spiritual_regions_type ON spiritual_regions(regio
 CREATE INDEX IF NOT EXISTS idx_spiritual_regions_parent ON spiritual_regions(parent_id);
 CREATE INDEX IF NOT EXISTS idx_spiritual_regions_country ON spiritual_regions(country_code);
 CREATE INDEX IF NOT EXISTS idx_spiritual_regions_status ON spiritual_regions(status);
-CREATE INDEX IF NOT EXISTS idx_spiritual_regions_source ON spiritual_regions(source);
-CREATE INDEX IF NOT EXISTS idx_spiritual_regions_coordinates ON spiritual_regions(latitude, longitude);
+CREATE INDEX IF NOT EXISTS idx_spiritual_regions_source ON spiritual_regions(data_source);
+-- Índice de coordenadas será criado em migração separada
 
 CREATE INDEX IF NOT EXISTS idx_ai_queue_status ON ai_generation_queue(status);
 CREATE INDEX IF NOT EXISTS idx_ai_queue_priority ON ai_generation_queue(priority DESC);
@@ -192,7 +192,7 @@ CREATE POLICY "Authenticated users can create activities"
 
 -- 7. DADOS INICIAIS - PAÍSES DA AMÉRICA DO SUL
 -- =====================================================
-INSERT INTO spiritual_regions (name, region_type, country_code, latitude, longitude, source, status, confidence_score) VALUES
+INSERT INTO spiritual_regions (name, region_type, country_code, latitude, longitude, data_source, status, confidence_score) VALUES
 ('Brasil', 'country', 'BRA', -14.2350, -51.9253, 'manual', 'approved', 100),
 ('Argentina', 'country', 'ARG', -38.4161, -63.6167, 'manual', 'approved', 100),
 ('Chile', 'country', 'CHL', -35.6751, -71.5430, 'manual', 'approved', 100),
