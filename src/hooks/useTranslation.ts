@@ -1,60 +1,61 @@
 import { useEffect, useState } from 'react';
 import { useLanguage, SupportedLanguage } from '../contexts/LanguageContext';
 
+// Importações diretas dos arquivos de tradução
+import ptTranslations from '../locales/pt.json';
+import enTranslations from '../locales/en.json';
+import esTranslations from '../locales/es.json';
+import frTranslations from '../locales/fr.json';
+import deTranslations from '../locales/de.json';
+
 type TranslationData = Record<string, any>;
 
-// Cache das traduções carregadas
-const translationCache: Record<SupportedLanguage, TranslationData> = {} as any;
+// Mapeamento estático das traduções
+const translationsMap: Record<SupportedLanguage, TranslationData> = {
+  pt: ptTranslations,
+  en: enTranslations,
+  es: esTranslations,
+  fr: frTranslations,
+  de: deTranslations,
+  // Para idiomas ainda não implementados, usar português como fallback
+  zh: ptTranslations,
+  ar: ptTranslations,
+  ru: ptTranslations,
+  hi: ptTranslations,
+  ja: ptTranslations,
+};
 
 export const useTranslation = () => {
   const { currentLanguage, setLanguage, isRTL, languages, getLanguageInfo } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
-  const [translations, setTranslations] = useState<TranslationData>({});
-
-  // Função para carregar traduções
-  const loadTranslations = async (language: SupportedLanguage) => {
-    // Se já está no cache, usar
-    if (translationCache[language]) {
-      setTranslations(translationCache[language]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Importação dinâmica do arquivo JSON
-      const translationModule = await import(`../locales/${language}.json`);
-      const translationData = translationModule.default || translationModule;
-      
-      // Armazenar no cache
-      translationCache[language] = translationData;
-      setTranslations(translationData);
-    } catch (error) {
-      console.warn(`Failed to load translations for ${language}, falling back to Portuguese`, error);
-      
-      // Fallback para português se falhar
-      if (language !== 'pt') {
-        try {
-          const fallbackModule = await import(`../locales/pt.json`);
-          const fallbackData = fallbackModule.default || fallbackModule;
-          translationCache[language] = fallbackData;
-          setTranslations(fallbackData);
-        } catch (fallbackError) {
-          console.error('Failed to load fallback translations', fallbackError);
-          setTranslations({});
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [translations, setTranslations] = useState<TranslationData>(ptTranslations);
 
   // Carregar traduções quando o idioma mudar
   useEffect(() => {
-    loadTranslations(currentLanguage);
+    const loadTranslations = () => {
+      setIsLoading(true);
+      try {
+        const translationData = translationsMap[currentLanguage] || ptTranslations;
+        setTranslations(translationData);
+        console.log(`🌍 Translations loaded for ${currentLanguage}:`, Object.keys(translationData));
+      } catch (error) {
+        console.error('Failed to load translations:', error);
+        setTranslations(ptTranslations);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTranslations();
   }, [currentLanguage]);
 
   // Função de tradução melhorada
   const t = (key: string, params?: Record<string, string | number>): string => {
+    if (!key) {
+      console.warn('Translation key is empty');
+      return '';
+    }
+
     // Dividir a chave por pontos para navegar no objeto
     const keys = key.split('.');
     let value: any = translations;
@@ -64,15 +65,27 @@ export const useTranslation = () => {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        // Se não encontrar, retornar a chave original
-        console.warn(`Translation key not found: ${key}`);
-        return key;
+        // Se não encontrar, tentar no fallback português
+        const fallbackKeys = key.split('.');
+        let fallbackValue: any = ptTranslations;
+        
+        for (const fk of fallbackKeys) {
+          if (fallbackValue && typeof fallbackValue === 'object' && fk in fallbackValue) {
+            fallbackValue = fallbackValue[fk];
+          } else {
+            console.warn(`Translation key not found: ${key}`);
+            return key;
+          }
+        }
+        
+        value = fallbackValue;
+        break;
       }
     }
 
     // Se o valor final não for string, retornar a chave
     if (typeof value !== 'string') {
-      console.warn(`Translation value is not a string: ${key}`);
+      console.warn(`Translation value is not a string: ${key}`, value);
       return key;
     }
 
@@ -92,7 +105,7 @@ export const useTranslation = () => {
   // Função para mudar idioma
   const changeLanguage = async (language: SupportedLanguage) => {
     setLanguage(language);
-    await loadTranslations(language);
+    // A mudança será aplicada pelo useEffect
   };
 
   // Função para obter tradução com fallback

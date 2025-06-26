@@ -142,13 +142,13 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900">
                   <MapPin className="w-5 h-5 text-blue-500" />
-                  {data.region || 'Região não identificada'}
+                  {data.region || t('spiritualPopup.regionNotIdentified')}
                 </h2>
                 <p className="text-gray-700 capitalize font-medium">
-                  {data.type === 'continent' ? 'Continente' : 
-                   data.type === 'country' ? 'País' :
-                   data.type === 'state' ? 'Estado' :
-                   data.type === 'city' ? 'Cidade' : 'Bairro'}
+                  {data.type === 'continent' ? t('map.continent') : 
+                   data.type === 'country' ? t('map.country') :
+                   data.type === 'state' ? t('map.state') :
+                   data.type === 'city' ? t('map.city') : t('map.neighborhood')}
                 </p>
               </div>
               <Button variant="ghost" size="sm" onClick={onClose}>
@@ -162,11 +162,11 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
               <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
                 <div className="flex items-center gap-2 mb-3">
                   <Globe className="w-5 h-5 text-blue-600" />
-                  <span className="font-semibold text-blue-800">🏛️ Sistema Geopolítico</span>
+                  <span className="font-semibold text-blue-800">{t('spiritualPopup.geopoliticalSystem')}</span>
                 </div>
                 <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                   {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
-                   'Informações sobre o sistema geopolítico não disponíveis.'}
+                   t('spiritualPopup.geopoliticalInfoUnavailable')}
                 </div>
               </div>
 
@@ -174,7 +174,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
               <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
                 <div className="flex items-center gap-2 mb-3">
                   <Heart className="w-5 h-5 text-red-600" />
-                  <span className="font-semibold text-red-800">🔥 Alvos de Intercessão</span>
+                  <span className="font-semibold text-red-800">{t('spiritualPopup.intercessionTargets')}</span>
                 </div>
                 <div className="space-y-2">
                   {data.prayerTargets.map((target, index) => (
@@ -185,7 +185,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                   ))}
                   {data.prayerTargets.length === 0 && (
                     <div className="text-sm text-gray-500 italic">
-                      Nenhum alvo de intercessão definido ainda.
+                      {t('spiritualPopup.noTargetsDefined')}
                     </div>
                   )}
                 </div>
@@ -195,24 +195,24 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
                   <Users className="w-5 h-5" />
-                  📊 Estatísticas
+                  {t('spiritualPopup.statistics')}
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
-                    <div className="text-blue-600">Intercessores</div>
+                    <div className="text-blue-600">{t('spiritualPopup.intercessors')}</div>
                   </div>
                   <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                     <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
-                    <div className="text-green-600">Orações Ativas</div>
+                    <div className="text-green-600">{t('spiritualPopup.activePrayers')}</div>
                   </div>
                   <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
                     <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
-                    <div className="text-purple-600">Dados Atualizados</div>
+                    <div className="text-purple-600">{t('spiritualPopup.updatedData')}</div>
                   </div>
                   <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
                     <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
-                    <div className="text-orange-600">Alvos Definidos</div>
+                    <div className="text-orange-600">{t('spiritualPopup.definedTargets')}</div>
                   </div>
                 </div>
               </div>
@@ -258,10 +258,10 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                   onClick={handleStartPrayer}
                 >
-                  🙏 Orar por {data.region}
+                  {t('map.prayFor', { region: data.region })}
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1">
-                  Ver Detalhes
+                  {t('map.viewDetails')}
                 </Button>
               </div>
             </div>
@@ -295,12 +295,12 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5 text-blue-500" />
               <div>
-                <h3 className="font-bold text-lg text-gray-900">{data.region || 'Região não identificada'}</h3>
+                <h3 className="font-bold text-lg text-gray-900">{data.region || t('spiritualPopup.regionNotIdentified')}</h3>
                 <p className="text-gray-700 text-sm capitalize font-medium">
-                  {data.type === 'continent' ? 'Continente' : 
-                   data.type === 'country' ? 'País' :
-                   data.type === 'state' ? 'Estado' :
-                   data.type === 'city' ? 'Cidade' : 'Bairro'}
+                  {data.type === 'continent' ? t('map.continent') : 
+                   data.type === 'country' ? t('map.country') :
+                   data.type === 'state' ? t('map.state') :
+                   data.type === 'city' ? t('map.city') : t('map.neighborhood')}
                 </p>
               </div>
             </div>
@@ -323,11 +323,11 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
               <div className="flex items-center gap-2 mb-3">
                 <Globe className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-blue-800">🏛️ Sistema Geopolítico</span>
+                <span className="font-semibold text-blue-800">{t('spiritualPopup.geopoliticalSystem')}</span>
               </div>
               <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                 {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
-                 'Informações sobre o sistema geopolítico não disponíveis.'}
+                 t('spiritualPopup.geopoliticalInfoUnavailable')}
               </div>
             </div>
 
@@ -335,7 +335,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
               <div className="flex items-center gap-2 mb-3">
                 <Heart className="w-5 h-5 text-red-600" />
-                <span className="font-semibold text-red-800">🔥 Alvos de Intercessão</span>
+                <span className="font-semibold text-red-800">{t('spiritualPopup.intercessionTargets')}</span>
               </div>
               <div className="space-y-2">
                 {data.prayerTargets.map((target, index) => (
@@ -346,7 +346,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 ))}
                 {data.prayerTargets.length === 0 && (
                   <div className="text-sm text-gray-500 italic">
-                    Nenhum alvo de intercessão definido ainda.
+                    {t('spiritualPopup.noTargetsDefined')}
                   </div>
                 )}
               </div>
@@ -356,24 +356,24 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
                 <Users className="w-5 h-5" />
-                📊 Estatísticas
+                {t('spiritualPopup.statistics')}
               </h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
                   <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
-                  <div className="text-blue-600">Intercessores</div>
+                  <div className="text-blue-600">{t('spiritualPopup.intercessors')}</div>
                 </div>
                 <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                   <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
-                  <div className="text-green-600">Orações Ativas</div>
+                  <div className="text-green-600">{t('spiritualPopup.activePrayers')}</div>
                 </div>
                 <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
                   <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
-                  <div className="text-purple-600">Dados Atualizados</div>
+                  <div className="text-purple-600">{t('spiritualPopup.updatedData')}</div>
                 </div>
                 <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
                   <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
-                  <div className="text-orange-600">Alvos Definidos</div>
+                  <div className="text-orange-600">{t('spiritualPopup.definedTargets')}</div>
                 </div>
               </div>
             </div>
@@ -387,7 +387,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
                     <Heart className="w-4 h-4 text-red-500" />
-                    Alvos de Oração Prioritários
+                    {t('spiritualPopup.priorityPrayerTargets')}
                   </h4>
                   <div className="space-y-2">
                     {data.prayerTargets.slice(0, 3).map((target) => (
@@ -400,7 +400,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                         </div>
                         <p className="text-xs text-gray-600 mb-1">{target.description}</p>
                         <div className="text-xs text-blue-600">
-                          {target.intercessors} intercessores orando
+                          {target.intercessors} {t('spiritualPopup.intercessorsPraying')}
                         </div>
                       </div>
                     ))}
@@ -413,7 +413,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
                     <Calendar className="w-4 h-4" />
-                    Atividade Recente
+                    {t('spiritualPopup.recentActivity')}
                   </h4>
                   <div className="space-y-2">
                     {data.recentActivity.slice(0, 4).map((activity) => (
@@ -453,10 +453,10 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
               className="flex-1 bg-blue-600 hover:bg-blue-700"
               onClick={handleStartPrayer}
             >
-              🙏 Orar por {data.region}
+              {t('map.prayFor', { region: data.region })}
             </Button>
             <Button size="default" variant="outline" className="flex-1">
-              Ver Detalhes
+              {t('map.viewDetails')}
             </Button>
           </div>
         </div>
