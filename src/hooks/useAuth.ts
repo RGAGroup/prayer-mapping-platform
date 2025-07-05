@@ -201,9 +201,11 @@ export const useAuth = () => {
         if (error.message.includes('Invalid login credentials')) {
           errorMessage = 'Email ou senha incorretos. Verifique suas credenciais.';
         } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
+          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
         } else if (error.message.includes('Too many requests')) {
           errorMessage = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+        } else if (error.message.includes('signup requires email confirmation')) {
+          errorMessage = 'Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.';
         }
         
         return { data: null, error: { message: errorMessage } };
@@ -270,12 +272,19 @@ export const useAuth = () => {
             if (loginResult.data?.user && !loginResult.error) {
               console.log('✅ Login automático realizado com sucesso após erro de banco!');
               return { data: loginResult.data, error: null };
+            } else if (loginResult.error?.message.includes('Invalid login credentials')) {
+              // Usuário criado mas precisa confirmar email
+              errorMessage = 'Conta criada com sucesso! Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.';
             }
           } catch (loginError) {
             console.log('❌ Login automático falhou:', loginError);
           }
           
-          errorMessage = 'Conta pode ter sido criada. Tente fazer login ou aguarde alguns minutos e tente novamente.';
+          if (!errorMessage.includes('Conta criada com sucesso')) {
+            errorMessage = 'Conta pode ter sido criada. Tente fazer login ou aguarde alguns minutos e tente novamente.';
+          }
+        } else if (error.message.includes('signup requires email confirmation')) {
+          errorMessage = 'Conta criada com sucesso! Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.';
         }
         
         return { data: null, error: { message: errorMessage } };
