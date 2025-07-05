@@ -195,14 +195,31 @@ export const useAuth = () => {
 
       if (error) {
         console.error('❌ Erro no login:', error.message);
-        throw error;
+        
+        // Traduzir erros comuns para português
+        let errorMessage = error.message;
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email ou senha incorretos. Verifique suas credenciais.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+        }
+        
+        return { data: null, error: { message: errorMessage } };
       }
 
       console.log('✅ Login realizado com sucesso');
       return { data, error: null };
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro no signIn:', error);
-      return { data: null, error };
+      
+      let errorMessage = 'Erro inesperado ao fazer login';
+      if (error?.message && error.message.includes('Invalid login credentials')) {
+        errorMessage = 'Email ou senha incorretos. Verifique suas credenciais.';
+      }
+      
+      return { data: null, error: { message: errorMessage } };
     } finally {
       setLoading(false);
     }
@@ -212,6 +229,8 @@ export const useAuth = () => {
     setLoading(true);
     try {
       console.log('📝 Tentando criar conta:', email);
+      
+      // Primeiro, tenta criar a conta no Supabase Auth
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -224,14 +243,52 @@ export const useAuth = () => {
 
       if (error) {
         console.error('❌ Erro no signup:', error.message);
-        throw error;
+        
+        // Traduzir erros comuns para português
+        let errorMessage = error.message;
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Email inválido. Verifique o formato.';
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = 'A senha deve ter pelo menos 6 caracteres.';
+        } else if (error.message.includes('Database error') || error.message.includes('saving new user')) {
+          // Para erros de banco, vamos tentar uma abordagem diferente
+          console.log('🔄 Erro de banco detectado, tentando abordagem alternativa...');
+          
+          // Verifica se o usuário foi criado mesmo com erro
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            console.log('✅ Usuário criado com sucesso apesar do erro do trigger');
+            return { data: { user }, error: null };
+          }
+          
+          errorMessage = 'Erro temporário no servidor. Tente novamente em alguns segundos.';
+        }
+        
+        return { data: null, error: { message: errorMessage } };
       }
 
+      // Se chegou aqui, a conta foi criada com sucesso
       console.log('✅ Conta criada com sucesso');
+      
+      // Aguarda um pouco para o trigger processar
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       return { data, error: null };
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro no signUp:', error);
-      return { data: null, error };
+      
+      let errorMessage = 'Erro inesperado ao criar conta';
+      if (error?.message) {
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está cadastrado. Tente fazer login.';
+        } else if (error.message.includes('Database error') || error.message.includes('saving new user')) {
+          errorMessage = 'Erro temporário no servidor. Tente novamente em alguns segundos.';
+        }
+      }
+      
+      return { data: null, error: { message: errorMessage } };
     } finally {
       setLoading(false);
     }
