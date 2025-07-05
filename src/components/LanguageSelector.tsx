@@ -32,126 +32,166 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     console.log(`🌍 ${t('languages.languageChanged', { language: getLanguageInfo(language).nativeName })}`);
   };
 
-  // Variante apenas ícone
+  // Variante apenas ícone - iOS Style
   if (variant === 'icon-only') {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className={`p-2 ${className}`}>
-            <Globe className="w-4 h-4" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`w-10 h-10 rounded-ios-md bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95 ${className}`}
+          >
+            <Globe className="w-5 h-5 text-ios-gray dark:text-ios-dark-text2" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <div className="px-2 py-1.5 text-sm font-semibold text-gray-700 border-b">
-            {t('languages.selectLanguage')}
+        <DropdownMenuContent 
+          align="end" 
+          className="w-64 bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-xl"
+        >
+          <div className="px-4 py-3 border-b border-ios-gray5/20 dark:border-ios-dark-bg4/20">
+            <div className="font-semibold text-gray-900 dark:text-ios-dark-text">
+              {t('languages.selectLanguage')}
+            </div>
           </div>
           {languages.map((lang) => (
             <DropdownMenuItem
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
-              className="flex items-center justify-between cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{lang.flag}</span>
-                <div>
-                  <div className="font-medium">{lang.nativeName}</div>
-                  <div className="text-xs text-gray-500">{lang.name}</div>
-                </div>
-              </div>
-              {currentLanguage === lang.code && (
-                <Check className="w-4 h-4 text-blue-600" />
-              )}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
-
-  // Variante compacta
-  if (variant === 'compact') {
-    return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={`gap-2 ${className}`}>
-            <span className="text-lg">{currentLangInfo.flag}</span>
-            <span className="hidden sm:inline">{currentLangInfo.code.toUpperCase()}</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <div className="px-2 py-1.5 text-sm font-semibold text-gray-700 border-b">
-            {t('languages.selectLanguage')}
-          </div>
-          {languages.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className="flex items-center justify-between cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{lang.flag}</span>
-                <div>
-                  <div className="font-medium">{lang.nativeName}</div>
-                  <div className="text-xs text-gray-500">{lang.name}</div>
-                </div>
-              </div>
-              {currentLanguage === lang.code && (
-                <Check className="w-4 h-4 text-blue-600" />
-              )}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
-
-  // Variante padrão (completa)
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={`gap-2 ${className}`}>
-          <Globe className="w-4 h-4" />
-          <span className="text-lg">{currentLangInfo.flag}</span>
-          {showLabel && (
-            <>
-              <span className="hidden sm:inline">{currentLangInfo.nativeName}</span>
-              <span className="sm:hidden">{currentLangInfo.code.toUpperCase()}</span>
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <div className="px-3 py-2 border-b">
-          <div className="font-semibold text-gray-800">{t('languages.selectLanguage')}</div>
-          <div className="text-xs text-gray-500">
-            {t('languages.currentLanguage')}: {currentLangInfo.nativeName}
-          </div>
-        </div>
-        <div className="max-h-64 overflow-y-auto">
-          {languages.map((lang) => (
-            <DropdownMenuItem
-              key={lang.code}
-              onClick={() => handleLanguageChange(lang.code)}
-              className="flex items-center justify-between cursor-pointer p-3 hover:bg-blue-50"
+              className="flex items-center justify-between cursor-pointer p-4 hover:bg-ios-gray6/50 dark:hover:bg-ios-dark-bg3/50 transition-colors duration-200 rounded-ios-md mx-2 my-1"
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl">{lang.flag}</span>
                 <div>
-                  <div className="font-medium text-gray-800">{lang.nativeName}</div>
-                  <div className="text-sm text-gray-500">{lang.name}</div>
+                  <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lang.nativeName}</div>
+                  <div className="text-xs text-ios-gray dark:text-ios-dark-text3">{lang.name}</div>
                 </div>
               </div>
               {currentLanguage === lang.code && (
-                <div className="flex items-center gap-1 text-blue-600">
-                  <Check className="w-4 h-4" />
-                  <span className="text-xs font-medium">Atual</span>
+                <div className="w-6 h-6 rounded-full bg-ios-blue flex items-center justify-center">
+                  <Check className="w-4 h-4 text-white" />
+                </div>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  // Variante compacta - iOS Style
+  if (variant === 'compact') {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost"
+            size="sm" 
+            className={`gap-2 bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 ${className}`}
+          >
+            <span className="text-lg">{currentLangInfo.flag}</span>
+            <span className="hidden sm:inline font-medium text-gray-900 dark:text-ios-dark-text">
+              {currentLangInfo.code.toUpperCase()}
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent 
+          align="end" 
+          className="w-64 bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-xl"
+        >
+          <div className="px-4 py-3 border-b border-ios-gray5/20 dark:border-ios-dark-bg4/20">
+            <div className="font-semibold text-gray-900 dark:text-ios-dark-text">
+              {t('languages.selectLanguage')}
+            </div>
+          </div>
+          {languages.map((lang) => (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              className="flex items-center justify-between cursor-pointer p-4 hover:bg-ios-gray6/50 dark:hover:bg-ios-dark-bg3/50 transition-colors duration-200 rounded-ios-md mx-2 my-1"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{lang.flag}</span>
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lang.nativeName}</div>
+                  <div className="text-xs text-ios-gray dark:text-ios-dark-text3">{lang.name}</div>
+                </div>
+              </div>
+              {currentLanguage === lang.code && (
+                <div className="w-6 h-6 rounded-full bg-ios-blue flex items-center justify-center">
+                  <Check className="w-4 h-4 text-white" />
+                </div>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  // Variante padrão (completa) - iOS Style
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost"
+          className={`gap-3 bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 px-4 py-2 ${className}`}
+        >
+          <div className="w-6 h-6 rounded-ios-sm bg-ios-blue/10 flex items-center justify-center">
+            <Globe className="w-4 h-4 text-ios-blue" />
+          </div>
+          <span className="text-xl">{currentLangInfo.flag}</span>
+          {showLabel && (
+            <>
+              <span className="hidden sm:inline font-medium text-gray-900 dark:text-ios-dark-text">
+                {currentLangInfo.nativeName}
+              </span>
+              <span className="sm:hidden font-medium text-gray-900 dark:text-ios-dark-text">
+                {currentLangInfo.code.toUpperCase()}
+              </span>
+            </>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent 
+        align="end" 
+        className="w-72 bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-xl"
+      >
+        <div className="px-4 py-4 border-b border-ios-gray5/20 dark:border-ios-dark-bg4/20">
+          <div className="font-bold text-gray-900 dark:text-ios-dark-text text-lg">
+            {t('languages.selectLanguage')}
+          </div>
+          <div className="text-sm text-ios-gray dark:text-ios-dark-text3 mt-1">
+            {t('languages.currentLanguage')}: {currentLangInfo.nativeName}
+          </div>
+        </div>
+        <div className="max-h-64 overflow-y-auto p-2">
+          {languages.map((lang) => (
+            <DropdownMenuItem
+              key={lang.code}
+              onClick={() => handleLanguageChange(lang.code)}
+              className="flex items-center justify-between cursor-pointer p-4 hover:bg-ios-gray6/50 dark:hover:bg-ios-dark-bg3/50 transition-colors duration-200 rounded-ios-lg mx-1 my-1"
+            >
+              <div className="flex items-center gap-4">
+                <span className="text-2xl">{lang.flag}</span>
+                <div>
+                  <div className="font-semibold text-gray-900 dark:text-ios-dark-text">{lang.nativeName}</div>
+                  <div className="text-sm text-ios-gray dark:text-ios-dark-text3">{lang.name}</div>
+                </div>
+              </div>
+              {currentLanguage === lang.code && (
+                <div className="flex items-center gap-2 bg-ios-blue/10 px-3 py-1 rounded-ios-md">
+                  <div className="w-5 h-5 rounded-full bg-ios-blue flex items-center justify-center">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="text-xs font-semibold text-ios-blue">Atual</span>
                 </div>
               )}
             </DropdownMenuItem>
           ))}
         </div>
-        <div className="px-3 py-2 border-t bg-gray-50">
-          <div className="text-xs text-gray-500 text-center">
+        <div className="px-4 py-3 border-t border-ios-gray5/20 dark:border-ios-dark-bg4/20 bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 rounded-b-ios-xl">
+          <div className="text-xs text-ios-gray dark:text-ios-dark-text3 text-center font-medium">
             🌍 Sistema de Oração Global
           </div>
         </div>

@@ -97,28 +97,33 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
   const aggregatedData = hierarchicalData?.aggregatedData;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-40 w-full max-w-lg bg-card/95 backdrop-blur-md border-l border-border/50 shadow-2xl overflow-y-auto">
+    <div className="fixed inset-y-0 right-0 z-40 w-full max-w-lg bg-white/95 dark:bg-ios-dark-bg/95 backdrop-blur-ios-heavy border-l border-ios-gray5/20 dark:border-ios-dark-bg4/20 shadow-ios-2xl overflow-y-auto">
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
-          <div className="flex items-start space-x-3">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-celestial-500 to-divine-500 divine-glow">
-              <LocationIcon className="h-5 w-5 text-white" />
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 rounded-ios-lg bg-gradient-to-r from-ios-blue to-ios-purple flex items-center justify-center shadow-ios-sm">
+              <LocationIcon className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
-                <h2 className="text-xl font-bold celestial-text">{location.name}</h2>
-                <Badge variant="outline" className="text-xs">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-ios-dark-text">{location.name}</h2>
+                <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm font-medium text-xs">
                   {getLocationTypeLabel(location.type)}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-ios-gray dark:text-ios-dark-text3">
                 {aggregatedData?.totalIntercessors || location.intercessorCount} intercessores ativos
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose}
+            className="w-8 h-8 rounded-ios-sm bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
+          >
+            <X className="h-4 w-4 text-ios-gray dark:text-ios-dark-text2" />
           </Button>
         </div>
 
@@ -126,19 +131,22 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {hierarchy.length > 1 && (
           <Collapsible open={isHierarchyOpen} onOpenChange={setIsHierarchyOpen} className="mb-6">
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between text-sm text-muted-foreground">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between text-sm bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 hover:bg-ios-gray6/50 dark:hover:bg-ios-dark-bg3/50 rounded-ios-lg transition-all duration-200 text-ios-gray dark:text-ios-dark-text2"
+              >
                 <span>📍 Hierarquia Geográfica</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-2 mt-2">
+            <CollapsibleContent className="space-y-2 mt-3">
               {hierarchy.map((loc, index) => {
                 const Icon = getLocationIcon(loc.type);
                 return (
                   <div key={loc.id} className="flex items-center space-x-2 text-sm">
-                    <div className="flex items-center space-x-1" style={{ marginLeft: `${index * 12}px` }}>
-                      <Icon className="h-3 w-3 text-muted-foreground" />
-                      <span className={loc.id === location.id ? 'font-semibold text-foreground' : 'text-muted-foreground'}>
+                    <div className="flex items-center space-x-2" style={{ marginLeft: `${index * 12}px` }}>
+                      <Icon className="h-3 w-3 text-ios-gray dark:text-ios-dark-text3" />
+                      <span className={loc.id === location.id ? 'font-semibold text-gray-900 dark:text-ios-dark-text' : 'text-ios-gray dark:text-ios-dark-text3'}>
                         {loc.name}
                       </span>
                     </div>
@@ -152,25 +160,31 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {/* Estatísticas Agregadas */}
         {aggregatedData && (
           <div className="grid grid-cols-3 gap-3 mb-6">
-            <Card className="prayer-card">
-              <CardContent className="p-3 text-center">
-                <Heart className="h-4 w-4 text-divine-400 mx-auto mb-1" />
-                <p className="text-sm font-medium">{aggregatedData.totalPropheticWords}</p>
-                <p className="text-xs text-muted-foreground">Palavras</p>
+            <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+              <CardContent className="p-4 text-center">
+                <div className="w-8 h-8 rounded-ios-sm bg-ios-red/10 flex items-center justify-center mx-auto mb-2">
+                  <Heart className="h-4 w-4 text-ios-red" />
+                </div>
+                <p className="text-lg font-bold text-gray-900 dark:text-ios-dark-text">{aggregatedData.totalPropheticWords}</p>
+                <p className="text-xs text-ios-gray dark:text-ios-dark-text3">Palavras</p>
               </CardContent>
             </Card>
-            <Card className="prayer-card">
-              <CardContent className="p-3 text-center">
-                <Sword className="h-4 w-4 text-celestial-400 mx-auto mb-1" />
-                <p className="text-sm font-medium">{aggregatedData.totalPrayerTargets}</p>
-                <p className="text-xs text-muted-foreground">Alvos</p>
+            <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+              <CardContent className="p-4 text-center">
+                <div className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 flex items-center justify-center mx-auto mb-2">
+                  <Sword className="h-4 w-4 text-ios-blue" />
+                </div>
+                <p className="text-lg font-bold text-gray-900 dark:text-ios-dark-text">{aggregatedData.totalPrayerTargets}</p>
+                <p className="text-xs text-ios-gray dark:text-ios-dark-text3">Alvos</p>
               </CardContent>
             </Card>
-            <Card className="prayer-card">
-              <CardContent className="p-3 text-center">
-                <AlertTriangle className="h-4 w-4 text-yellow-500 mx-auto mb-1" />
-                <p className="text-sm font-medium">{aggregatedData.totalAlerts}</p>
-                <p className="text-xs text-muted-foreground">Alertas</p>
+            <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+              <CardContent className="p-4 text-center">
+                <div className="w-8 h-8 rounded-ios-sm bg-ios-orange/10 flex items-center justify-center mx-auto mb-2">
+                  <AlertTriangle className="h-4 w-4 text-ios-orange" />
+                </div>
+                <p className="text-lg font-bold text-gray-900 dark:text-ios-dark-text">{aggregatedData.totalAlerts}</p>
+                <p className="text-xs text-ios-gray dark:text-ios-dark-text3">Alertas</p>
               </CardContent>
             </Card>
           </div>
@@ -179,23 +193,25 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {/* Alertas Críticos */}
         {(aggregatedData?.criticalAlerts.length > 0 || location.spiritualAlerts.some(alert => alert.severity === 'danger')) && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center">
-              <AlertTriangle className="h-4 w-4 text-red-500 mr-2" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3 flex items-center">
+              <div className="w-6 h-6 rounded-ios-sm bg-ios-red/10 flex items-center justify-center mr-2">
+                <AlertTriangle className="h-4 w-4 text-ios-red" />
+              </div>
               Alertas Espirituais Críticos
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {location.spiritualAlerts
                 .filter(alert => alert.severity === 'danger')
                 .slice(0, 2)
                 .map((alert) => (
-                  <Card key={alert.id} className={`border ${getAlertColor(alert.severity)}`}>
-                    <CardContent className="p-3">
+                  <Card key={alert.id} className="bg-ios-red/5 border-ios-red/20 rounded-ios-lg shadow-ios-sm">
+                    <CardContent className="p-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-sm font-medium text-foreground">{alert.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{alert.description}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{alert.title}</p>
+                          <p className="text-xs text-ios-gray dark:text-ios-dark-text3 mt-1">{alert.description}</p>
                         </div>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge className="bg-ios-red/10 text-ios-red border-ios-red/20 rounded-ios-sm font-medium text-xs">
                           {alert.type}
                         </Badge>
                       </div>
@@ -209,18 +225,20 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {/* Centros de Avivamento */}
         {aggregatedData?.revivalCenters.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center">
-              <Crown className="h-4 w-4 text-green-500 mr-2" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3 flex items-center">
+              <div className="w-6 h-6 rounded-ios-sm bg-ios-green/10 flex items-center justify-center mr-2">
+                <Crown className="h-4 w-4 text-ios-green" />
+              </div>
               Centros de Avivamento Ativo
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {aggregatedData.revivalCenters.slice(0, 3).map((center) => (
-                <Card key={center.id} className="border border-green-500/30 bg-green-500/10">
-                  <CardContent className="p-3">
+                <Card key={center.id} className="bg-ios-green/5 border-ios-green/20 rounded-ios-lg shadow-ios-sm">
+                  <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-foreground">{center.name}</p>
-                        <p className="text-xs text-green-600">{center.intercessorCount} intercessores ativos</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{center.name}</p>
+                        <p className="text-xs text-ios-green">{center.intercessorCount} intercessores ativos</p>
                       </div>
                       <span className="text-lg">🔥</span>
                     </div>
@@ -234,18 +252,20 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {/* Palavra Profética em Destaque */}
         {location.propheticWords.length > 0 && (
           <div className="mb-6">
-            <Card className="border border-yellow-500/30 bg-yellow-500/5">
+            <Card className="bg-ios-yellow/5 border-ios-yellow/20 rounded-ios-lg shadow-ios-sm">
               <CardContent className="p-4">
-                <div className="flex items-center mb-2">
-                  <Crown className="h-4 w-4 text-yellow-500 mr-2" />
-                  <span className="text-sm font-semibold text-foreground">Palavra Profética para {location.name}</span>
+                <div className="flex items-center mb-3">
+                  <div className="w-6 h-6 rounded-ios-sm bg-ios-yellow/10 flex items-center justify-center mr-2">
+                    <Crown className="h-4 w-4 text-ios-yellow" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-ios-dark-text">Palavra Profética para {location.name}</span>
                 </div>
-                <p className="text-sm text-foreground mb-2 font-serif italic">
+                <p className="text-sm text-gray-900 dark:text-ios-dark-text mb-3 font-serif italic">
                   "{location.propheticWords[0].content}"
                 </p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">— {location.propheticWords[0].author}</p>
-                  <Badge variant={location.propheticWords[0].isVerified ? "default" : "secondary"} className="text-xs">
+                  <p className="text-xs text-ios-gray dark:text-ios-dark-text3">— {location.propheticWords[0].author}</p>
+                  <Badge className={`${location.propheticWords[0].isVerified ? "bg-ios-green/10 text-ios-green border-ios-green/20" : "bg-ios-orange/10 text-ios-orange border-ios-orange/20"} rounded-ios-sm font-medium text-xs`}>
                     {location.propheticWords[0].isVerified ? "Verificada" : "Em análise"}
                   </Badge>
                 </div>

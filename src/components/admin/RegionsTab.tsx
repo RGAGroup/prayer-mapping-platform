@@ -170,11 +170,11 @@ const ArrayEditor = memo(({
   const memoizedItems = useMemo(() => items, [items]);
   
   return (
-    <Card>
+    <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-gray-900 dark:text-ios-dark-text">
           {icon} {title} ({memoizedItems.length})
-          <Button onClick={onAdd} size="sm">
+          <Button onClick={onAdd} size="sm" className="bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border-ios-blue/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95">
             <Plus className="w-4 h-4 mr-2" />
             Adicionar
           </Button>
@@ -187,11 +187,13 @@ const ArrayEditor = memo(({
               defaultValue={item}
               onSave={(value) => onUpdate(index, value)}
               placeholder={placeholder}
+              className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
             />
             <Button 
               variant="destructive" 
               size="sm"
               onClick={() => onRemove(index)}
+              className="bg-ios-red/10 hover:bg-ios-red/20 text-ios-red border-ios-red/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -274,50 +276,99 @@ const RegionsTab = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { color: 'bg-gray-100 text-gray-800', label: 'Rascunho' },
-      pending: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendente' },
-      approved: { color: 'bg-green-100 text-green-800', label: 'Aprovado' },
-      rejected: { color: 'bg-red-100 text-red-800', label: 'Rejeitado' }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig];
-    return (
-      <Badge className={config.color}>
-        {config.label}
-      </Badge>
-    );
+    switch (status) {
+      case 'approved':
+        return (
+          <Badge className="bg-ios-green/10 text-ios-green border-ios-green/20 rounded-ios-sm font-medium">
+            <Check className="w-3 h-3 mr-1" />
+            Aprovado
+          </Badge>
+        );
+      case 'pending':
+        return (
+          <Badge className="bg-ios-orange/10 text-ios-orange border-ios-orange/20 rounded-ios-sm font-medium">
+            <Clock className="w-3 h-3 mr-1" />
+            Pendente
+          </Badge>
+        );
+      case 'rejected':
+        return (
+          <Badge className="bg-ios-red/10 text-ios-red border-ios-red/20 rounded-ios-sm font-medium">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Rejeitado
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-ios-gray5/10 text-ios-gray border-ios-gray5/20 rounded-ios-sm font-medium">
+            {status}
+          </Badge>
+        );
+    }
   };
 
   const getTypeBadge = (type: string) => {
-    const typeConfig = {
-      country: { color: 'bg-blue-100 text-blue-800', label: 'País' },
-      state: { color: 'bg-purple-100 text-purple-800', label: 'Estado' },
-      city: { color: 'bg-orange-100 text-orange-800', label: 'Cidade' },
-      neighborhood: { color: 'bg-pink-100 text-pink-800', label: 'Bairro' }
-    };
-    
-    const config = typeConfig[type as keyof typeof typeConfig];
-    return (
-      <Badge variant="outline" className={config.color}>
-        {config.label}
-      </Badge>
-    );
+    switch (type) {
+      case 'country':
+        return (
+          <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm font-medium">
+            <Globe className="w-3 h-3 mr-1" />
+            País
+          </Badge>
+        );
+      case 'state':
+        return (
+          <Badge className="bg-ios-purple/10 text-ios-purple border-ios-purple/20 rounded-ios-sm font-medium">
+            <MapPin className="w-3 h-3 mr-1" />
+            Estado
+          </Badge>
+        );
+      case 'city':
+        return (
+          <Badge className="bg-ios-indigo/10 text-ios-indigo border-ios-indigo/20 rounded-ios-sm font-medium">
+            <MapPin className="w-3 h-3 mr-1" />
+            Cidade
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-ios-gray5/10 text-ios-gray border-ios-gray5/20 rounded-ios-sm font-medium">
+            {type}
+          </Badge>
+        );
+    }
   };
 
   const getSourceBadge = (source: string) => {
-    const sourceConfig = {
-      manual: { color: 'bg-green-50 text-green-700', label: 'Manual' },
-      ai_generated: { color: 'bg-blue-50 text-blue-700', label: 'IA' },
-      imported: { color: 'bg-orange-50 text-orange-700', label: 'Importado' }
-    };
-    
-    const config = sourceConfig[source as keyof typeof sourceConfig];
-    return (
-      <Badge variant="secondary" className={config.color}>
-        {config.label}
-      </Badge>
-    );
+    switch (source) {
+      case 'ai_generated':
+        return (
+          <Badge className="bg-ios-teal/10 text-ios-teal border-ios-teal/20 rounded-ios-sm font-medium">
+            <Zap className="w-3 h-3 mr-1" />
+            IA
+          </Badge>
+        );
+      case 'manual':
+        return (
+          <Badge className="bg-ios-yellow/10 text-ios-yellow border-ios-yellow/20 rounded-ios-sm font-medium">
+            <Database className="w-3 h-3 mr-1" />
+            Manual
+          </Badge>
+        );
+      case 'imported':
+        return (
+          <Badge className="bg-ios-pink/10 text-ios-pink border-ios-pink/20 rounded-ios-sm font-medium">
+            <Database className="w-3 h-3 mr-1" />
+            Importado
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-ios-gray5/10 text-ios-gray border-ios-gray5/20 rounded-ios-sm font-medium">
+            {source}
+          </Badge>
+        );
+    }
   };
 
   const filteredRegions = regions.filter(region => {
@@ -360,30 +411,30 @@ const RegionsTab = () => {
     }, []);
 
     return (
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
             <span className="text-lg">🗺️</span>
             Google Maps Status
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">API:</span>
-            <Badge variant={status.loaded ? "secondary" : "destructive"}>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">API:</span>
+            <Badge variant={status.loaded ? "secondary" : "destructive"} className="rounded-ios-sm">
               {status.loaded ? '✅ Carregado' : '⏳ Carregando'}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Geocoder:</span>
-            <Badge variant={status.geocoderReady ? "secondary" : "destructive"}>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Geocoder:</span>
+            <Badge variant={status.geocoderReady ? "secondary" : "destructive"} className="rounded-ios-sm">
               {status.geocoderReady ? '✅ Pronto' : '⏳ Aguardando'}
             </Badge>
           </div>
-          <Separator className="my-2" />
+          <Separator className="my-2 bg-ios-gray5/20 dark:bg-ios-dark-bg4/20" />
           <div className="flex justify-between items-center font-medium">
-            <span className="text-sm">Status:</span>
-            <Badge variant={isGoogleMapsReady ? "default" : "destructive"}>
+            <span className="text-sm text-gray-900 dark:text-ios-dark-text">Status:</span>
+            <Badge variant={isGoogleMapsReady ? "default" : "destructive"} className="rounded-ios-sm">
               {isGoogleMapsReady ? '🎉 Operacional' : '⚠️ Aguardando'}
             </Badge>
           </div>
@@ -394,36 +445,36 @@ const RegionsTab = () => {
 
   // Existing Data Card
   const ExistingDataCard = () => (
-    <Card>
+    <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
+        <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
           <Database className="w-4 h-4" />
           Dados Existentes
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🇧🇷 Países:</span>
-          <Badge variant={existingData.countries > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🇧🇷 Países:</span>
+          <Badge variant={existingData.countries > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.countries}
           </Badge>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🏛️ Estados:</span>
-          <Badge variant={existingData.states > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏛️ Estados:</span>
+          <Badge variant={existingData.states > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.states}
           </Badge>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🏙️ Cidades:</span>
-          <Badge variant={existingData.cities > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏙️ Cidades:</span>
+          <Badge variant={existingData.cities > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.cities}
           </Badge>
         </div>
-        <Separator className="my-2" />
+        <Separator className="my-2 bg-ios-gray5/20 dark:bg-ios-dark-bg4/20" />
         <div className="flex justify-between items-center font-medium">
-          <span className="text-sm">📊 Total:</span>
-          <Badge variant={existingData.total > 0 ? "default" : "outline"}>
+          <span className="text-sm text-gray-900 dark:text-ios-dark-text">📊 Total:</span>
+          <Badge variant={existingData.total > 0 ? "default" : "outline"} className="rounded-ios-sm">
             {existingData.total}
           </Badge>
         </div>
@@ -804,9 +855,9 @@ const RegionsTab = () => {
 
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-2xl shadow-ios-2xl">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-ios-dark-text">
               🌍 Dados Espirituais: {regionData.region.name}
             </DialogTitle>
           </DialogHeader>
@@ -815,7 +866,7 @@ const RegionsTab = () => {
             
             {/* Sistema Geopolítico */}
             <div>
-              <label className="text-lg font-semibold mb-3 block">🏛️ Sistema Geopolítico</label>
+              <label className="text-lg font-semibold mb-3 block text-gray-900 dark:text-ios-dark-text">🏛️ Sistema Geopolítico</label>
               <StaticTextarea
                 defaultValue={regionData.spiritual.sistema_geopolitico_completo || ''}
                 onSave={(value) => updateField('sistema_geopolitico_completo', value)}
@@ -835,14 +886,14 @@ Parlamento, Residência do Presidente, Escritórios governamentais
 Filosofia dominante:
 Descreva a filosofia política e espiritual dominante...`}
                 rows={12}
-                className="text-sm"
+                className="text-sm bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg text-gray-900 dark:text-ios-dark-text"
                 data-field="sistema_geopolitico_completo"
               />
             </div>
 
             {/* Alvos de Intercessão */}
             <div>
-              <label className="text-lg font-semibold mb-3 block">🔥 Alvos de Intercessão</label>
+              <label className="text-lg font-semibold mb-3 block text-gray-900 dark:text-ios-dark-text">🔥 Alvos de Intercessão</label>
               <StaticTextarea
                 defaultValue={regionData.spiritual.alvos_intercessao_completo || ''}
                 onSave={(value) => updateField('alvos_intercessao_completo', value)}
@@ -864,17 +915,25 @@ Cobertura espiritual sobre missionários em campo
 
 Que o Reino de Deus avance em meio à perseguição`}
                 rows={12}
-                className="text-sm"
+                className="text-sm bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg text-gray-900 dark:text-ios-dark-text"
                 data-field="alvos_intercessao_completo"
               />
             </div>
 
             {/* Botões */}
             <div className="flex justify-end gap-4 pt-4">
-              <Button variant="outline" onClick={handleClose}>
+              <Button 
+                variant="outline" 
+                onClick={handleClose}
+                className="bg-ios-gray6/20 hover:bg-ios-gray6/40 text-gray-900 dark:text-ios-dark-text border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button 
+                onClick={handleSave} 
+                disabled={saving}
+                className="bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              >
                 {saving ? 'Salvando...' : 'Salvar'}
               </Button>
             </div>
@@ -928,9 +987,9 @@ Que o Reino de Deus avance em meio à perseguição`}
         if (data.sistema_geopolitico_completo) {
           sections.push(
             <div key="geo" className="mb-4">
-              <h4 className="font-bold text-blue-600 mb-2">🏛️ Sistema Geopolítico:</h4>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm">{data.sistema_geopolitico_completo}</pre>
+              <h4 className="font-bold text-ios-blue mb-2">🏛️ Sistema Geopolítico:</h4>
+              <div className="bg-ios-blue/10 border border-ios-blue/20 p-3 rounded-ios-lg backdrop-blur-ios">
+                <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.sistema_geopolitico_completo}</pre>
               </div>
             </div>
           );
@@ -940,9 +999,9 @@ Que o Reino de Deus avance em meio à perseguição`}
         if (data.alvos_intercessao_completo) {
           sections.push(
             <div key="alvos" className="mb-4">
-              <h4 className="font-bold text-red-600 mb-2">🔥 Alvos de Intercessão:</h4>
-              <div className="bg-red-50 p-3 rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm">{data.alvos_intercessao_completo}</pre>
+              <h4 className="font-bold text-ios-red mb-2">🔥 Alvos de Intercessão:</h4>
+              <div className="bg-ios-red/10 border border-ios-red/20 p-3 rounded-ios-lg backdrop-blur-ios">
+                <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.alvos_intercessao_completo}</pre>
               </div>
             </div>
           );
@@ -952,9 +1011,9 @@ Que o Reino de Deus avance em meio à perseguição`}
         if (data.outras_informacoes_importantes) {
           sections.push(
             <div key="outras" className="mb-4">
-              <h4 className="font-bold text-purple-600 mb-2">📋 Outras Informações Importantes:</h4>
-              <div className="bg-purple-50 p-3 rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm">{data.outras_informacoes_importantes}</pre>
+              <h4 className="font-bold text-ios-purple mb-2">📋 Outras Informações Importantes:</h4>
+              <div className="bg-ios-purple/10 border border-ios-purple/20 p-3 rounded-ios-lg backdrop-blur-ios">
+                <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.outras_informacoes_importantes}</pre>
               </div>
             </div>
           );
@@ -964,9 +1023,9 @@ Que o Reino de Deus avance em meio à perseguição`}
         if (sections.length === 0) {
           sections.push(
             <div key="raw" className="mb-4">
-              <h4 className="font-bold text-gray-600 mb-2">📊 Dados Espirituais:</h4>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(data, null, 2)}</pre>
+              <h4 className="font-bold text-ios-gray mb-2">📊 Dados Espirituais:</h4>
+              <div className="bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 border border-ios-gray5/20 dark:border-ios-dark-bg4/20 p-3 rounded-ios-lg backdrop-blur-ios">
+                <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{JSON.stringify(data, null, 2)}</pre>
               </div>
             </div>
           );
@@ -984,11 +1043,11 @@ Que o Reino de Deus avance em meio à perseguição`}
       // Destaca linhas que terminam com ':' como títulos
       const lines = text.split(/\r?\n/);
       return (
-        <pre className="whitespace-pre-wrap text-sm leading-relaxed" style={{background: 'none', padding: 0, margin: 0}}>
+        <pre className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900 dark:text-ios-dark-text" style={{background: 'none', padding: 0, margin: 0}}>
           {lines.map((line, idx) => {
             if (/^\s*[^:]+:\s*$/.test(line)) {
               // Título
-              return <span key={idx} style={{fontWeight: 'bold', color: '#2563eb'}}>{line}\n</span>;
+              return <span key={idx} style={{fontWeight: 'bold', color: '#007AFF'}}>{line}\n</span>;
             }
             return <span key={idx}>{line}\n</span>;
           })}
@@ -1000,12 +1059,12 @@ Que o Reino de Deus avance em meio à perseguição`}
 
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-2xl shadow-ios-2xl">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-ios-dark-text">
               👁️ Visualizar: {viewData.region.name}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-ios-gray dark:text-ios-dark-text3">
               Dados espirituais salvos para esta região
             </DialogDescription>
           </DialogHeader>
@@ -1016,11 +1075,11 @@ Que o Reino de Deus avance em meio à perseguição`}
                 {formatSpiritualData(spiritual)}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-ios-gray dark:text-ios-dark-text3">
                 <p className="text-lg">📝 Nenhum dado espiritual cadastrado ainda</p>
                 <p className="text-sm mt-2">Clique em "Editar" para adicionar informações</p>
                 <Button 
-                  className="mt-4" 
+                  className="mt-4 bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95" 
                   onClick={() => {
                     handleClose();
                     handleEdit(viewData.region);
@@ -1032,7 +1091,11 @@ Que o Reino de Deus avance em meio à perseguição`}
               </div>
             )}
             <div className="flex justify-end pt-4">
-              <Button variant="outline" onClick={handleClose}>
+              <Button 
+                variant="outline" 
+                onClick={handleClose}
+                className="bg-ios-gray6/20 hover:bg-ios-gray6/40 text-gray-900 dark:text-ios-dark-text border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              >
                 Fechar
               </Button>
             </div>
@@ -1073,46 +1136,54 @@ Que o Reino de Deus avance em meio à perseguição`}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Globe className="h-4 w-4 text-blue-500" />
+        <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-ios-lg bg-ios-blue/10 flex items-center justify-center">
+                <Globe className="h-6 w-6 text-ios-blue" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{regions.length}</p>
-                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.length}</p>
+                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">Total de Regiões</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Check className="h-4 w-4 text-green-500" />
+        <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-ios-lg bg-ios-green/10 flex items-center justify-center">
+                <Check className="h-6 w-6 text-ios-green" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{regions.filter(r => r.status === 'approved').length}</p>
-                <p className="text-xs text-muted-foreground">Aprovadas</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.status === 'approved').length}</p>
+                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">Aprovadas</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-yellow-500" />
+        <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-ios-lg bg-ios-orange/10 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-ios-orange" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{regions.filter(r => r.status === 'pending').length}</p>
-                <p className="text-xs text-muted-foreground">Pendentes</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.status === 'pending').length}</p>
+                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">Pendentes</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-4 w-4 text-purple-500" />
+        <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-ios-lg bg-ios-purple/10 flex items-center justify-center">
+                <MapPin className="h-6 w-6 text-ios-purple" />
+              </div>
               <div>
-                <p className="text-2xl font-bold">{regions.filter(r => r.data_source === 'ai_generated').length}</p>
-                <p className="text-xs text-muted-foreground">Geradas por IA</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.data_source === 'ai_generated').length}</p>
+                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">Geradas por IA</p>
               </div>
             </div>
           </CardContent>
@@ -1120,9 +1191,9 @@ Que o Reino de Deus avance em meio à perseguição`}
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader>
-          <CardTitle className="flex items-center">
+          <CardTitle className="flex items-center text-gray-900 dark:text-ios-dark-text">
             <Filter className="w-4 h-4 mr-2" />
             Filtros
           </CardTitle>
@@ -1130,24 +1201,24 @@ Que o Reino de Deus avance em meio à perseguição`}
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Buscar</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Buscar</label>
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-ios-gray dark:text-ios-dark-text3" />
                 <StaticInput
                   placeholder="Nome da região..."
-                  className="pl-9"
+                  className="pl-9 bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
                   defaultValue={searchTerm}
                   onSave={setSearchTerm}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Status</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
                   <SelectValue placeholder="Todos os status" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="draft">Rascunho</SelectItem>
                   <SelectItem value="pending">Pendente</SelectItem>
@@ -1157,12 +1228,12 @@ Que o Reino de Deus avance em meio à perseguição`}
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Tipo</label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
                   <SelectValue placeholder="Todos os tipos" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="country">País</SelectItem>
                   <SelectItem value="state">Estado</SelectItem>
@@ -1176,10 +1247,10 @@ Que o Reino de Deus avance em meio à perseguição`}
       </Card>
 
       {/* Regions Table */}
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader>
-          <CardTitle>Regiões Mapeadas ({filteredRegions.length})</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-gray-900 dark:text-ios-dark-text">Regiões Mapeadas ({filteredRegions.length})</CardTitle>
+          <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
             Lista de todas as regiões geográficas e espirituais cadastradas no sistema
           </CardDescription>
         </CardHeader>
@@ -1187,23 +1258,23 @@ Que o Reino de Deus avance em meio à perseguição`}
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Atualizado</TableHead>
-                <TableHead>Ações</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Nome</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Tipo</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Status</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Origem</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Atualizado</TableHead>
+                <TableHead className="text-gray-900 dark:text-ios-dark-text">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRegions.map((region) => (
-                <TableRow key={region.id}>
+                <TableRow key={region.id} className="hover:bg-ios-gray6/20 dark:hover:bg-ios-dark-bg3/20 transition-colors duration-200">
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{region.name}</span>
+                      <MapPin className="h-4 w-4 text-ios-gray dark:text-ios-dark-text3" />
+                      <span className="text-gray-900 dark:text-ios-dark-text">{region.name}</span>
                       {region.country_code && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs rounded-ios-sm bg-ios-blue/10 text-ios-blue border-ios-blue/20">
                           {region.country_code}
                         </Badge>
                       )}
@@ -1212,57 +1283,57 @@ Que o Reino de Deus avance em meio à perseguição`}
                   <TableCell>{getTypeBadge(region.region_type)}</TableCell>
                   <TableCell>{getStatusBadge(region.status)}</TableCell>
                   <TableCell>{getSourceBadge(region.data_source)}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-ios-gray dark:text-ios-dark-text3">
                     {new Date(region.updated_at).toLocaleDateString('pt-BR')}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleView(region)}>
-                        <Eye className="w-3 h-3" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(region)}>
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">Escolha a Persona IA:</label>
-                        <select
-                          className="w-full border rounded px-3 py-2"
-                          value={selectedPersonaId || ''}
-                          onChange={e => setSelectedPersonaId(e.target.value)}
-                        >
-                          {personas.map(p => (
-                            <option key={p.id} value={p.id}>
-                              {p.name} {p.is_default ? '(Padrão)' : ''}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
                       <Button 
-                        variant="outline" 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleView(region)}
+                        className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border-none transition-all duration-200 hover:scale-105 active:scale-95"
+                        title="Visualizar"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleEdit(region)}
+                        className="w-8 h-8 rounded-ios-sm bg-ios-orange/10 hover:bg-ios-orange/20 text-ios-orange border-none transition-all duration-200 hover:scale-105 active:scale-95"
+                        title="Editar"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
                         size="sm"
-                        className="text-purple-600 hover:text-purple-700"
+                        className="w-8 h-8 rounded-ios-sm bg-ios-purple/10 hover:bg-ios-purple/20 text-ios-purple border-none transition-all duration-200 hover:scale-105 active:scale-95"
                         onClick={() => handleGenerateWithAI(region)}
                         title="Gerar dados com IA"
                       >
-                        <Zap className="w-3 h-3" />
+                        <Zap className="w-4 h-4" />
                       </Button>
                       {region.status === 'pending' && (
                         <>
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             size="sm"
-                            className="text-green-600 hover:text-green-700"
+                            className="w-8 h-8 rounded-ios-sm bg-ios-green/10 hover:bg-ios-green/20 text-ios-green border-none transition-all duration-200 hover:scale-105 active:scale-95"
                             onClick={() => handleApprove(region.id)}
+                            title="Aprovar"
                           >
-                            <Check className="w-3 h-3" />
+                            <Check className="w-4 h-4" />
                           </Button>
                           <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             size="sm"
-                            className="text-red-600 hover:text-red-700"
+                            className="w-8 h-8 rounded-ios-sm bg-ios-red/10 hover:bg-ios-red/20 text-ios-red border-none transition-all duration-200 hover:scale-105 active:scale-95"
                             onClick={() => handleReject(region.id)}
+                            title="Rejeitar"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </Button>
                         </>
                       )}

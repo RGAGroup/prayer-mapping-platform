@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { useTranslation } from '../../hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SpiritualData {
   region: string;
@@ -68,31 +68,31 @@ const getActivityIcon = (type: string) => {
 
 const getPriorityColor = (priority: string) => {
   switch (priority) {
-    case 'urgent': return 'bg-red-500 text-white';
-    case 'high': return 'bg-orange-500 text-white';
-    case 'medium': return 'bg-yellow-500 text-black';
-    case 'low': return 'bg-gray-300 text-gray-700';
-    default: return 'bg-gray-300 text-gray-700';
+    case 'urgent': return 'bg-ios-red text-white';
+    case 'high': return 'bg-ios-orange text-white';
+    case 'medium': return 'bg-ios-yellow text-black';
+    case 'low': return 'bg-ios-gray3 text-ios-gray';
+    default: return 'bg-ios-gray3 text-ios-gray';
   }
 };
 
 const getRevivalColor = (level: string) => {
   switch (level) {
-    case 'avivamento': return 'text-purple-600 font-bold';
-    case 'alto': return 'text-green-600 font-semibold';
-    case 'médio': return 'text-yellow-600';
-    case 'baixo': return 'text-gray-500';
-    default: return 'text-gray-500';
+    case 'avivamento': return 'text-ios-purple font-bold';
+    case 'alto': return 'text-ios-green font-semibold';
+    case 'médio': return 'text-ios-yellow';
+    case 'baixo': return 'text-ios-gray';
+    default: return 'text-ios-gray';
   }
 };
 
 const getAlertColor = (level: string) => {
   switch (level) {
-    case 'vermelho': return 'bg-red-100 border-red-500 text-red-700';
-    case 'laranja': return 'bg-orange-100 border-orange-500 text-orange-700';
-    case 'amarelo': return 'bg-yellow-100 border-yellow-500 text-yellow-700';
-    case 'verde': return 'bg-green-100 border-green-500 text-green-700';
-    default: return 'bg-gray-100 border-gray-500 text-gray-700';
+    case 'vermelho': return 'bg-ios-red/10 border-ios-red text-ios-red';
+    case 'laranja': return 'bg-ios-orange/10 border-ios-orange text-ios-orange';
+    case 'amarelo': return 'bg-ios-yellow/10 border-ios-yellow text-ios-yellow';
+    case 'verde': return 'bg-ios-green/10 border-ios-green text-ios-green';
+    default: return 'bg-ios-gray5/10 border-ios-gray5 text-ios-gray';
   }
 };
 
@@ -124,67 +124,78 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
     };
   }, []);
 
-  // Desktop: Sidebar fixa na lateral esquerda
+  // Desktop: Sidebar fixa na lateral esquerda - iOS Style
   if (!isMobile) {
     return (
       <>
-        {/* Overlay escuro */}
+        {/* Overlay escuro com blur */}
         <div 
-          className="fixed inset-0 bg-black/20 z-40"
+          className="fixed inset-0 bg-ios-dark-bg/30 backdrop-blur-sm z-40 animate-ios-fade-in"
           onClick={onClose}
         />
         
-        {/* Sidebar Desktop */}
-        <div className="fixed left-0 top-0 bottom-0 w-96 bg-white shadow-2xl z-50 overflow-y-auto border-r-2">
-          <div className="p-4">
+        {/* Sidebar Desktop iOS Style */}
+        <div className="fixed left-0 top-0 bottom-0 w-96 bg-white/90 dark:bg-ios-dark-bg2/90 backdrop-blur-ios shadow-ios-2xl z-50 overflow-y-auto border-r border-ios-gray5/20 dark:border-ios-dark-bg4/20 animate-ios-slide-right">
+          <div className="p-6">
             {/* Header com botão fechar */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold flex items-center gap-2 text-gray-900">
-                  <MapPin className="w-5 h-5 text-blue-500" />
+                <h2 className="text-2xl font-bold flex items-center gap-3 text-gray-900 dark:text-ios-dark-text">
+                  <div className="w-8 h-8 rounded-ios-md bg-ios-blue/10 flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-ios-blue" />
+                  </div>
                   {data.region || t('spiritualPopup.regionNotIdentified')}
                 </h2>
-                <p className="text-gray-700 capitalize font-medium">
+                <p className="text-ios-gray dark:text-ios-dark-text3 capitalize font-medium mt-1">
                   {data.type === 'continent' ? t('map.continent') : 
                    data.type === 'country' ? t('map.country') :
                    data.type === 'state' ? t('map.state') :
                    data.type === 'city' ? t('map.city') : t('map.neighborhood')}
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                <X className="w-5 h-5" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onClose}
+                className="w-10 h-10 rounded-ios-md hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <X className="w-5 h-5 text-ios-gray dark:text-ios-dark-text2" />
               </Button>
             </div>
 
             {/* Conteúdo */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Sistema Geopolítico */}
-              <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <Globe className="w-5 h-5 text-blue-600" />
-                  <span className="font-semibold text-blue-800">{t('spiritualPopup.geopoliticalSystem')}</span>
+              <div className="p-4 rounded-ios-xl bg-ios-blue/10 border border-ios-blue/20 backdrop-blur-ios">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-ios-md bg-ios-blue/20 flex items-center justify-center">
+                    <Globe className="w-5 h-5 text-ios-blue" />
+                  </div>
+                  <span className="font-semibold text-ios-blue text-lg">{t('spiritualPopup.geopoliticalSystem')}</span>
                 </div>
-                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                <div className="text-sm text-gray-700 dark:text-ios-dark-text2 whitespace-pre-wrap leading-relaxed">
                   {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
                    t('spiritualPopup.geopoliticalInfoUnavailable')}
                 </div>
               </div>
 
               {/* Alvos de Intercessão */}
-              <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <Heart className="w-5 h-5 text-red-600" />
-                  <span className="font-semibold text-red-800">{t('spiritualPopup.intercessionTargets')}</span>
+              <div className="p-4 rounded-ios-xl bg-ios-red/10 border border-ios-red/20 backdrop-blur-ios">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-ios-md bg-ios-red/20 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-ios-red" />
+                  </div>
+                  <span className="font-semibold text-ios-red text-lg">{t('spiritualPopup.intercessionTargets')}</span>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {data.prayerTargets.map((target, index) => (
-                    <div key={target.id} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="text-red-600 font-bold mt-0.5">•</span>
-                      <span className="leading-relaxed">{target.description}</span>
+                    <div key={target.id} className="text-sm text-gray-700 dark:text-ios-dark-text2 flex items-start gap-3 p-3 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
+                      <span className="text-ios-red font-bold mt-0.5 text-base">•</span>
+                      <span className="leading-relaxed flex-1">{target.description}</span>
                     </div>
                   ))}
                   {data.prayerTargets.length === 0 && (
-                    <div className="text-sm text-gray-500 italic">
+                    <div className="text-sm text-ios-gray dark:text-ios-dark-text3 italic p-3 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
                       {t('spiritualPopup.noTargetsDefined')}
                     </div>
                   )}
@@ -193,12 +204,14 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
               {/* Outras Informações Importantes */}
               {data.recentActivity.find(activity => activity.id === 'outras-info') && (
-                <div className="p-3 rounded-lg border-2 border-purple-200 bg-purple-50">
-                  <div className="flex items-center gap-2 mb-3">
-                    <FileText className="w-5 h-5 text-purple-600" />
-                    <span className="font-semibold text-purple-800">📋 Outras Informações Importantes</span>
+                <div className="p-4 rounded-ios-xl bg-ios-purple/10 border border-ios-purple/20 backdrop-blur-ios">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-ios-md bg-ios-purple/20 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-ios-purple" />
+                    </div>
+                    <span className="font-semibold text-ios-purple text-lg">📋 Outras Informações Importantes</span>
                   </div>
-                  <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  <div className="text-sm text-gray-700 dark:text-ios-dark-text2 whitespace-pre-wrap leading-relaxed p-3 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
                     {data.recentActivity.find(activity => activity.id === 'outras-info')?.description || 
                      'Nenhuma informação adicional disponível.'}
                   </div>
@@ -207,74 +220,46 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
               {/* Estatísticas */}
               <div>
-                <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                  <Users className="w-5 h-5" />
+                <h4 className="font-bold mb-4 flex items-center gap-3 text-gray-900 dark:text-ios-dark-text text-lg">
+                  <div className="w-8 h-8 rounded-ios-md bg-ios-indigo/10 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-ios-indigo" />
+                  </div>
                   {t('spiritualPopup.statistics')}
                 </h4>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                    <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
-                    <div className="text-blue-600">{t('spiritualPopup.intercessors')}</div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-ios-blue/10 p-4 rounded-ios-xl border border-ios-blue/20 backdrop-blur-ios">
+                    <div className="font-bold text-ios-blue text-2xl">{data.stats.totalIntercessors}</div>
+                    <div className="text-ios-blue font-medium">{t('spiritualPopup.intercessors')}</div>
                   </div>
-                  <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                    <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
-                    <div className="text-green-600">{t('spiritualPopup.activePrayers')}</div>
+                  <div className="bg-ios-green/10 p-4 rounded-ios-xl border border-ios-green/20 backdrop-blur-ios">
+                    <div className="font-bold text-ios-green text-2xl">{data.stats.activePrayers}</div>
+                    <div className="text-ios-green font-medium">{t('spiritualPopup.activePrayers')}</div>
                   </div>
-                  <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                    <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
-                    <div className="text-purple-600">{t('spiritualPopup.updatedData')}</div>
+                  <div className="bg-ios-purple/10 p-4 rounded-ios-xl border border-ios-purple/20 backdrop-blur-ios">
+                    <div className="font-bold text-ios-purple text-2xl">{data.stats.propheticWords}</div>
+                    <div className="text-ios-purple font-medium">{t('spiritualPopup.updatedData')}</div>
                   </div>
-                  <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                    <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
-                    <div className="text-orange-600">{t('spiritualPopup.definedTargets')}</div>
+                  <div className="bg-ios-orange/10 p-4 rounded-ios-xl border border-ios-orange/20 backdrop-blur-ios">
+                    <div className="font-bold text-ios-orange text-2xl">{data.prayerTargets.length}</div>
+                    <div className="text-ios-orange font-medium">{t('spiritualPopup.definedTargets')}</div>
                   </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Atividade Recente */}
-              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                  <Calendar className="w-4 h-4" />
-                  Atividade Recente
-                </h4>
-                <div className="space-y-2">
-                  {data.recentActivity.slice(0, 4).map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-2 p-2 bg-gray-50 rounded">
-                      <div className="text-gray-500 mt-0.5">
-                        {getActivityIcon(activity.type)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h6 className="font-medium text-xs truncate">{activity.title}</h6>
-                          {activity.priority && (
-                            <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>
-                              {activity.priority}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-600 line-clamp-2">{activity.description}</p>
-                        <div className="text-xs text-gray-500 mt-1">
-                          por {activity.author} • {activity.date}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </div>
 
               {/* Botões de Ação */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-3 pt-4">
                 <Button 
-                  size="sm" 
-                  variant="default" 
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  size="lg" 
                   onClick={handleStartPrayer}
+                  className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-xl"
                 >
                   {t('map.prayFor', { region: data.region })}
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80"
+                >
                   {t('map.viewDetails')}
                 </Button>
               </div>
@@ -285,32 +270,34 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
     );
   }
 
-  // Mobile: Bottom Sheet (meia tela)
+  // Mobile: Bottom Sheet iOS Style
   return (
     <>
       {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-black/30 z-40"
+        className="fixed inset-0 bg-ios-dark-bg/40 backdrop-blur-sm z-40 animate-ios-fade-in"
         onClick={onClose}
       />
       
-      {/* Bottom Sheet Mobile */}
+      {/* Bottom Sheet Mobile iOS Style */}
       <div 
-        className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 transition-transform duration-300 flex flex-col ${
+        className={`fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios rounded-t-ios-2xl shadow-ios-2xl z-50 transition-all duration-300 ease-ios-bounce flex flex-col ${
           isExpanded ? 'h-[90vh]' : 'h-[60vh]'
-        }`}
+        } animate-ios-slide-up`}
       >
         {/* Handle para arrastar */}
         <div className="w-full p-4 cursor-pointer flex-shrink-0" onClick={() => setIsExpanded(!isExpanded)}>
-          <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3"></div>
+          <div className="w-12 h-1 bg-ios-gray3 rounded-full mx-auto mb-4"></div>
           
           {/* Header compacto */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-blue-500" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-ios-lg bg-ios-blue/10 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-ios-blue" />
+              </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900">{data.region || t('spiritualPopup.regionNotIdentified')}</h3>
-                <p className="text-gray-700 text-sm capitalize font-medium">
+                <h3 className="font-bold text-xl text-gray-900 dark:text-ios-dark-text">{data.region || t('spiritualPopup.regionNotIdentified')}</h3>
+                <p className="text-ios-gray dark:text-ios-dark-text3 text-sm capitalize font-medium">
                   {data.type === 'continent' ? t('map.continent') : 
                    data.type === 'country' ? t('map.country') :
                    data.type === 'state' ? t('map.state') :
@@ -320,46 +307,60 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             </div>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-10 h-10 rounded-ios-md hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200"
+              >
                 {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
               </Button>
-              <Button variant="ghost" size="sm" onClick={onClose}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onClose}
+                className="w-10 h-10 rounded-ios-md hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200"
+              >
                 <X className="w-5 h-5" />
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Conteúdo scrollável - agora com flex-1 para ocupar espaço disponível */}
-        <div className="flex-1 overflow-y-auto px-4">
-          <div className="space-y-4 pb-4">
+        {/* Conteúdo scrollável */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          <div className="space-y-4">
             {/* Sistema Geopolítico */}
-            <div className="p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
-              <div className="flex items-center gap-2 mb-3">
-                <Globe className="w-5 h-5 text-blue-600" />
-                <span className="font-semibold text-blue-800">{t('spiritualPopup.geopoliticalSystem')}</span>
+            <div className="p-4 rounded-ios-xl bg-ios-blue/10 border border-ios-blue/20 backdrop-blur-ios">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-6 h-6 rounded-ios-sm bg-ios-blue/20 flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-ios-blue" />
+                </div>
+                <span className="font-semibold text-ios-blue">{t('spiritualPopup.geopoliticalSystem')}</span>
               </div>
-              <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="text-sm text-gray-700 dark:text-ios-dark-text2 whitespace-pre-wrap leading-relaxed">
                 {data.recentActivity.find(activity => activity.id === 'sistema-geo')?.description || 
                  t('spiritualPopup.geopoliticalInfoUnavailable')}
               </div>
             </div>
 
             {/* Alvos de Intercessão */}
-            <div className="p-3 rounded-lg border-2 border-red-200 bg-red-50">
-              <div className="flex items-center gap-2 mb-3">
-                <Heart className="w-5 h-5 text-red-600" />
-                <span className="font-semibold text-red-800">{t('spiritualPopup.intercessionTargets')}</span>
+            <div className="p-4 rounded-ios-xl bg-ios-red/10 border border-ios-red/20 backdrop-blur-ios">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-6 h-6 rounded-ios-sm bg-ios-red/20 flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-ios-red" />
+                </div>
+                <span className="font-semibold text-ios-red">{t('spiritualPopup.intercessionTargets')}</span>
               </div>
               <div className="space-y-2">
                 {data.prayerTargets.map((target, index) => (
-                  <div key={target.id} className="text-sm text-gray-700 flex items-start gap-2">
-                    <span className="text-red-600 font-bold mt-0.5">•</span>
+                  <div key={target.id} className="text-sm text-gray-700 dark:text-ios-dark-text2 flex items-start gap-2 p-2 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
+                    <span className="text-ios-red font-bold mt-0.5">•</span>
                     <span className="leading-relaxed">{target.description}</span>
                   </div>
                 ))}
                 {data.prayerTargets.length === 0 && (
-                  <div className="text-sm text-gray-500 italic">
+                  <div className="text-sm text-ios-gray dark:text-ios-dark-text3 italic p-2 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
                     {t('spiritualPopup.noTargetsDefined')}
                   </div>
                 )}
@@ -368,12 +369,14 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
             {/* Outras Informações Importantes */}
             {data.recentActivity.find(activity => activity.id === 'outras-info') && (
-              <div className="p-3 rounded-lg border-2 border-purple-200 bg-purple-50">
-                <div className="flex items-center gap-2 mb-3">
-                  <FileText className="w-5 h-5 text-purple-600" />
-                  <span className="font-semibold text-purple-800">📋 Outras Informações Importantes</span>
+              <div className="p-4 rounded-ios-xl bg-ios-purple/10 border border-ios-purple/20 backdrop-blur-ios">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-6 h-6 rounded-ios-sm bg-ios-purple/20 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-ios-purple" />
+                  </div>
+                  <span className="font-semibold text-ios-purple">📋 Outras Informações Importantes</span>
                 </div>
-                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                <div className="text-sm text-gray-700 dark:text-ios-dark-text2 whitespace-pre-wrap leading-relaxed p-2 rounded-ios-md bg-white/50 dark:bg-ios-dark-bg3/50">
                   {data.recentActivity.find(activity => activity.id === 'outras-info')?.description || 
                    'Nenhuma informação adicional disponível.'}
                 </div>
@@ -382,110 +385,49 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
             {/* Estatísticas - Grid adaptado para mobile */}
             <div>
-              <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
-                <Users className="w-5 h-5" />
+              <h4 className="font-bold mb-3 flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
+                <div className="w-6 h-6 rounded-ios-sm bg-ios-indigo/10 flex items-center justify-center">
+                  <Users className="w-4 h-4 text-ios-indigo" />
+                </div>
                 {t('spiritualPopup.statistics')}
               </h4>
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                  <div className="font-bold text-blue-700 text-lg">{data.stats.totalIntercessors}</div>
-                  <div className="text-blue-600">{t('spiritualPopup.intercessors')}</div>
+                <div className="bg-ios-blue/10 p-3 rounded-ios-lg border border-ios-blue/20 backdrop-blur-ios">
+                  <div className="font-bold text-ios-blue text-lg">{data.stats.totalIntercessors}</div>
+                  <div className="text-ios-blue font-medium">{t('spiritualPopup.intercessors')}</div>
                 </div>
-                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                  <div className="font-bold text-green-700 text-lg">{data.stats.activePrayers}</div>
-                  <div className="text-green-600">{t('spiritualPopup.activePrayers')}</div>
+                <div className="bg-ios-green/10 p-3 rounded-ios-lg border border-ios-green/20 backdrop-blur-ios">
+                  <div className="font-bold text-ios-green text-lg">{data.stats.activePrayers}</div>
+                  <div className="text-ios-green font-medium">{t('spiritualPopup.activePrayers')}</div>
                 </div>
-                <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                  <div className="font-bold text-purple-700 text-lg">{data.stats.propheticWords}</div>
-                  <div className="text-purple-600">{t('spiritualPopup.updatedData')}</div>
+                <div className="bg-ios-purple/10 p-3 rounded-ios-lg border border-ios-purple/20 backdrop-blur-ios">
+                  <div className="font-bold text-ios-purple text-lg">{data.stats.propheticWords}</div>
+                  <div className="text-ios-purple font-medium">{t('spiritualPopup.updatedData')}</div>
                 </div>
-                <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
-                  <div className="font-bold text-orange-700 text-lg">{data.prayerTargets.length}</div>
-                  <div className="text-orange-600">{t('spiritualPopup.definedTargets')}</div>
+                <div className="bg-ios-orange/10 p-3 rounded-ios-lg border border-ios-orange/20 backdrop-blur-ios">
+                  <div className="font-bold text-ios-orange text-lg">{data.prayerTargets.length}</div>
+                  <div className="text-ios-orange font-medium">{t('spiritualPopup.definedTargets')}</div>
                 </div>
               </div>
             </div>
 
-            {/* Mostrar mais conteúdo quando expandido */}
-            {isExpanded && (
-              <>
-                <Separator />
-
-                {/* Alvos de Oração Principais */}
-                <div>
-                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                    <Heart className="w-4 h-4 text-red-500" />
-                    {t('spiritualPopup.priorityPrayerTargets')}
-                  </h4>
-                  <div className="space-y-2">
-                    {data.prayerTargets.slice(0, 3).map((target) => (
-                      <div key={target.id} className="border rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <h5 className="font-medium text-sm">{target.title}</h5>
-                          <Badge className={`text-xs ${getPriorityColor(target.priority)}`}>
-                            {target.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-gray-600 mb-1">{target.description}</p>
-                        <div className="text-xs text-blue-600">
-                          {target.intercessors} {t('spiritualPopup.intercessorsPraying')}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Atividade Recente */}
-                <div>
-                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-800">
-                    <Calendar className="w-4 h-4" />
-                    {t('spiritualPopup.recentActivity')}
-                  </h4>
-                  <div className="space-y-2">
-                    {data.recentActivity.slice(0, 4).map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded">
-                        <div className="text-gray-500 mt-0.5">
-                          {getActivityIcon(activity.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h6 className="font-medium text-sm truncate">{activity.title}</h6>
-                            {activity.priority && (
-                              <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>
-                                {activity.priority}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 line-clamp-2">{activity.description}</p>
-                          <div className="text-xs text-gray-500 mt-1">
-                            por {activity.author} • {activity.date}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Botões de Ação - FIXOS na parte inferior, fora do scroll */}
-        <div className="flex-shrink-0 p-4 border-t bg-white">
-          <div className="flex gap-2">
-            <Button 
-              size="default" 
-              variant="default" 
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
-              onClick={handleStartPrayer}
-            >
-              {t('map.prayFor', { region: data.region })}
-            </Button>
-            <Button size="default" variant="outline" className="flex-1">
-              {t('map.viewDetails')}
-            </Button>
+            {/* Botões de Ação */}
+            <div className="flex gap-3 pt-2 pb-4">
+              <Button 
+                size="lg" 
+                onClick={handleStartPrayer}
+                className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 min-h-[48px]"
+              >
+                {t('map.prayFor', { region: data.region })}
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 min-h-[48px]"
+              >
+                {t('map.viewDetails')}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

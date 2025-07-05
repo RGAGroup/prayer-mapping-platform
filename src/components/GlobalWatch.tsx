@@ -137,7 +137,7 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 w-80 max-h-96">
-      <Card className="bg-black/90 backdrop-blur-md border-purple-500/30 text-white">
+      <Card className="bg-white/90 dark:bg-ios-dark-bg2/90 backdrop-blur-md border-ios-gray5/30 dark:border-ios-dark-bg4/30 text-gray-900 dark:text-ios-dark-text rounded-ios-xl">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-2">

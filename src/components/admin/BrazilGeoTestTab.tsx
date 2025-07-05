@@ -275,51 +275,45 @@ export const BrazilGeoTestTab: React.FC = () => {
   };
 
   const GoogleMapsStatusCard = () => {
-    const [status, setStatus] = useState({
-      loaded: false,
-      geocoderReady: false
-    });
+    const [status, setStatus] = useState({ loaded: false, geocoderReady: false });
 
     useEffect(() => {
       const checkStatus = () => {
         const loaded = typeof window !== 'undefined' && window.google && window.google.maps;
         const geocoderReady = loaded && Boolean(window.google.maps.Geocoder);
-        const isReady = loaded && geocoderReady;
-        
         setStatus({ loaded: Boolean(loaded), geocoderReady });
-        setIsGoogleMapsReady(Boolean(isReady));
+        setIsGoogleMapsReady(Boolean(loaded && geocoderReady));
       };
-
       checkStatus();
       const interval = setInterval(checkStatus, 1000);
       return () => clearInterval(interval);
     }, []);
 
     return (
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
             <span className="text-lg">🗺️</span>
             Google Maps Status
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">API:</span>
-            <Badge variant={status.loaded ? "secondary" : "destructive"}>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">API:</span>
+            <Badge variant={status.loaded ? "secondary" : "destructive"} className="rounded-ios-sm">
               {status.loaded ? '✅ Carregado' : '⏳ Carregando'}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Geocoder:</span>
-            <Badge variant={status.geocoderReady ? "secondary" : "destructive"}>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Geocoder:</span>
+            <Badge variant={status.geocoderReady ? "secondary" : "destructive"} className="rounded-ios-sm">
               {status.geocoderReady ? '✅ Pronto' : '⏳ Aguardando'}
             </Badge>
           </div>
-          <Separator className="my-2" />
+          <Separator className="my-2 bg-ios-gray5/20 dark:bg-ios-dark-bg4/20" />
           <div className="flex justify-between items-center font-medium">
-            <span className="text-sm">Status:</span>
-            <Badge variant={isGoogleMapsReady ? "default" : "destructive"}>
+            <span className="text-sm text-gray-900 dark:text-ios-dark-text">Status:</span>
+            <Badge variant={isGoogleMapsReady ? "default" : "destructive"} className="rounded-ios-sm">
               {isGoogleMapsReady ? '🎉 Pronto para Teste' : '⚠️ Não Pronto'}
             </Badge>
           </div>
@@ -329,36 +323,36 @@ export const BrazilGeoTestTab: React.FC = () => {
   };
 
   const ExistingDataCard = () => (
-    <Card>
+    <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
+        <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
           <Database className="w-4 h-4" />
           Dados Existentes
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🇧🇷 Países:</span>
-          <Badge variant={existingData.countries > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🇧🇷 Países:</span>
+          <Badge variant={existingData.countries > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.countries}
           </Badge>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🏛️ Estados:</span>
-          <Badge variant={existingData.states > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏛️ Estados:</span>
+          <Badge variant={existingData.states > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.states}
           </Badge>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm text-muted-foreground">🏙️ Cidades:</span>
-          <Badge variant={existingData.cities > 0 ? "secondary" : "outline"}>
+          <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏙️ Cidades:</span>
+          <Badge variant={existingData.cities > 0 ? "secondary" : "outline"} className="rounded-ios-sm">
             {existingData.cities}
           </Badge>
         </div>
-        <Separator className="my-2" />
+        <Separator className="my-2 bg-ios-gray5/20 dark:bg-ios-dark-bg4/20" />
         <div className="flex justify-between items-center font-medium">
-          <span className="text-sm">📊 Total:</span>
-          <Badge variant={existingData.total > 0 ? "default" : "outline"}>
+          <span className="text-sm text-gray-900 dark:text-ios-dark-text">📊 Total:</span>
+          <Badge variant={existingData.total > 0 ? "default" : "outline"} className="rounded-ios-sm">
             {existingData.total}
           </Badge>
         </div>
@@ -367,20 +361,20 @@ export const BrazilGeoTestTab: React.FC = () => {
   );
 
   const ProgressCard = () => (
-    <Card>
+    <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
+        <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
           <Zap className="w-4 h-4" />
           Progresso do Teste
         </CardTitle>
-        <CardDescription>{progress.stepDescription}</CardDescription>
+        <CardDescription className="text-ios-gray dark:text-ios-dark-text3">{progress.stepDescription}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Barra de progresso principal */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Progresso Geral</span>
-            <span>{progress.percentage}%</span>
+            <span className="text-gray-900 dark:text-ios-dark-text">Progresso Geral</span>
+            <span className="text-gray-900 dark:text-ios-dark-text">{progress.percentage}%</span>
           </div>
           <Progress value={progress.percentage} className="h-2" />
         </div>
@@ -395,26 +389,26 @@ export const BrazilGeoTestTab: React.FC = () => {
         {/* Detalhes */}
         <div className="grid grid-cols-3 gap-4 pt-2">
           <div className="text-center">
-            <div className="text-lg font-bold text-green-600">{progress.details.countries}</div>
-            <div className="text-xs text-muted-foreground">Países</div>
+            <div className="text-lg font-bold text-ios-green">{progress.details.countries}</div>
+            <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Países</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-blue-600">{progress.details.states}</div>
-            <div className="text-xs text-muted-foreground">Estados</div>
+            <div className="text-lg font-bold text-ios-blue">{progress.details.states}</div>
+            <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Estados</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-purple-600">{progress.details.cities}</div>
-            <div className="text-xs text-muted-foreground">Cidades</div>
+            <div className="text-lg font-bold text-ios-purple">{progress.details.cities}</div>
+            <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Cidades</div>
           </div>
         </div>
 
         {/* Logs em tempo real */}
         {progress.logs.length > 0 && (
           <div className="space-y-2">
-            <div className="text-sm font-medium">📋 Logs:</div>
-            <ScrollArea className="h-20 p-2 border rounded text-xs">
+            <div className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">📋 Logs:</div>
+            <ScrollArea className="h-20 p-2 border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-lg text-xs bg-ios-gray6/20 dark:bg-ios-dark-bg3/20">
               {progress.logs.map((log, index) => (
-                <div key={index} className="text-muted-foreground">
+                <div key={index} className="text-ios-gray dark:text-ios-dark-text3">
                   {log}
                 </div>
               ))}
@@ -429,9 +423,9 @@ export const BrazilGeoTestTab: React.FC = () => {
     if (!lastResult) return null;
 
     return (
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
+          <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
             <BarChart3 className="w-4 h-4" />
             Último Resultado
           </CardTitle>
@@ -439,42 +433,42 @@ export const BrazilGeoTestTab: React.FC = () => {
         <CardContent className="space-y-3">
           <div className="flex items-center gap-2">
             {lastResult.success ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <CheckCircle className="w-4 h-4 text-ios-green" />
             ) : (
-              <XCircle className="w-4 h-4 text-red-600" />
+              <XCircle className="w-4 h-4 text-ios-red" />
             )}
-            <span className={`text-sm font-medium ${lastResult.success ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`text-sm font-medium ${lastResult.success ? 'text-ios-green' : 'text-ios-red'}`}>
               {lastResult.success ? 'Sucesso' : 'Falha'}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <div className="text-muted-foreground">Países:</div>
-              <div className="font-medium">{lastResult.summary.countries_inserted}</div>
+              <div className="text-ios-gray dark:text-ios-dark-text3">Países:</div>
+              <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lastResult.summary.countries_inserted}</div>
             </div>
             <div>
-              <div className="text-muted-foreground">Estados:</div>
-              <div className="font-medium">{lastResult.summary.states_inserted}</div>
+              <div className="text-ios-gray dark:text-ios-dark-text3">Estados:</div>
+              <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lastResult.summary.states_inserted}</div>
             </div>
             <div>
-              <div className="text-muted-foreground">Cidades:</div>
-              <div className="font-medium">{lastResult.summary.cities_inserted}</div>
+              <div className="text-ios-gray dark:text-ios-dark-text3">Cidades:</div>
+              <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lastResult.summary.cities_inserted}</div>
             </div>
             <div>
-              <div className="text-muted-foreground">Total:</div>
-              <div className="font-medium">{lastResult.summary.total_regions}</div>
+              <div className="text-ios-gray dark:text-ios-dark-text3">Total:</div>
+              <div className="font-medium text-gray-900 dark:text-ios-dark-text">{lastResult.summary.total_regions}</div>
             </div>
           </div>
 
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-ios-gray dark:text-ios-dark-text3">
             Duração: {Math.round(lastResult.summary.duration_ms / 1000)}s
           </div>
 
           {lastResult.errors.length > 0 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription className="text-xs">
+            <Alert className="bg-ios-red/10 border-ios-red/20 rounded-ios-lg">
+              <AlertTriangle className="h-4 w-4 text-ios-red" />
+              <AlertDescription className="text-xs text-ios-red">
                 {lastResult.errors.length} erro(s) encontrado(s)
               </AlertDescription>
             </Alert>
@@ -493,11 +487,11 @@ export const BrazilGeoTestTab: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Flag className="w-6 h-6 text-green-600" />
+          <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
+            <Flag className="w-6 h-6 text-ios-green" />
             Teste Brasil 🇧🇷
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-ios-gray dark:text-ios-dark-text3">
             Teste Matsunaga: Popular dados geográficos do Brasil via Google Maps API
           </p>
         </div>
@@ -512,10 +506,10 @@ export const BrazilGeoTestTab: React.FC = () => {
       </div>
 
       {/* Botões de ação */}
-      <Card>
+      <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Ações de Teste</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg text-gray-900 dark:text-ios-dark-text">Ações de Teste</CardTitle>
+          <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
             Execute o teste completo ou limpe os dados para um novo teste
           </CardDescription>
         </CardHeader>
@@ -523,7 +517,7 @@ export const BrazilGeoTestTab: React.FC = () => {
           <Button 
             onClick={handleStartTest}
             disabled={isProcessing || isClearing || !isGoogleMapsReady}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
           >
             {isProcessing ? (
               <Clock className="w-4 h-4 animate-spin" />
@@ -539,7 +533,7 @@ export const BrazilGeoTestTab: React.FC = () => {
             onClick={handleClearData}
             disabled={isProcessing || isClearing || existingData.total === 0}
             variant="destructive"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-ios-red hover:bg-ios-red/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
           >
             {isClearing ? (
               <Clock className="w-4 h-4 animate-spin" />
@@ -553,7 +547,7 @@ export const BrazilGeoTestTab: React.FC = () => {
             onClick={loadExistingData}
             disabled={isProcessing || isClearing}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-ios-gray6/20 hover:bg-ios-gray6/40 text-gray-900 dark:text-ios-dark-text border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <RotateCcw className="w-4 h-4" />
             Atualizar
@@ -563,7 +557,7 @@ export const BrazilGeoTestTab: React.FC = () => {
             onClick={handleTestSupabase}
             disabled={isProcessing || isClearing}
             variant="secondary"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-ios-purple/10 hover:bg-ios-purple/20 text-ios-purple border-ios-purple/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <Bug className="w-4 h-4" />
             Diagnosticar Supabase
@@ -572,7 +566,7 @@ export const BrazilGeoTestTab: React.FC = () => {
           <Button
             onClick={testSpiritualDataSearch}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-ios-green/10 hover:bg-ios-green/20 text-ios-green border-ios-green/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
           >
             <Search className="w-4 h-4" />
             Testar Busca de Dados
@@ -582,14 +576,14 @@ export const BrazilGeoTestTab: React.FC = () => {
 
       {/* Erros */}
       {progress.errors.length > 0 && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
+        <Alert className="bg-ios-red/10 border-ios-red/20 rounded-ios-lg">
+          <AlertTriangle className="h-4 w-4 text-ios-red" />
+          <AlertDescription className="text-ios-red">
             <div className="space-y-1">
               <div className="font-medium">{progress.errors.length} erro(s) encontrado(s):</div>
               <ScrollArea className="h-20">
                 {progress.errors.map((error, index) => (
-                  <div key={index} className="text-xs text-muted-foreground">
+                  <div key={index} className="text-xs text-ios-red/80">
                     • {error}
                   </div>
                 ))}

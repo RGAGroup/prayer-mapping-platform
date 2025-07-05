@@ -78,21 +78,21 @@ export const GoogleMapsStatus: React.FC = () => {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm flex items-center gap-2">
+        <CardTitle className="text-sm flex items-center gap-2 text-gray-900 dark:text-ios-dark-text">
           <span className="text-lg">🗺️</span>
           Status Google Maps API
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
           Verificação em tempo real da disponibilidade do Google Maps
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Google Maps API */}
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">Google Maps API:</span>
-          <Badge variant={getStatusVariant(status.loaded)} className="flex items-center gap-1">
+          <span className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Google Maps API:</span>
+          <Badge variant={getStatusVariant(status.loaded)} className="flex items-center gap-1 rounded-ios-sm">
             {getStatusIcon(status.loaded, !status.loaded && !status.error)}
             {status.loaded ? 'Carregado' : status.error ? 'Erro' : 'Carregando...'}
           </Badge>
@@ -100,8 +100,8 @@ export const GoogleMapsStatus: React.FC = () => {
 
         {/* API Key */}
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">API Key:</span>
-          <Badge variant={getStatusVariant(status.apiKey)} className="flex items-center gap-1">
+          <span className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">API Key:</span>
+          <Badge variant={getStatusVariant(status.apiKey)} className="flex items-center gap-1 rounded-ios-sm">
             {getStatusIcon(status.apiKey)}
             {status.apiKey ? 'Configurada' : 'Ausente'}
           </Badge>
@@ -109,8 +109,8 @@ export const GoogleMapsStatus: React.FC = () => {
 
         {/* Geocoder */}
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium">Geocoder:</span>
-          <Badge variant={getStatusVariant(status.geocoderReady)} className="flex items-center gap-1">
+          <span className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Geocoder:</span>
+          <Badge variant={getStatusVariant(status.geocoderReady)} className="flex items-center gap-1 rounded-ios-sm">
             {getStatusIcon(status.geocoderReady)}
             {status.geocoderReady ? 'Pronto' : 'Indisponível'}
           </Badge>
@@ -118,7 +118,7 @@ export const GoogleMapsStatus: React.FC = () => {
 
         {/* Versão */}
         {status.loaded && typeof window !== 'undefined' && window.google?.maps?.version && (
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
+          <div className="flex justify-between items-center text-xs text-ios-gray dark:text-ios-dark-text3">
             <span>Versão:</span>
             <span>{window.google.maps.version}</span>
           </div>
@@ -126,7 +126,7 @@ export const GoogleMapsStatus: React.FC = () => {
 
         {/* Erro */}
         {status.error && (
-          <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+          <div className="mt-3 p-2 bg-ios-red/10 border border-ios-red/20 rounded-ios-lg text-xs text-ios-red dark:text-ios-red">
             <div className="flex items-center gap-1 font-medium">
               <AlertTriangle className="w-3 h-3" />
               Erro detectado:
@@ -136,12 +136,12 @@ export const GoogleMapsStatus: React.FC = () => {
         )}
 
         {/* Status Geral */}
-        <div className="pt-2 border-t">
+        <div className="pt-2 border-t border-ios-gray5/20 dark:border-ios-dark-bg4/20">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Status Geral:</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Status Geral:</span>
             <Badge 
               variant={status.loaded && status.geocoderReady ? "default" : "destructive"}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-ios-sm"
             >
               {status.loaded && status.geocoderReady ? (
                 <>

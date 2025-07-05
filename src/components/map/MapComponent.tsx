@@ -292,7 +292,7 @@ const MapComponent = ({ locations, onLocationSelect }: MapComponentProps) => {
       <div ref={mapRef} className="w-full h-full" />
       
       {/* Indicador de Nível Hierárquico */}
-      <div className="absolute top-4 left-4 z-10 bg-black/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg border border-purple-500/30">
+      <div className="absolute top-4 left-4 z-10 bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-sm text-gray-900 dark:text-ios-dark-text px-4 py-2 rounded-ios-lg border border-ios-gray5/30 dark:border-ios-dark-bg4/30">
         <div className="text-xs opacity-70">Nível Atual:</div>
         <div className="text-sm font-semibold">
           {currentLevel === 'world' && '🌍 Mundial'}
@@ -309,7 +309,7 @@ const MapComponent = ({ locations, onLocationSelect }: MapComponentProps) => {
 
       {/* Estatísticas do Nível Atual */}
       {hierarchicalData?.aggregatedData && (
-        <div className="absolute top-4 right-4 z-10 bg-black/80 backdrop-blur-sm text-white p-3 rounded-lg border border-purple-500/30 max-w-xs">
+        <div className="absolute top-4 right-4 z-10 bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-sm text-gray-900 dark:text-ios-dark-text p-3 rounded-ios-lg border border-ios-gray5/30 dark:border-ios-dark-bg4/30 max-w-xs">
           <h3 className="text-sm font-semibold mb-2">
             {hierarchicalData.data ? `📊 ${hierarchicalData.data.name}` : '📊 Visão Global'}
           </h3>

@@ -770,7 +770,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
 
       {/* Loading para dados espirituais */}
       {loadingSpiritualData && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-ios-dark-bg/20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-4 shadow-lg">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
             <p className="text-sm text-gray-600">Carregando dados espirituais...</p>

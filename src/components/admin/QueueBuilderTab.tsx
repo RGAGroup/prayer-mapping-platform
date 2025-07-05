@@ -179,20 +179,20 @@ export const QueueBuilderTab: React.FC = () => {
 
   const getBatchStatusBadge = (status: string) => {
     const statusConfig = {
-      'created': { variant: 'secondary' as const, icon: Settings, color: 'text-gray-600' },
-      'running': { variant: 'default' as const, icon: Play, color: 'text-blue-600' },
-      'paused': { variant: 'secondary' as const, icon: Pause, color: 'text-yellow-600' },
-      'completed': { variant: 'secondary' as const, icon: CheckCircle, color: 'text-green-600' },
-      'cancelled': { variant: 'secondary' as const, icon: XCircle, color: 'text-red-600' },
-      'failed': { variant: 'destructive' as const, icon: AlertCircle, color: 'text-red-600' }
+      'created': { color: 'bg-ios-gray5/10 text-ios-gray border-ios-gray5/20', icon: Settings },
+      'running': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', icon: Play },
+      'paused': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', icon: Pause },
+      'completed': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', icon: CheckCircle },
+      'cancelled': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: XCircle },
+      'failed': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: AlertCircle }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.created;
     const Icon = config.icon;
 
     return (
-      <Badge variant={config.variant} className="flex items-center gap-1">
-        <Icon className={`w-3 h-3 ${config.color}`} />
+      <Badge className={`${config.color} rounded-ios-sm font-medium flex items-center gap-1`}>
+        <Icon className="w-3 h-3" />
         {status}
       </Badge>
     );
@@ -203,12 +203,12 @@ export const QueueBuilderTab: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">🤖 Queue Builder - Geração IA</h2>
-          <p className="text-gray-600">Construa e gerencie filas de processamento para dados espirituais</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text">🤖 Queue Builder - Geração IA</h2>
+          <p className="text-ios-gray dark:text-ios-dark-text3">Construa e gerencie filas de processamento para dados espirituais</p>
         </div>
         <div className="flex items-center gap-3">
           {state.activeBatch && state.batchProgress && (
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm font-medium">
               <Zap className="w-3 h-3 mr-1" />
               {state.batchProgress.progressPercent.toFixed(0)}% concluído
             </Badge>
@@ -217,10 +217,10 @@ export const QueueBuilderTab: React.FC = () => {
       </div>
 
       <Tabs defaultValue="builder" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="builder">🔧 Queue Builder</TabsTrigger>
-          <TabsTrigger value="monitor">📊 Monitor</TabsTrigger>
-          <TabsTrigger value="history">📜 Histórico</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 rounded-ios-lg p-1">
+          <TabsTrigger value="builder" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">🔧 Queue Builder</TabsTrigger>
+          <TabsTrigger value="monitor" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">📊 Monitor</TabsTrigger>
+          <TabsTrigger value="history" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">📜 Histórico</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: QUEUE BUILDER */}
@@ -228,25 +228,27 @@ export const QueueBuilderTab: React.FC = () => {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Configuração */}
             <div className="lg:col-span-2 space-y-6">
-              <Card>
+              <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-ios-dark-text">
+                    <div className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 flex items-center justify-center">
+                      <Settings className="w-5 h-5 text-ios-blue" />
+                    </div>
                     Configuração da Fila
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   {/* Seleção de Continente */}
                   <div>
-                    <label className="text-sm font-medium">Continente</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Continente</label>
                     <Select 
                       value={state.config.continent} 
                       onValueChange={(value) => updateConfig({ continent: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
                         <SelectItem value="Americas">🌎 Américas</SelectItem>
                         <SelectItem value="Europe">🇪🇺 Europa</SelectItem>
                         <SelectItem value="Asia">🌏 Ásia</SelectItem>
@@ -258,14 +260,14 @@ export const QueueBuilderTab: React.FC = () => {
 
                   {/* Tipos de Região */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Tipos de Região</label>
-                    <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">Tipos de Região</label>
+                    <div className="space-y-3">
                       {[
                         { value: 'country', label: '🏛️ Países', desc: 'Nações e territórios' },
                         { value: 'state', label: '🗺️ Estados/Províncias', desc: 'Divisões administrativas' },
                         { value: 'city', label: '🏙️ Cidades', desc: 'Centros urbanos principais' }
                       ].map(type => (
-                        <div key={type.value} className="flex items-center space-x-2">
+                        <div key={type.value} className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                           <Checkbox
                             id={type.value}
                             checked={state.config.regionTypes.includes(type.value)}
@@ -280,12 +282,13 @@ export const QueueBuilderTab: React.FC = () => {
                                 });
                               }
                             }}
+                            className="mt-0.5"
                           />
-                          <div>
-                            <label htmlFor={type.value} className="text-sm font-medium">
+                          <div className="flex-1">
+                            <label htmlFor={type.value} className="text-sm font-medium text-gray-900 dark:text-ios-dark-text cursor-pointer">
                               {type.label}
                             </label>
-                            <p className="text-xs text-gray-500">{type.desc}</p>
+                            <p className="text-xs text-ios-gray dark:text-ios-dark-text3 mt-1">{type.desc}</p>
                           </div>
                         </div>
                       ))}
@@ -294,9 +297,9 @@ export const QueueBuilderTab: React.FC = () => {
 
                   {/* Filtros */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Filtros Avançados</label>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">Filtros Avançados</label>
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                         <Checkbox
                           id="christian-majority"
                           checked={state.config.filters.onlyChristianMajority || false}
@@ -308,13 +311,14 @@ export const QueueBuilderTab: React.FC = () => {
                               } 
                             })
                           }
+                          className="mt-0.5"
                         />
-                        <label htmlFor="christian-majority" className="text-sm">
+                        <label htmlFor="christian-majority" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
                           ✝️ Apenas regiões com maioria cristã
                         </label>
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                         <Checkbox
                           id="crisis-regions"
                           checked={state.config.filters.crisisRegions || false}
@@ -326,13 +330,14 @@ export const QueueBuilderTab: React.FC = () => {
                               } 
                             })
                           }
+                          className="mt-0.5"
                         />
-                        <label htmlFor="crisis-regions" className="text-sm">
+                        <label htmlFor="crisis-regions" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
                           🆘 Regiões em crise (perseguição, conflito, crise humanitária)
                         </label>
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                         <Checkbox
                           id="strategic"
                           checked={state.config.filters.strategicImportance || false}
@@ -344,8 +349,9 @@ export const QueueBuilderTab: React.FC = () => {
                               } 
                             })
                           }
+                          className="mt-0.5"
                         />
-                        <label htmlFor="strategic" className="text-sm">
+                        <label htmlFor="strategic" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
                           🎯 Importância estratégica missionária
                         </label>
                       </div>
@@ -354,7 +360,7 @@ export const QueueBuilderTab: React.FC = () => {
 
                   {/* População Mínima */}
                   <div>
-                    <label className="text-sm font-medium">População Mínima</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">População Mínima</label>
                     <Input
                       type="number"
                       placeholder="Ex: 1000000 (1 milhão)"
@@ -367,12 +373,13 @@ export const QueueBuilderTab: React.FC = () => {
                           } 
                         })
                       }
+                      className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
                     />
                   </div>
 
                   {/* Custo por Região */}
                   <div>
-                    <label className="text-sm font-medium">Custo Estimado por Região (USD)</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Custo Estimado por Região (USD)</label>
                     <Input
                       type="number"
                       step="0.01"
@@ -382,17 +389,19 @@ export const QueueBuilderTab: React.FC = () => {
                       onChange={(e) => 
                         updateConfig({ estimatedCostPerRegion: parseFloat(e.target.value) || 0.03 })
                       }
+                      className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
                     />
                   </div>
 
                   {/* Prompt Customizado */}
                   <div>
-                    <label className="text-sm font-medium">Prompt Customizado (Opcional)</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Prompt Customizado (Opcional)</label>
                     <Textarea
                       placeholder="Deixe vazio para usar o template padrão..."
                       value={state.config.customPrompt || ''}
                       onChange={(e) => updateConfig({ customPrompt: e.target.value || undefined })}
                       rows={3}
+                      className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
                     />
                   </div>
 

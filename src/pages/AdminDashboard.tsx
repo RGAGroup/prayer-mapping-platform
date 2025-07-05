@@ -17,14 +17,15 @@ import {
   Clock,
   Database,
   Wifi,
-  WifiOff
+  WifiOff,
+  Sparkles,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import { useAdminData } from '@/hooks/useAdminData';
 import RegionsTab from '@/components/admin/RegionsTab';
 import { PrayerStatsTab } from '@/components/admin/PrayerStatsTab';
 import { AdvancedAgentTab } from '@/components/admin/AdvancedAgentTab';
-
-
 
 const AdminDashboard = () => {
   const { stats, loading, error, isConnected } = useAdminData();
@@ -43,10 +44,12 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray6 to-white dark:from-ios-dark-bg to-ios-dark-bg2 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando dashboard admin...</p>
+          <div className="w-16 h-16 rounded-ios-xl bg-ios-glass backdrop-blur-ios border border-white/20 flex items-center justify-center mb-6 animate-ios-bounce">
+            <div className="w-8 h-8 border-3 border-ios-blue border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">Carregando dashboard admin...</p>
         </div>
       </div>
     );
@@ -58,275 +61,186 @@ const AdminDashboard = () => {
   return (
     <Wrapper apiKey={apiKey} version="beta" libraries={["marker", "geometry", "places"]}>
       <GoogleMapsLoader />
-      <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard Administrativo</h1>
-              <p className="text-gray-600">Gerenciamento do Mapa Global de Intercessão</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {isConnected ? (
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  <Wifi className="w-3 h-3 mr-1" />
-                  Supabase Conectado
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-red-100 text-red-800">
-                  <WifiOff className="w-3 h-3 mr-1" />
-                  Offline
-                </Badge>
-              )}
-              {error && (
-                <Badge variant="secondary" className="bg-orange-100 text-orange-800 max-w-xs truncate">
-                  <AlertTriangle className="w-3 h-3 mr-1" />
-                  {error.length > 30 ? error.substring(0, 30) + '...' : error}
-                </Badge>
-              )}
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                Configurações
-              </Button>
+      <div className="min-h-screen bg-gradient-to-br from-ios-gray6 to-white dark:from-ios-dark-bg to-ios-dark-bg2">
+        {/* Header iOS Style */}
+        <div className="bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border-b border-ios-gray5/30 dark:border-ios-dark-bg4/30 sticky top-20 z-40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ios-dark-text tracking-tight truncate">
+                  Dashboard Administrativo
+                </h1>
+                <p className="text-ios-gray dark:text-ios-dark-text3 font-medium mt-1 text-sm sm:text-base">
+                  Gerenciamento do Mapa Global de Intercessão
+                </p>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                {isConnected ? (
+                  <Badge className="bg-ios-green/10 text-ios-green border-ios-green/20 rounded-ios-md px-2 sm:px-3 py-1 text-xs sm:text-sm">
+                    <Wifi className="w-3 h-3 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Supabase </span>Conectado
+                  </Badge>
+                ) : (
+                  <Badge className="bg-ios-red/10 text-ios-red border-ios-red/20 rounded-ios-md px-2 sm:px-3 py-1 text-xs sm:text-sm">
+                    <WifiOff className="w-3 h-3 mr-1 sm:mr-2" />
+                    Offline
+                  </Badge>
+                )}
+                {error && (
+                  <Badge className="bg-ios-orange/10 text-ios-orange border-ios-orange/20 rounded-ios-md px-2 sm:px-3 py-1 max-w-xs truncate text-xs sm:text-sm">
+                    <AlertTriangle className="w-3 h-3 mr-1 sm:mr-2" />
+                    {error.length > 20 ? error.substring(0, 20) + '...' : error}
+                  </Badge>
+                )}
+                <Button className="ios-button bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 text-ios-gray dark:text-ios-dark-text2 border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-md text-xs sm:text-sm px-2 sm:px-3 py-2">
+                  <Settings className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Configurações</span>
+                  <span className="sm:hidden">Config</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">📊 Visão Geral</TabsTrigger>
-            <TabsTrigger value="regions">🗺️ Mapeamento Global</TabsTrigger>
-            <TabsTrigger value="prayer-stats">🙏 Oração</TabsTrigger>
-            <TabsTrigger value="queue-builder">🤖 Agente IA</TabsTrigger>
-            <TabsTrigger value="analytics">📈 Analytics</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            {/* Estatísticas Principais */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Regiões</CardTitle>
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalRegions.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">
-                    +12 nas últimas 24h
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Aprovações Pendentes</CardTitle>
-                  <Clock className="h-4 w-4 text-orange-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">{stats.pendingApprovals}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Requer atenção
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stats.activeIntercessors} intercessores ativos
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Dados por IA</CardTitle>
-                  <Database className="h-4 w-4 text-blue-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">{stats.aiGeneratedData}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stats.manualEntries} entradas manuais
-                  </p>
-                </CardContent>
-              </Card>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
+            {/* iOS Style Tab Navigation - Responsivo */}
+            <div className="bg-white/60 dark:bg-ios-dark-bg2/60 backdrop-blur-ios rounded-ios-xl border border-ios-gray5/20 dark:border-ios-dark-bg4/20 p-1 sm:p-2 shadow-ios-lg">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-transparent gap-1 sm:gap-2">
+                <TabsTrigger 
+                  value="overview" 
+                  className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
+                >
+                  <span className="hidden sm:inline">📊 Visão Geral</span>
+                  <span className="sm:hidden">📊</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="regions"
+                  className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
+                >
+                  <span className="hidden sm:inline">🗺️ Mapeamento</span>
+                  <span className="sm:hidden">🗺️</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="prayer-stats"
+                  className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 col-span-2 sm:col-span-1"
+                >
+                  <span className="hidden sm:inline">🙏 Oração</span>
+                  <span className="sm:hidden">🙏 Oração</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="queue-builder"
+                  className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 hidden sm:inline-flex"
+                >
+                  🤖 Agente IA
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analytics"
+                  className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 hidden sm:inline-flex"
+                >
+                  📈 Analytics
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            {/* Atividade Recente */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Atividade Recente</CardTitle>
-                  <CardDescription>Últimas ações no sistema</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      {
-                        action: 'Nova região aprovada',
-                        region: 'São Paulo, Brasil',
-                        user: 'Admin João',
-                        time: '2 min atrás',
-                        type: 'approval'
-                      },
-                      {
-                        action: 'Dados AI gerados',
-                        region: 'Estados Unidos',
-                        user: 'Sistema AI',
-                        time: '15 min atrás',
-                        type: 'ai'
-                      },
-                      {
-                        action: 'Usuário promovido',
-                        region: 'Maria Silva → Moderador',
-                        user: 'Admin Pedro',
-                        time: '1h atrás',
-                        type: 'user'
-                      },
-                      {
-                        action: 'Alerta criado',
-                        region: 'Venezuela',
-                        user: 'Moderador Ana',
-                        time: '2h atrás',
-                        type: 'alert'
-                      }
-                    ].map((activity, index) => (
-                      <div key={index} className="flex items-center space-x-3">
-                        <div className={`w-2 h-2 rounded-full ${
-                          activity.type === 'approval' ? 'bg-green-500' :
-                          activity.type === 'ai' ? 'bg-blue-500' :
-                          activity.type === 'user' ? 'bg-purple-500' :
-                          'bg-orange-500'
-                        }`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.action}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {activity.region} • por {activity.user}
-                          </p>
-                        </div>
-                        <span className="text-xs text-gray-400">{activity.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Status do Sistema</CardTitle>
-                  <CardDescription>Monitoramento em tempo real</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">API Google Maps</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Online
-                      </Badge>
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6 sm:space-y-8 animate-ios-fade-in">
+              {/* Estatísticas Principais - iOS Cards - Grid Responsivo */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Total de Regiões</CardTitle>
+                    <div className="w-10 h-10 rounded-ios-md bg-ios-blue/10 flex items-center justify-center">
+                      <Globe className="h-5 w-5 text-ios-blue" />
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Banco de Dados</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Conectado
-                      </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{stats.totalRegions.toLocaleString()}</div>
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="w-4 h-4 text-ios-green mr-1" />
+                      <p className="text-xs sm:text-sm text-ios-green font-medium">+12 nas últimas 24h</p>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">OpenAI API</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Ativo
-                      </Badge>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Aprovações Pendentes</CardTitle>
+                    <div className="w-10 h-10 rounded-ios-md bg-ios-orange/10 flex items-center justify-center">
+                      <Clock className="h-5 w-5 text-ios-orange" />
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Queue de Processamento</span>
-                      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                        <Clock className="w-3 h-3 mr-1" />
-                        12 pendentes
-                      </Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl sm:text-3xl font-bold text-ios-orange">{stats.pendingApprovals}</div>
+                    <div className="flex items-center mt-2">
+                      <Zap className="w-4 h-4 text-ios-orange mr-1" />
+                      <p className="text-xs sm:text-sm text-ios-orange font-medium">Requer atenção</p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
 
-            {/* Ações Rápidas */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Ações Rápidas</CardTitle>
-                <CardDescription>Acesso rápido às funções principais</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <MapPin className="h-5 w-5" />
-                    <span className="text-sm">Nova Região</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <Users className="h-5 w-5" />
-                    <span className="text-sm">Gerenciar Usuários</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <Database className="h-5 w-5" />
-                    <span className="text-sm">Gerar Dados AI</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    <span className="text-sm">Relatórios</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Usuários Ativos</CardTitle>
+                    <div className="w-10 h-10 rounded-ios-md bg-ios-purple/10 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-ios-purple" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{stats.totalUsers.toLocaleString()}</div>
+                    <div className="flex items-center mt-2">
+                      <Activity className="w-4 h-4 text-ios-purple mr-1" />
+                      <p className="text-xs sm:text-sm text-ios-purple font-medium">{stats.activeIntercessors} intercessores ativos</p>
+                    </div>
+                  </CardContent>
+                </Card>
 
+                <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Dados por IA</CardTitle>
+                    <div className="w-10 h-10 rounded-ios-md bg-ios-indigo/10 flex items-center justify-center">
+                      <Sparkles className="h-5 w-5 text-ios-indigo" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl sm:text-3xl font-bold text-ios-indigo">{stats.aiGeneratedData}</div>
+                    <div className="flex items-center mt-2">
+                      <Database className="w-4 h-4 text-ios-indigo mr-1" />
+                      <p className="text-xs sm:text-sm text-ios-indigo font-medium">{stats.manualEntries} entradas manuais</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
+            {/* Regions Tab */}
+            <TabsContent value="regions" className="animate-ios-fade-in">
+              <RegionsTab />
+            </TabsContent>
 
-          {/* Regions Tab */}
-          <TabsContent value="regions">
-            <RegionsTab />
-          </TabsContent>
+            {/* Prayer Stats Tab */}
+            <TabsContent value="prayer-stats" className="animate-ios-fade-in">
+              <PrayerStatsTab />
+            </TabsContent>
 
-          {/* Prayer Stats Tab */}
-          <TabsContent value="prayer-stats">
-            <PrayerStatsTab />
-          </TabsContent>
+            {/* Queue Builder Tab */}
+            <TabsContent value="queue-builder" className="animate-ios-fade-in">
+              <AdvancedAgentTab />
+            </TabsContent>
 
-          {/* Queue Builder Tab */}
-          <TabsContent value="queue-builder">
-            <AdvancedAgentTab />
-          </TabsContent>
-
-
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analytics e Relatórios</CardTitle>
-                <CardDescription>Em desenvolvimento...</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">Dashboard de analytics será implementado aqui.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            {/* Analytics Tab */}
+            <TabsContent value="analytics" className="animate-ios-fade-in">
+              <div className="text-center py-20">
+                <BarChart3 className="w-16 h-16 mx-auto text-ios-gray mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-ios-dark-text mb-2">Analytics em Desenvolvimento</h3>
+                <p className="text-ios-gray dark:text-ios-dark-text3">Esta seção estará disponível em breve.</p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
     </Wrapper>
   );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;

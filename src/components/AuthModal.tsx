@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { X, Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { X, Mail, Lock, User, Eye, EyeOff, AlertCircle, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -75,58 +74,80 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <Card className="w-full max-w-md mx-4 prayer-card divine-glow">
-        <CardHeader className="relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <Card className="w-full max-w-md bg-white dark:bg-slate-900 backdrop-blur-ios border-slate-200 dark:border-slate-700 rounded-ios-2xl shadow-ios-2xl animate-ios-slide-up">
+        <CardHeader className="relative text-center pb-6">
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="absolute top-4 right-4"
+            className="absolute top-4 right-4 w-8 h-8 rounded-ios-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 hover:scale-105 active:scale-95"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 text-slate-600 dark:text-slate-400" />
           </Button>
-          <CardTitle className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-celestial-500 to-divine-500 divine-glow">
-                <User className="h-5 w-5 text-white" />
+
+          {/* Logo e Header */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-ios-xl bg-gradient-to-br from-ios-blue via-ios-purple to-ios-indigo flex items-center justify-center shadow-ios-lg">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-ios-green rounded-full flex items-center justify-center shadow-ios-sm">
+                <Sparkles className="h-3 w-3 text-white" />
               </div>
             </div>
-            <h2 className="celestial-text text-xl">Junte-se à Rede Global</h2>
-            <p className="text-sm text-muted-foreground font-normal mt-2">
+          </div>
+
+          <CardTitle className="space-y-2">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Mapa Global de Intercessão
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
               Conecte-se com intercessores ao redor do mundo
             </p>
           </CardTitle>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-6">
           {error && (
-            <Alert className="mb-4 border-red-200 bg-red-50">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-              <AlertDescription className="text-red-700">
+            <Alert className="bg-ios-red/10 border-ios-red/20 rounded-ios-lg animate-ios-fade-in">
+              <AlertCircle className="h-4 w-4 text-ios-red" />
+              <AlertDescription className="text-ios-red font-medium">
                 {error}
               </AlertDescription>
             </Alert>
           )}
           
-          <Tabs defaultValue="login" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-              <TabsTrigger value="login">Entrar</TabsTrigger>
-              <TabsTrigger value="register">Registrar</TabsTrigger>
+          <Tabs defaultValue="login" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 rounded-ios-xl p-1 h-12">
+              <TabsTrigger 
+                value="login" 
+                className="rounded-ios-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-semibold text-slate-700 dark:text-slate-300 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white"
+              >
+                Entrar
+              </TabsTrigger>
+              <TabsTrigger 
+                value="register" 
+                className="rounded-ios-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-semibold text-slate-700 dark:text-slate-300 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white"
+              >
+                Registrar
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="login">
+            <TabsContent value="login" className="space-y-4">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-slate-900 dark:text-white font-semibold">
+                    Email
+                  </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="pl-9"
+                      className="pl-10 h-12 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -135,15 +156,17 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password" className="text-slate-900 dark:text-white font-semibold">
+                    Senha
+                  </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Sua senha"
-                      className="pl-9 pr-9"
+                      className="pl-10 pr-10 h-12 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
@@ -151,35 +174,44 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-ios-blue dark:hover:text-ios-blue transition-colors duration-200"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-celestial-600 to-divine-600 hover:from-celestial-700 hover:to-divine-700 text-white border-0"
+                  className="w-full h-12 bg-gradient-to-r from-ios-blue to-ios-purple hover:from-ios-blue/90 hover:to-ios-purple/90 text-white border-0 rounded-ios-lg font-semibold text-base shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-xl"
                   disabled={loading}
                 >
-                  {loading ? "Entrando..." : "Entrar na Rede"}
+                  {loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Entrando...</span>
+                    </div>
+                  ) : (
+                    "Entrar na Rede"
+                  )}
                 </Button>
               </form>
             </TabsContent>
 
-            <TabsContent value="register">
+            <TabsContent value="register" className="space-y-4">
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nome completo</Label>
+                  <Label htmlFor="name" className="text-slate-900 dark:text-white font-semibold">
+                    Nome completo
+                  </Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="name"
                       name="name"
                       type="text"
                       placeholder="Seu nome"
-                      className="pl-9"
+                      className="pl-10 h-12 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200"
                       value={formData.name}
                       onChange={handleInputChange}
                       required
@@ -188,15 +220,17 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="reg-email">Email</Label>
+                  <Label htmlFor="reg-email" className="text-slate-900 dark:text-white font-semibold">
+                    Email
+                  </Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="reg-email"
                       name="email"
                       type="email"
                       placeholder="seu@email.com"
-                      className="pl-9"
+                      className="pl-10 h-12 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200"
                       value={formData.email}
                       onChange={handleInputChange}
                       required
@@ -205,15 +239,17 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="reg-password">Senha</Label>
+                  <Label htmlFor="reg-password" className="text-slate-900 dark:text-white font-semibold">
+                    Senha
+                  </Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <Input
                       id="reg-password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Escolha uma senha"
-                      className="pl-9 pr-9"
+                      placeholder="Crie uma senha"
+                      className="pl-10 pr-10 h-12 bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
@@ -221,28 +257,35 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-ios-blue dark:hover:text-ios-blue transition-colors duration-200"
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-celestial-600 to-divine-600 hover:from-celestial-700 hover:to-divine-700 text-white border-0"
+                  className="w-full h-12 bg-gradient-to-r from-ios-green to-ios-blue hover:from-ios-green/90 hover:to-ios-blue/90 text-white border-0 rounded-ios-lg font-semibold text-base shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-xl"
                   disabled={loading}
                 >
-                  {loading ? "Criando conta..." : "Juntar-se à Rede"}
+                  {loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Criando conta...</span>
+                    </div>
+                  ) : (
+                    "Criar Conta"
+                  )}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Ao se registrar, você concorda em participar da rede global de intercessão 
-              e compartilhar palavras proféticas com responsabilidade espiritual.
+          {/* Termos e Condições */}
+          <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Ao se registrar, você concorda em participar da rede global de intercessão e compartilhar palavras proféticas com responsabilidade espiritual.
             </p>
           </div>
         </CardContent>
