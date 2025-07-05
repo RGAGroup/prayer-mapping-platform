@@ -58,62 +58,57 @@ export const useAuth = () => {
     try {
       console.log('🔍 Buscando perfil do usuário:', userId);
       
-      // Temporary: Use mock profile until database is properly configured
-      console.log('⚠️ Usando perfil mock temporário (database não configurado)');
+      // Primeiro tenta buscar o perfil existente
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
       
-      const mockProfile: UserProfile = {
-        id: `mock-${userId.slice(0, 8)}`,
-        user_id: userId,
-        role: 'admin', // First user gets admin
-        display_name: user?.email?.split('@')[0] || 'Admin',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
-      setUserProfile(mockProfile);
-      console.log('✅ Perfil mock criado:', mockProfile);
-      return;
-
-      /* COMMENTED OUT - TO BE REACTIVATED WHEN DATABASE IS FIXED
-      // Try to fetch from real user_profiles table
-      const response = await fetch(
-        `https://cxibuehwbuobwruhzwka.supabase.co/rest/v1/user_profiles?user_id=eq.${userId}&select=*`,
-        {
-          headers: {
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aWJ1ZWh3YnVvYndydWh6d2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODM1MTIsImV4cCI6MjA2NjA1OTUxMn0.ElIj9TZvwu-0cXhypRUylA0glF2V7F2WNnrdTzJZbd4',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aWJ1ZWh3YnVvYndydWh6d2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODM1MTIsImV4cCI6MjA2NjA1OTUxMn0.ElIj9TZvwu-0cXhypRUylA0glF2V7F2WNnrdTzJZbd4',
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.ok) {
-        const profiles = await response.json();
-        
-        if (profiles && profiles.length > 0) {
-          console.log('✅ Perfil encontrado:', profiles[0]);
-          setUserProfile(profiles[0]);
-          return;
-        }
+      if (profile && !error) {
+        console.log('✅ Perfil encontrado:', profile);
+        setUserProfile(profile as UserProfile);
+        return;
       }
-
-      // If no profile exists, create one (first user gets admin)
-      console.log('📝 Perfil não encontrado, criando novo...');
-      await createUserProfile(userId);
-      */
+      
+      console.log('📝 Perfil não encontrado, tentando criar manualmente...');
+      
+      // Se não encontrou, tenta criar manualmente
+      const profileCreated = await createUserProfileManually(
+        userId,
+        user?.email || 'user@example.com'
+      );
+      
+      if (!profileCreated) {
+        console.log('⚠️ Não foi possível criar perfil, usando mock temporário');
+        
+        // Fallback para perfil mock
+        const mockProfile: UserProfile = {
+          id: `mock-${userId.slice(0, 8)}`,
+          user_id: userId,
+          role: 'admin',
+          display_name: user?.email?.split('@')[0] || 'Admin',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        
+        setUserProfile(mockProfile);
+      }
 
     } catch (err) {
       console.error('❌ Erro ao buscar perfil:', err);
       
-      // Fallback to mock profile
-      setUserProfile({
+      // Fallback para perfil mock
+      const mockProfile: UserProfile = {
         id: 'mock-id',
         user_id: userId,
         role: 'admin',
         display_name: user?.email?.split('@')[0] || 'Usuário',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      });
+      };
+      
+      setUserProfile(mockProfile);
     }
   };
 
@@ -182,6 +177,61 @@ export const useAuth = () => {
       });
     }
     */
+  };
+
+  const createUserProfileManually = async (userId: string, email: string, displayName?: string) => {
+    try {
+      console.log('🔧 Criando perfil manualmente para:', userId);
+      
+      // Verifica se já existe um perfil
+      const { data: existingProfile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (existingProfile) {
+        console.log('✅ Perfil já existe:', existingProfile);
+        setUserProfile(existingProfile as UserProfile);
+        return true;
+      }
+      
+      // Conta quantos usuários existem para determinar se é admin
+      const { count } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      const isFirstUser = (count || 0) === 0;
+      const role: 'admin' | 'user' = isFirstUser ? 'admin' : 'user';
+      
+      console.log(`👤 Criando perfil como ${role} (primeiro usuário: ${isFirstUser})`);
+      
+      // Cria o perfil
+      const { data: newProfile, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          user_id: userId,
+          role: role,
+          display_name: displayName || email.split('@')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Erro ao criar perfil:', error);
+        return false;
+      }
+      
+      console.log('✅ Perfil criado manualmente:', newProfile);
+      setUserProfile(newProfile as UserProfile);
+      return true;
+      
+    } catch (error) {
+      console.error('❌ Erro na criação manual do perfil:', error);
+      return false;
+    }
   };
 
   const signIn = async (email: string, password: string) => {
@@ -271,6 +321,19 @@ export const useAuth = () => {
             
             if (loginResult.data?.user && !loginResult.error) {
               console.log('✅ Login automático realizado com sucesso após erro de banco!');
+              
+              // Tenta criar o perfil manualmente
+              const profileCreated = await createUserProfileManually(
+                loginResult.data.user.id,
+                email,
+                displayName
+              );
+              
+              if (profileCreated) {
+                console.log('✅ Perfil criado manualmente após login automático!');
+                return { data: loginResult.data, error: null };
+              }
+              
               return { data: loginResult.data, error: null };
             } else if (loginResult.error?.message.includes('Invalid login credentials')) {
               // Usuário criado mas precisa confirmar email
