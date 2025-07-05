@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -191,6 +191,20 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 </div>
               </div>
 
+              {/* Outras Informações Importantes */}
+              {data.recentActivity.find(activity => activity.id === 'outras-info') && (
+                <div className="p-3 rounded-lg border-2 border-purple-200 bg-purple-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="w-5 h-5 text-purple-600" />
+                    <span className="font-semibold text-purple-800">📋 Outras Informações Importantes</span>
+                  </div>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {data.recentActivity.find(activity => activity.id === 'outras-info')?.description || 
+                     'Nenhuma informação adicional disponível.'}
+                  </div>
+                </div>
+              )}
+
               {/* Estatísticas */}
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
@@ -351,6 +365,20 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 )}
               </div>
             </div>
+
+            {/* Outras Informações Importantes */}
+            {data.recentActivity.find(activity => activity.id === 'outras-info') && (
+              <div className="p-3 rounded-lg border-2 border-purple-200 bg-purple-50">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-5 h-5 text-purple-600" />
+                  <span className="font-semibold text-purple-800">📋 Outras Informações Importantes</span>
+                </div>
+                <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {data.recentActivity.find(activity => activity.id === 'outras-info')?.description || 
+                   'Nenhuma informação adicional disponível.'}
+                </div>
+              </div>
+            )}
 
             {/* Estatísticas - Grid adaptado para mobile */}
             <div>

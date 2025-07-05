@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Processar Tarefas Pendentes</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .big-button {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .big-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .big-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 2px solid #28a745;
+        }
+        .error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 2px solid #dc3545;
+        }
+        .info {
+            background: rgba(23, 162, 184, 0.2);
+            border: 2px solid #17a2b8;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            color: #212529;
+        }
+        .progress {
+            width: 100%;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .task-list {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">⚡</span>Processar Tarefas Pendentes</h1>
+            <p style="font-size: 20px; margin: 0;">
+                Vamos processar as 2 tarefas pendentes automaticamente!
+            </p>
+        </div>
+
+        <button class="big-button" onclick="processarTudo()">
+            <span class="emoji">🚀</span>PROCESSAR TUDO AUTOMATICAMENTE
+        </button>
+
+        <div class="progress" id="progress-container" style="display: none;">
+            <div class="progress-bar" id="progress-bar" style="width: 0%;">0%</div>
+        </div>
+
+        <div id="result"></div>
+
+        <div id="tasks-container"></div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://cxibuehwbuobwruhzwka.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aWJ1ZWh3YnVvYndydWh6d2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODM1MTIsImV4cCI6MjA2NjA1OTUxMn0.ElIj9TZvwu-0cXhypRUylA0glF2V7F2WNnrdTzJZbd4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function showResult(message, type = 'info') {
+            const element = document.getElementById('result');
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showTasks(tasks) {
+            const container = document.getElementById('tasks-container');
+            if (!tasks || tasks.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const taskList = tasks.map(task => `
+                <div class="task-item">
+                    <div>
+                        <strong>${task.task_type}</strong><br>
+                        <small>ID: ${task.id.substring(0, 8)}...</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 12px;">
+                            ${new Date(task.created_at).toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="task-list">
+                    <h3><span class="emoji">📋</span>Tarefas Encontradas:</h3>
+                    ${taskList}
+                </div>
+            `;
+        }
+
+        async function processarTudo() {
+            try {
+                console.log('🚀 Iniciando processamento automático...');
+                
+                // Mostrar progresso
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('progress-bar').style.width = '10%';
+                document.getElementById('progress-bar').textContent = 'Buscando tarefas...';
+                
+                showResult('🔍 Buscando tarefas pendentes...', 'info');
+                
+                // 1. Buscar tarefas pendentes
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('*')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) {
+                    showResult(`❌ Erro ao buscar tarefas: ${error.message}`, 'error');
+                    return;
+                }
+
+                if (!pendingTasks || pendingTasks.length === 0) {
+                    showResult('✅ Nenhuma tarefa pendente encontrada! O sistema está em dia.', 'success');
+                    document.getElementById('progress-container').style.display = 'none';
+                    return;
+                }
+
+                console.log(`📋 Encontradas ${pendingTasks.length} tarefas pendentes`);
+                showTasks(pendingTasks);
+
+                // Atualizar progresso
+                document.getElementById('progress-bar').style.width = '30%';
+                document.getElementById('progress-bar').textContent = `Processando ${pendingTasks.length} tarefas...`;
+
+                showResult(`🔄 Processando ${pendingTasks.length} tarefas pendentes...`, 'info');
+
+                let processadas = 0;
+                let falhas = 0;
+
+                // 2. Processar cada tarefa
+                for (let i = 0; i < pendingTasks.length; i++) {
+                    const task = pendingTasks[i];
+                    
+                    try {
+                        const progress = 30 + Math.round(((i + 1) / pendingTasks.length) * 60);
+                        document.getElementById('progress-bar').style.width = `${progress}%`;
+                        document.getElementById('progress-bar').textContent = `${progress}% (${i + 1}/${pendingTasks.length})`;
+
+                        console.log(`🔄 Processando tarefa ${i + 1}/${pendingTasks.length}: ${task.task_type}`);
+
+                        // Buscar dados da região
+                        const { data: region, error: regionError } = await supabase
+                            .from('spiritual_regions')
+                            .select('name')
+                            .eq('id', task.region_id)
+                            .single();
+
+                        const regionName = region ? region.name : 'Região desconhecida';
+
+                        // A. Salvar conteúdo na spiritual_regions
+                        if (task.result_data && task.region_id) {
+                            const updateData = {};
+                            updateData[task.task_type] = task.result_data;
+
+                            const { error: saveError } = await supabase
+                                .from('spiritual_regions')
+                                .update(updateData)
+                                .eq('id', task.region_id);
+
+                            if (saveError) {
+                                console.error('Erro ao salvar região:', saveError);
+                                throw saveError;
+                            }
+
+                            console.log(`✅ Conteúdo salvo para ${regionName}: ${task.task_type}`);
+                        }
+
+                        // B. Atualizar status da tarefa
+                        const { error: taskError } = await supabase
+                            .from('agent_tasks')
+                            .update({
+                                user_approved: true,
+                                approved_at: new Date().toISOString(),
+                                status: 'completed'
+                            })
+                            .eq('id', task.id);
+
+                        if (taskError) {
+                            console.error('Erro ao atualizar tarefa:', taskError);
+                            throw taskError;
+                        }
+
+                        processadas++;
+                        console.log(`✅ Tarefa processada: ${regionName} - ${task.task_type}`);
+
+                        // Pequeno delay para não sobrecarregar
+                        await new Promise(resolve => setTimeout(resolve, 200));
+
+                    } catch (error) {
+                        falhas++;
+                        console.error(`❌ Falha na tarefa ${task.id}:`, error);
+                    }
+                }
+
+                // 3. Resultado final
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-bar').textContent = '100% - Concluído!';
+
+                if (falhas === 0) {
+                    showResult(`
+                        🎉 <strong>SUCESSO TOTAL!</strong><br><br>
+                        ✅ <strong>${processadas}</strong> tarefas processadas com sucesso<br>
+                        ❌ <strong>${falhas}</strong> falhas<br><br>
+                        <strong style="font-size: 24px;">🎯 PROBLEMA RESOLVIDO!</strong><br><br>
+                        Agora todas as regiões devem mostrar o conteúdo gerado pela IA.<br><br>
+                        <strong>Próximo passo:</strong> Volte ao sistema principal e verifique as regiões!<br><br>
+                        <a href="http://localhost:8083/admin" target="_blank" 
+                           style="color: #ffc107; text-decoration: none; font-size: 18px;">
+                            🔗 Abrir Sistema Principal →
+                        </a>
+                    `, 'success');
+                } else {
+                    showResult(`
+                        ⚠️ <strong>Processamento concluído com algumas falhas:</strong><br><br>
+                        ✅ <strong>${processadas}</strong> tarefas processadas<br>
+                        ❌ <strong>${falhas}</strong> falhas<br><br>
+                        A maioria do conteúdo deve estar disponível agora.
+                    `, 'warning');
+                }
+
+                // Esconder progresso após 5 segundos
+                setTimeout(() => {
+                    document.getElementById('progress-container').style.display = 'none';
+                }, 5000);
+
+            } catch (error) {
+                showResult(`❌ Erro geral: ${error.message}`, 'error');
+                console.error('Erro:', error);
+                document.getElementById('progress-container').style.display = 'none';
+            }
+        }
+
+        // Executar verificação inicial
+        window.onload = async function() {
+            console.log('⚡ Sistema de processamento carregado');
+            
+            try {
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('*')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) {
+                    showResult(`❌ Erro ao verificar tarefas: ${error.message}`, 'error');
+                    return;
+                }
+
+                if (pendingTasks && pendingTasks.length > 0) {
+                    showResult(`⚠️ Encontradas <strong>${pendingTasks.length}</strong> tarefas pendentes!<br>Clique no botão para processar todas automaticamente.`, 'warning');
+                    showTasks(pendingTasks);
+                } else {
+                    showResult('✅ Nenhuma tarefa pendente encontrada!<br>O sistema está funcionando corretamente.', 'success');
+                }
+            } catch (error) {
+                showResult(`❌ Erro: ${error.message}`, 'error');
+            }
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 PROCESSAR PENDENTES - AGORA!</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 3em;
+            margin: 0 0 20px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .status {
+            font-size: 24px;
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        .info { background: rgba(23, 162, 184, 0.3); border: 3px solid #17a2b8; }
+        .success { background: rgba(40, 167, 69, 0.3); border: 3px solid #28a745; }
+        .error { background: rgba(220, 53, 69, 0.3); border: 3px solid #dc3545; }
+        .warning { background: rgba(255, 193, 7, 0.3); border: 3px solid #ffc107; color: #212529; }
+        
+        .big-button {
+            font-size: 28px;
+            padding: 25px 50px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 30px 10px;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            display: inline-block;
+            text-decoration: none;
+        }
+        .big-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+        .big-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress {
+            width: 100%;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 30px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .task-info {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .emoji { font-size: 1.5em; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 PROCESSAR AGORA!</h1>
+        
+        <div id="status" class="status info">
+            <span class="emoji">🔍</span>Verificando tarefas pendentes...
+        </div>
+
+        <div id="task-details"></div>
+
+        <button id="process-btn" class="big-button" onclick="processarAgora()" style="display: none;">
+            <span class="emoji">⚡</span>PROCESSAR AUTOMATICAMENTE
+        </button>
+
+        <div class="progress" id="progress-container">
+            <div class="progress-bar" id="progress-bar" style="width: 0%;">0%</div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="http://localhost:8083/admin" target="_blank" class="big-button" style="background: linear-gradient(45deg, #6f42c1, #5a2d91);">
+                <span class="emoji">🏠</span>VOLTAR AO SISTEMA
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://cxibuehwbuobwruhzwka.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aWJ1ZWh3YnVvYndydWh6d2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODM1MTIsImV4cCI6MjA2NjA1OTUxMn0.ElIj9TZvwu-0cXhypRUylA0glF2V7F2WNnrdTzJZbd4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status ${type}`;
+            statusEl.innerHTML = message;
+        }
+
+        function showTaskDetails(tasks) {
+            if (!tasks || tasks.length === 0) return;
+
+            const regionNames = {
+                'a590bc58-13d0-4020-aaf3-9133437097ee': 'Estados Unidos',
+                'b7a70029-ea64-40d7-a769-42cc445513ea': 'Argentina'
+            };
+
+            const taskList = tasks.map(task => {
+                const regionName = regionNames[task.region_id] || 'Região desconhecida';
+                return `
+                    <div style="background: rgba(255,255,255,0.1); padding: 15px; margin: 10px 0; border-radius: 10px;">
+                        <strong>${regionName}</strong> - ${task.task_type}<br>
+                        <small>Criado: ${new Date(task.created_at).toLocaleString()}</small>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('task-details').innerHTML = `
+                <div class="task-info">
+                    <h3><span class="emoji">📋</span>Tarefas Pendentes Encontradas:</h3>
+                    ${taskList}
+                </div>
+            `;
+        }
+
+        async function verificarTarefas() {
+            try {
+                updateStatus('<span class="emoji">🔍</span>Verificando tarefas pendentes...', 'info');
+
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('*')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) {
+                    updateStatus(`<span class="emoji">❌</span>Erro: ${error.message}`, 'error');
+                    return;
+                }
+
+                if (!pendingTasks || pendingTasks.length === 0) {
+                    updateStatus('<span class="emoji">✅</span>Nenhuma tarefa pendente! Sistema em dia.', 'success');
+                    return;
+                }
+
+                updateStatus(`<span class="emoji">⚠️</span>Encontradas <strong>${pendingTasks.length}</strong> tarefas pendentes!<br>Clique no botão para processar.`, 'warning');
+                showTaskDetails(pendingTasks);
+                document.getElementById('process-btn').style.display = 'inline-block';
+
+            } catch (error) {
+                updateStatus(`<span class="emoji">❌</span>Erro: ${error.message}`, 'error');
+            }
+        }
+
+        async function processarAgora() {
+            try {
+                document.getElementById('process-btn').disabled = true;
+                document.getElementById('progress-container').style.display = 'block';
+                
+                updateStatus('<span class="emoji">🚀</span>Processando tarefas...', 'info');
+
+                // 1. Buscar tarefas pendentes
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('*')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) throw error;
+                if (!pendingTasks || pendingTasks.length === 0) {
+                    updateStatus('<span class="emoji">✅</span>Nenhuma tarefa para processar!', 'success');
+                    return;
+                }
+
+                let processadas = 0;
+                const total = pendingTasks.length;
+
+                // 2. Processar cada tarefa
+                for (let i = 0; i < pendingTasks.length; i++) {
+                    const task = pendingTasks[i];
+                    
+                    try {
+                        const progress = Math.round(((i + 1) / total) * 100);
+                        document.getElementById('progress-bar').style.width = `${progress}%`;
+                        document.getElementById('progress-bar').textContent = `${progress}% (${i + 1}/${total})`;
+
+                        console.log(`🔄 Processando tarefa ${i + 1}/${total}: ${task.task_type}`);
+
+                        // A. Salvar conteúdo na spiritual_regions
+                        if (task.result_data && task.region_id) {
+                            const updateData = {};
+                            updateData[task.task_type] = task.result_data;
+
+                            const { error: saveError } = await supabase
+                                .from('spiritual_regions')
+                                .update(updateData)
+                                .eq('id', task.region_id);
+
+                            if (saveError) {
+                                console.error('Erro ao salvar região:', saveError);
+                                throw saveError;
+                            }
+
+                            console.log(`✅ Conteúdo salvo: ${task.task_type}`);
+                        }
+
+                        // B. Atualizar status da tarefa
+                        const { error: taskError } = await supabase
+                            .from('agent_tasks')
+                            .update({
+                                user_approved: true,
+                                approved_at: new Date().toISOString(),
+                                status: 'completed'
+                            })
+                            .eq('id', task.id);
+
+                        if (taskError) {
+                            console.error('Erro ao atualizar tarefa:', taskError);
+                            throw taskError;
+                        }
+
+                        processadas++;
+
+                        // Pequeno delay
+                        await new Promise(resolve => setTimeout(resolve, 300));
+
+                    } catch (error) {
+                        console.error(`❌ Falha na tarefa ${task.id}:`, error);
+                    }
+                }
+
+                // 3. Resultado final
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-bar').textContent = '100% - Concluído!';
+
+                updateStatus(`
+                    <span class="emoji">🎉</span><strong>SUCESSO TOTAL!</strong><br><br>
+                    ✅ <strong>${processadas}</strong> tarefas processadas<br><br>
+                    <strong>ARGENTINA e ESTADOS UNIDOS agora têm conteúdo!</strong><br><br>
+                    <span style="font-size: 20px;">Volte ao sistema e verifique!</span>
+                `, 'success');
+
+                document.getElementById('task-details').innerHTML = '';
+
+            } catch (error) {
+                updateStatus(`<span class="emoji">❌</span>Erro: ${error.message}`, 'error');
+                console.error('Erro:', error);
+                document.getElementById('process-btn').disabled = false;
+            }
+        }
+
+        // Executar verificação ao carregar
+        window.onload = function() {
+            console.log('🚀 Processador carregado');
+            setTimeout(verificarTarefas, 1000);
+        };
+    </script>
+</body>
+</html> 

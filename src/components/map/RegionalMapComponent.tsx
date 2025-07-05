@@ -107,7 +107,16 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
                 author: 'Rede de Oração',
                 date: new Date().toISOString(),
                 priority: 'high' as const,
-              }
+              },
+              ...(spiritualData.outras_informacoes_importantes ? [{
+                id: 'outras-info',
+                type: 'mission_base' as const,
+                title: '📋 Outras Informações Importantes',
+                description: spiritualData.outras_informacoes_importantes,
+                author: 'Agente Atalaia',
+                date: new Date().toISOString(),
+                priority: 'medium' as const,
+              }] : [])
             ],
             
             prayerTargets,

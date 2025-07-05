@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { southAmericaBatchService } from '../../services/southAmericaBatchService';
+import advancedAgentService from '../../services/advancedAgentService';
 import {
   Table,
   TableBody,
@@ -35,6 +35,7 @@ import {
   X,
   Play
 } from 'lucide-react';
+import { AgentPersona } from '../../types/Agent';
 
 interface SpiritualRegion {
   id: string;
@@ -219,10 +220,22 @@ const RegionsTab = () => {
   const [showPopulateModal, setShowPopulateModal] = useState(false);
   const [spiritualData, setSpiritualData] = useState<SpiritualData | null>(null);
   const [isUpdatingSpiritualData, setIsUpdatingSpiritualData] = useState(false);
+  const [personas, setPersonas] = useState<AgentPersona[]>([]);
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
 
   // Carregar dados reais do Supabase
   useEffect(() => {
     loadRegionsData();
+  }, []);
+
+  useEffect(() => {
+    // Carregar personas ao montar
+    advancedAgentService.getPersonas().then((data) => {
+      setPersonas(data);
+      if (data.length > 0) {
+        setSelectedPersonaId(data.find(p => p.is_default)?.id || data[0].id);
+      }
+    });
   }, []);
 
   const loadRegionsData = async () => {
@@ -421,7 +434,8 @@ const RegionsTab = () => {
   // Função para visualizar região
   const handleView = async (region: SpiritualRegion) => {
     console.log('👁️ Abrindo visualização para:', region.name);
-    console.log('📊 Dados da região:', region);
+    console.log('📊 Dados da região (cache):', region);
+    console.log('📊 spiritual_data (cache):', region.spiritual_data);
     
     // Buscar dados diretamente do banco para debug
     console.log('🔍 Buscando dados frescos do banco...');
@@ -433,9 +447,20 @@ const RegionsTab = () => {
       
     if (error) {
       console.error('❌ Erro ao buscar dados frescos:', error);
+      setSelectedRegion(region); // Usar dados do cache se falhar
     } else {
       console.log('🆕 Dados frescos do banco:', freshData);
       console.log('📊 spiritual_data fresco:', freshData?.spiritual_data);
+      console.log('📊 spiritual_data tipo:', typeof freshData?.spiritual_data);
+      
+      // Verificar se os dados existem
+      if (freshData?.spiritual_data) {
+        console.log('✅ Dados espirituais encontrados!');
+        console.log('📄 Conteúdo completo:', JSON.stringify(freshData.spiritual_data, null, 2));
+      } else {
+        console.log('⚠️ Nenhum dado espiritual encontrado');
+      }
+      
       // Usar dados frescos
       setSelectedRegion(freshData);
     }
@@ -466,6 +491,44 @@ const RegionsTab = () => {
     }
     
     setShowEditModal(true);
+  };
+
+  // Função para gerar dados com IA
+  const handleGenerateWithAI = async (region: SpiritualRegion) => {
+    console.log('🤖 Gerando dados com IA para:', region.name);
+    try {
+      if (!selectedPersonaId) {
+        alert('Selecione uma persona antes de gerar.');
+        return;
+      }
+      const persona = personas.find(p => p.id === selectedPersonaId);
+      if (!persona) {
+        alert('Persona selecionada não encontrada.');
+        return;
+      }
+      // Criar contexto da região
+      const regionContext = {
+        region_id: region.id,
+        region_name: region.name,
+        region_type: region.region_type as 'country' | 'state' | 'city' | 'neighborhood',
+        country_code: region.country_code,
+        coordinates: region.coordinates,
+        existing_spiritual_data: region.spiritual_data
+      };
+      // Executar geração de dados espirituais
+      const result = await advancedAgentService.executeTask(
+        persona,
+        regionContext,
+        'spiritual_data'
+      );
+      console.log('✅ Dados gerados com sucesso:', result);
+      // Recarregar dados para mostrar a atualização
+      await loadRegionsData();
+      alert(`Dados espirituais gerados com sucesso para ${region.name}! Verifique na aba de edição.`);
+    } catch (error) {
+      console.error('❌ Erro ao gerar dados com IA:', error);
+      alert('Erro ao gerar dados com IA. Verifique se a API OpenAI está configurada corretamente.');
+    }
   };
 
   // Função otimizada para salvar dados espirituais
@@ -831,6 +894,7 @@ Que o Reino de Deus avance em meio à perseguição`}
       if (showViewModal && selectedRegion) {
         console.log('👁️ ViewModal - Região selecionada:', selectedRegion);
         console.log('📊 Dados espirituais:', selectedRegion.spiritual_data);
+        console.log('📊 Tipo dos dados:', typeof selectedRegion.spiritual_data);
         setViewData({
           region: selectedRegion,
           spiritual: selectedRegion.spiritual_data || {}
@@ -843,9 +907,96 @@ Que o Reino de Deus avance em meio à perseguição`}
       setIsOpen(false);
     }, []);
 
-    if (!isOpen || !viewData) return null;
+    if (!isOpen || !viewData || !('spiritual' in viewData)) return null;
 
-    const spiritual = viewData.spiritual;
+    const spiritual = viewData.spiritual ?? '';
+
+    // Função para formatar dados espirituais (suporta objeto e string)
+    function formatSpiritualData(data: any) {
+      if (!data) return null;
+      
+      // Se for string, usar formatação de texto
+      if (typeof data === 'string') {
+        return formatSpiritualText(data);
+      }
+      
+      // Se for objeto, formatar campos específicos
+      if (typeof data === 'object') {
+        const sections = [];
+        
+        // Sistema Geopolítico
+        if (data.sistema_geopolitico_completo) {
+          sections.push(
+            <div key="geo" className="mb-4">
+              <h4 className="font-bold text-blue-600 mb-2">🏛️ Sistema Geopolítico:</h4>
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <pre className="whitespace-pre-wrap text-sm">{data.sistema_geopolitico_completo}</pre>
+              </div>
+            </div>
+          );
+        }
+        
+        // Alvos de Intercessão
+        if (data.alvos_intercessao_completo) {
+          sections.push(
+            <div key="alvos" className="mb-4">
+              <h4 className="font-bold text-red-600 mb-2">🔥 Alvos de Intercessão:</h4>
+              <div className="bg-red-50 p-3 rounded-lg">
+                <pre className="whitespace-pre-wrap text-sm">{data.alvos_intercessao_completo}</pre>
+              </div>
+            </div>
+          );
+        }
+        
+        // Outras Informações Importantes
+        if (data.outras_informacoes_importantes) {
+          sections.push(
+            <div key="outras" className="mb-4">
+              <h4 className="font-bold text-purple-600 mb-2">📋 Outras Informações Importantes:</h4>
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <pre className="whitespace-pre-wrap text-sm">{data.outras_informacoes_importantes}</pre>
+              </div>
+            </div>
+          );
+        }
+        
+        // Se não encontrou os campos específicos, mostrar dados brutos
+        if (sections.length === 0) {
+          sections.push(
+            <div key="raw" className="mb-4">
+              <h4 className="font-bold text-gray-600 mb-2">📊 Dados Espirituais:</h4>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <pre className="whitespace-pre-wrap text-sm">{JSON.stringify(data, null, 2)}</pre>
+              </div>
+            </div>
+          );
+        }
+        
+        return <div>{sections}</div>;
+      }
+      
+      return null;
+    }
+
+    // Função para formatar texto: destaca títulos e mantém quebras
+    function formatSpiritualText(text: string) {
+      if (!text) return null;
+      // Destaca linhas que terminam com ':' como títulos
+      const lines = text.split(/\r?\n/);
+      return (
+        <pre className="whitespace-pre-wrap text-sm leading-relaxed" style={{background: 'none', padding: 0, margin: 0}}>
+          {lines.map((line, idx) => {
+            if (/^\s*[^:]+:\s*$/.test(line)) {
+              // Título
+              return <span key={idx} style={{fontWeight: 'bold', color: '#2563eb'}}>{line}\n</span>;
+            }
+            return <span key={idx}>{line}\n</span>;
+          })}
+        </pre>
+      );
+    }
+
+    if (!isOpen || !viewData) return null;
 
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -860,33 +1011,11 @@ Que o Reino de Deus avance em meio à perseguição`}
           </DialogHeader>
           
           <div className="space-y-6">
-            
-            {/* Sistema Geopolítico */}
-            {spiritual.sistema_geopolitico_completo && (
-              <div>
-                <h3 className="font-semibold text-lg">🏛️ Sistema Geopolítico</h3>
-                <div className="bg-blue-50 p-4 rounded-lg mt-2">
-                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-sm">
-                    {spiritual.sistema_geopolitico_completo}
-                  </p>
-                </div>
+            {spiritual && (typeof spiritual === 'string' ? spiritual.trim() : Object.keys(spiritual).length > 0) ? (
+              <div className="mt-2">
+                {formatSpiritualData(spiritual)}
               </div>
-            )}
-
-            {/* Alvos de Intercessão */}
-            {spiritual.alvos_intercessao_completo && (
-              <div>
-                <h3 className="font-semibold text-lg">🔥 Alvos de Intercessão</h3>
-                <div className="bg-red-50 p-4 rounded-lg mt-2">
-                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed text-sm">
-                    {spiritual.alvos_intercessao_completo}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Dados não encontrados */}
-            {!spiritual.sistema_geopolitico_completo && !spiritual.alvos_intercessao_completo && (
+            ) : (
               <div className="text-center py-8 text-gray-500">
                 <p className="text-lg">📝 Nenhum dado espiritual cadastrado ainda</p>
                 <p className="text-sm mt-2">Clique em "Editar" para adicionar informações</p>
@@ -902,8 +1031,6 @@ Que o Reino de Deus avance em meio à perseguição`}
                 </Button>
               </div>
             )}
-
-            {/* Botão para fechar */}
             <div className="flex justify-end pt-4">
               <Button variant="outline" onClick={handleClose}>
                 Fechar
@@ -1095,6 +1222,29 @@ Que o Reino de Deus avance em meio à perseguição`}
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleEdit(region)}>
                         <Edit className="w-3 h-3" />
+                      </Button>
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium mb-1">Escolha a Persona IA:</label>
+                        <select
+                          className="w-full border rounded px-3 py-2"
+                          value={selectedPersonaId || ''}
+                          onChange={e => setSelectedPersonaId(e.target.value)}
+                        >
+                          {personas.map(p => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} {p.is_default ? '(Padrão)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-purple-600 hover:text-purple-700"
+                        onClick={() => handleGenerateWithAI(region)}
+                        title="Gerar dados com IA"
+                      >
+                        <Zap className="w-3 h-3" />
                       </Button>
                       {region.status === 'pending' && (
                         <>

@@ -22,8 +22,8 @@ import {
 import { useAdminData } from '@/hooks/useAdminData';
 import RegionsTab from '@/components/admin/RegionsTab';
 import { PrayerStatsTab } from '@/components/admin/PrayerStatsTab';
-import { QueueBuilderTab } from '@/components/admin/QueueBuilderTab';
-import { WorldMappingTab } from '@/components/admin/WorldMappingTab';
+import { AdvancedAgentTab } from '@/components/admin/AdvancedAgentTab';
+
 
 
 const AdminDashboard = () => {
@@ -96,12 +96,11 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">📊 Visão Geral</TabsTrigger>
-            <TabsTrigger value="world-mapping">🌍 Mapeamento Mundial</TabsTrigger>
             <TabsTrigger value="regions">🗺️ Mapeamento Global</TabsTrigger>
             <TabsTrigger value="prayer-stats">🙏 Oração</TabsTrigger>
-            <TabsTrigger value="queue-builder">🤖 IA</TabsTrigger>
+            <TabsTrigger value="queue-builder">🤖 Agente IA</TabsTrigger>
             <TabsTrigger value="analytics">📈 Analytics</TabsTrigger>
           </TabsList>
 
@@ -292,10 +291,7 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          {/* World Mapping Tab */}
-          <TabsContent value="world-mapping">
-            <WorldMappingTab />
-          </TabsContent>
+
 
           {/* Regions Tab */}
           <TabsContent value="regions">
@@ -309,7 +305,7 @@ const AdminDashboard = () => {
 
           {/* Queue Builder Tab */}
           <TabsContent value="queue-builder">
-            <QueueBuilderTab />
+            <AdvancedAgentTab />
           </TabsContent>
 
 

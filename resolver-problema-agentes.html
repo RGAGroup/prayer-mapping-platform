@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Resolver Problema - Sistema de Agentes</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-left: 5px solid;
+        }
+        .success { 
+            background-color: #d4edda; 
+            color: #155724; 
+            border-left-color: #28a745;
+        }
+        .error { 
+            background-color: #f8d7da; 
+            color: #721c24; 
+            border-left-color: #dc3545;
+        }
+        .warning { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border-left-color: #ffc107;
+        }
+        .info { 
+            background-color: #d1ecf1; 
+            color: #0c5460; 
+            border-left-color: #17a2b8;
+        }
+        button { 
+            padding: 15px 30px; 
+            margin: 10px 5px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background: #0056b3; 
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .big-button {
+            font-size: 20px;
+            padding: 20px 40px;
+            background: #28a745;
+            border-radius: 10px;
+        }
+        .big-button:hover {
+            background: #218838;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .step {
+            margin: 30px 0;
+            padding: 25px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #495057;
+            font-size: 20px;
+        }
+        .progress {
+            width: 100%;
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">🚀</span>Resolver Problema das Tarefas Pendentes</h1>
+            <p style="font-size: 18px; color: #6c757d;">
+                Esta ferramenta vai aprovar automaticamente todas as tarefas que foram geradas pela IA<br>
+                mas não apareceram no sistema principal.
+            </p>
+        </div>
+
+        <div class="step">
+            <h3><span class="emoji">1️⃣</span>Verificar Tarefas Pendentes</h3>
+            <p>Primeiro vamos verificar se existem tarefas aguardando aprovação:</p>
+            <button onclick="checkPendingTasks()">
+                <span class="emoji">🔍</span>Verificar Tarefas Pendentes
+            </button>
+            <div id="check-result"></div>
+        </div>
+
+        <div class="step">
+            <h3><span class="emoji">2️⃣</span>Aprovar Todas as Tarefas</h3>
+            <p>Este botão vai processar todas as tarefas pendentes e salvar o conteúdo no sistema:</p>
+            <button class="big-button" id="approve-btn" onclick="approvePendingTasks()" disabled>
+                <span class="emoji">🎯</span>RESOLVER PROBLEMA - Aprovar Todas
+            </button>
+            <div class="progress" id="progress-container" style="display: none;">
+                <div class="progress-bar" id="progress-bar" style="width: 0%;">0%</div>
+            </div>
+            <div id="approve-result"></div>
+        </div>
+
+        <div class="step">
+            <h3><span class="emoji">3️⃣</span>Verificar Resultado</h3>
+            <p>Após o processamento, verificar se tudo foi corrigido:</p>
+            <button onclick="verifyResults()">
+                <span class="emoji">✅</span>Verificar Sistema
+            </button>
+            <div id="verify-result"></div>
+        </div>
+
+        <div class="step">
+            <h3><span class="emoji">🔗</span>Voltar ao Sistema</h3>
+            <p>Após resolver o problema, volte ao sistema principal:</p>
+            <a href="http://localhost:8083/admin" target="_blank">
+                <button style="background: #6f42c1;">
+                    <span class="emoji">🏠</span>Abrir Sistema Principal
+                </button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://cxibuehwbuobwruhzwka.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4aWJ1ZWh3YnVvYndydWh6d2thIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0ODM1MTIsImV4cCI6MjA2NjA1OTUxMn0.ElIj9TZvwu-0cXhypRUylA0glF2V7F2WNnrdTzJZbd4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function checkPendingTasks() {
+            try {
+                console.log('🔄 Verificando tarefas pendentes...');
+                
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('id, task_type, created_at, region_id')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) {
+                    showResult('check-result', `❌ Erro: ${error.message}`, 'error');
+                    return;
+                }
+
+                if (!pendingTasks || pendingTasks.length === 0) {
+                    showResult('check-result', 
+                        `✅ <strong>Nenhuma tarefa pendente encontrada!</strong><br>
+                         O sistema está funcionando corretamente.`, 
+                        'success'
+                    );
+                    document.getElementById('approve-btn').disabled = true;
+                    return;
+                }
+
+                const tasksByType = {};
+                pendingTasks.forEach(task => {
+                    tasksByType[task.task_type] = (tasksByType[task.task_type] || 0) + 1;
+                });
+
+                const taskSummary = Object.entries(tasksByType)
+                    .map(([type, count]) => `<li><strong>${type}</strong>: ${count} tarefa(s)</li>`)
+                    .join('');
+
+                showResult('check-result', 
+                    `⚠️ <strong>Encontradas ${pendingTasks.length} tarefas pendentes!</strong><br><br>
+                     <strong>Tipos de tarefa:</strong><br>
+                     <ul>${taskSummary}</ul>
+                     <strong>Estas tarefas foram geradas pela IA mas não foram salvas no sistema.</strong>`, 
+                    'warning'
+                );
+                
+                document.getElementById('approve-btn').disabled = false;
+                console.log('📋 Tarefas pendentes:', pendingTasks);
+
+            } catch (error) {
+                showResult('check-result', `❌ Erro: ${error.message}`, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        async function approvePendingTasks() {
+            try {
+                console.log('🚀 Iniciando resolução do problema...');
+                
+                document.getElementById('progress-container').style.display = 'block';
+                document.getElementById('approve-btn').disabled = true;
+                
+                // Buscar tarefas pendentes
+                const { data: pendingTasks, error } = await supabase
+                    .from('agent_tasks')
+                    .select('*')
+                    .eq('status', 'awaiting_approval')
+                    .eq('user_approved', false);
+
+                if (error) {
+                    showResult('approve-result', `❌ Erro: ${error.message}`, 'error');
+                    return;
+                }
+
+                if (!pendingTasks || pendingTasks.length === 0) {
+                    showResult('approve-result', '✅ Nenhuma tarefa para processar!', 'info');
+                    return;
+                }
+
+                let approved = 0;
+                let failed = 0;
+                const total = pendingTasks.length;
+
+                showResult('approve-result', `🔄 <strong>Processando ${total} tarefas...</strong>`, 'info');
+
+                for (let i = 0; i < pendingTasks.length; i++) {
+                    const task = pendingTasks[i];
+                    
+                    try {
+                        // Atualizar progresso
+                        const progress = Math.round(((i + 1) / total) * 100);
+                        document.getElementById('progress-bar').style.width = `${progress}%`;
+                        document.getElementById('progress-bar').textContent = `${progress}% (${i + 1}/${total})`;
+
+                        console.log(`🔄 Processando tarefa ${i + 1}/${total}: ${task.task_type}`);
+
+                        // 1. Salvar conteúdo na spiritual_regions
+                        if (task.result_data && task.region_id) {
+                            const updateData = {};
+                            updateData[task.task_type] = task.result_data;
+
+                            const { error: regionError } = await supabase
+                                .from('spiritual_regions')
+                                .update(updateData)
+                                .eq('id', task.region_id);
+
+                            if (regionError) {
+                                console.error('Erro ao salvar região:', regionError);
+                                throw regionError;
+                            }
+
+                            console.log(`✅ Conteúdo salvo na região: ${task.task_type}`);
+                        }
+
+                        // 2. Atualizar status da tarefa
+                        const { error: taskError } = await supabase
+                            .from('agent_tasks')
+                            .update({
+                                user_approved: true,
+                                approved_at: new Date().toISOString(),
+                                status: 'completed'
+                            })
+                            .eq('id', task.id);
+
+                        if (taskError) {
+                            console.error('Erro ao atualizar tarefa:', taskError);
+                            throw taskError;
+                        }
+
+                        approved++;
+                        console.log(`✅ Tarefa aprovada: ${task.task_type}`);
+
+                        // Pequeno delay para não sobrecarregar
+                        await new Promise(resolve => setTimeout(resolve, 100));
+
+                    } catch (error) {
+                        failed++;
+                        console.error(`❌ Falha na tarefa ${task.id}:`, error);
+                    }
+                }
+
+                // Resultado final
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-bar').textContent = '100% - Concluído!';
+
+                if (failed === 0) {
+                    showResult('approve-result', 
+                        `🎉 <strong>PROBLEMA RESOLVIDO COM SUCESSO!</strong><br><br>
+                         ✅ <strong>${approved}</strong> tarefas processadas<br>
+                         ❌ <strong>${failed}</strong> falhas<br><br>
+                         <strong style="color: #28a745; font-size: 18px;">
+                         Agora todas as regiões devem mostrar o conteúdo gerado pela IA!
+                         </strong><br><br>
+                         <em>Volte ao sistema principal para verificar.</em>`, 
+                        'success'
+                    );
+                } else {
+                    showResult('approve-result', 
+                        `⚠️ <strong>Processamento concluído com algumas falhas:</strong><br><br>
+                         ✅ <strong>${approved}</strong> tarefas aprovadas<br>
+                         ❌ <strong>${failed}</strong> falhas<br><br>
+                         <em>A maioria do conteúdo deve estar disponível agora.</em>`, 
+                        'warning'
+                    );
+                }
+
+                setTimeout(() => {
+                    document.getElementById('progress-container').style.display = 'none';
+                }, 3000);
+
+            } catch (error) {
+                showResult('approve-result', `❌ Erro geral: ${error.message}`, 'error');
+                console.error('Erro:', error);
+                document.getElementById('progress-container').style.display = 'none';
+                document.getElementById('approve-btn').disabled = false;
+            }
+        }
+
+        async function verifyResults() {
+            try {
+                console.log('🔍 Verificando resultados...');
+
+                // Verificar tarefas concluídas
+                const { data: completedTasks, error: taskError } = await supabase
+                    .from('agent_tasks')
+                    .select('task_type, status')
+                    .eq('status', 'completed')
+                    .eq('user_approved', true);
+
+                // Verificar tarefas ainda pendentes
+                const { data: stillPending, error: pendingError } = await supabase
+                    .from('agent_tasks')
+                    .select('task_type')
+                    .eq('status', 'awaiting_approval');
+
+                // Verificar regiões com dados espirituais
+                const { data: regionsWithData, error: regionError } = await supabase
+                    .from('spiritual_regions')
+                    .select('name, spiritual_data')
+                    .not('spiritual_data', 'is', null)
+                    .limit(10);
+
+                if (taskError || pendingError || regionError) {
+                    showResult('verify-result', 
+                        `❌ Erro ao verificar: ${taskError?.message || pendingError?.message || regionError?.message}`, 
+                        'error'
+                    );
+                    return;
+                }
+
+                const completedCount = completedTasks?.length || 0;
+                const pendingCount = stillPending?.length || 0;
+                const regionsCount = regionsWithData?.length || 0;
+
+                let status = 'success';
+                let statusText = '✅ PROBLEMA RESOLVIDO!';
+
+                if (pendingCount > 0) {
+                    status = 'warning';
+                    statusText = '⚠️ Ainda há tarefas pendentes';
+                } else if (regionsCount === 0) {
+                    status = 'error';
+                    statusText = '❌ Nenhuma região com dados encontrada';
+                }
+
+                showResult('verify-result', 
+                    `📊 <strong>${statusText}</strong><br><br>
+                     <strong>Status do Sistema:</strong><br>
+                     ✅ Tarefas concluídas: <strong>${completedCount}</strong><br>
+                     ⏳ Tarefas ainda pendentes: <strong>${pendingCount}</strong><br>
+                     📍 Regiões com dados: <strong>${regionsCount}</strong><br><br>
+                     
+                     ${pendingCount === 0 ? 
+                        '<strong style="color: #28a745;">🎉 Perfeito! Todas as tarefas foram processadas.</strong>' : 
+                        '<strong style="color: #856404;">Execute novamente a aprovação se necessário.</strong>'
+                     }<br><br>
+                     
+                     <strong>Próximo passo:</strong><br>
+                     <a href="http://localhost:8083/admin" target="_blank" 
+                        style="color: #007bff; text-decoration: none; font-size: 16px;">
+                         🔗 Abrir Sistema Principal e Verificar Regiões →
+                     </a>`, 
+                    status
+                );
+
+            } catch (error) {
+                showResult('verify-result', `❌ Erro: ${error.message}`, 'error');
+                console.error('Erro:', error);
+            }
+        }
+
+        // Executar verificação inicial ao carregar
+        window.onload = function() {
+            console.log('🚀 Ferramenta de resolução carregada');
+            showResult('check-result', '🔄 Carregando...', 'info');
+            setTimeout(checkPendingTasks, 1000);
+        };
+    </script>
+</body>
+</html> 
