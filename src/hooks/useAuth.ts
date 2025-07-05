@@ -256,14 +256,26 @@ export const useAuth = () => {
           // Para erros de banco, vamos tentar uma abordagem diferente
           console.log('🔄 Erro de banco detectado, tentando abordagem alternativa...');
           
-          // Verifica se o usuário foi criado mesmo com erro
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            console.log('✅ Usuário criado com sucesso apesar do erro do trigger');
-            return { data: { user }, error: null };
+          // Aguarda um pouco para o servidor processar
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Tenta fazer login automaticamente (o usuário pode ter sido criado mesmo com erro)
+          try {
+            console.log('🔄 Tentando login automático após erro de banco...');
+            const loginResult = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+            
+            if (loginResult.data?.user && !loginResult.error) {
+              console.log('✅ Login automático realizado com sucesso após erro de banco!');
+              return { data: loginResult.data, error: null };
+            }
+          } catch (loginError) {
+            console.log('❌ Login automático falhou:', loginError);
           }
           
-          errorMessage = 'Erro temporário no servidor. Tente novamente em alguns segundos.';
+          errorMessage = 'Conta pode ter sido criada. Tente fazer login ou aguarde alguns minutos e tente novamente.';
         }
         
         return { data: null, error: { message: errorMessage } };

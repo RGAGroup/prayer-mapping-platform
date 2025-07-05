@@ -51,13 +51,20 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
     
     try {
       console.log('📝 Tentando criar conta...');
-      const { error } = await signUp(formData.email, formData.password, formData.name);
+      const { data, error } = await signUp(formData.email, formData.password, formData.name);
       
       if (error) {
         setError(error.message);
+        
+        // Se a mensagem indica que a conta pode ter sido criada, sugere tentar login
+        if (error.message.includes('Conta pode ter sido criada')) {
+          setError(error.message + ' Ou tente fazer login na aba "Entrar".');
+        }
+        
         return;
       }
       
+      // Se chegou aqui, deu tudo certo
       console.log('✅ Conta criada com sucesso!');
       onSuccess();
     } catch (err) {
@@ -99,9 +106,9 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
           </div>
 
           <CardTitle className="space-y-2">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            <div className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               Mapa Global de Intercessão
-            </h2>
+            </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
               Conecte-se com intercessores ao redor do mundo
             </p>
