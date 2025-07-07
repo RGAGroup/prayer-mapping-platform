@@ -19,7 +19,8 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
   const { data: locations = [], isLoading, error } = useLocations();
   const { isMobile, isMobileDevice, screenWidth } = useMobile();
   
-  const [apiKey, setApiKey] = useState<string>('AIzaSyCbk0kgeAlS_eU3QFNsR-Cysk_sRsPXTW0');
+  // API key atualizada para suportar o domínio atalaia.global
+  const [apiKey, setApiKey] = useState<string>('');
   const [showApiInput, setShowApiInput] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -52,16 +53,16 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
     const savedApiKey = localStorage.getItem('google-maps-api-key');
     
     if (savedApiKey && savedApiKey.length > 20) {
+      console.log('🔑 Usando API key salva');
       setApiKey(savedApiKey);
       setMapError(null);
     } else {
-      // Verificar se a API key padrão está funcionando
-      const defaultApiKey = 'AIzaSyCbk0kgeAlS_eU3QFNsR-Cysk_sRsPXTW0';
-      localStorage.setItem('google-maps-api-key', defaultApiKey);
-      setApiKey(defaultApiKey);
+      // Solicitar nova API key devido a problemas CORS
+      console.log('⚠️ API key padrão com problemas CORS - solicitando nova configuração');
+      setShowApiInput(true);
+      setMapError('API key precisa ser configurada para o domínio atalaia.global');
     }
     
-    setShowApiInput(false);
   }, [isMobile, isMobileDevice, screenWidth, isOnline]);
 
   // Simular progresso de carregamento para mobile
@@ -160,10 +161,10 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
     </div>
   );
 
-  // Componente de erro otimizado para mobile
+  // Componente de erro otimizado para mobile com informações sobre CORS
   const MobileMapError = () => (
     <div className="h-screen w-full flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 p-4">
-      <div className="text-center max-w-md">
+      <div className={`text-center ${isMobile ? 'max-w-xs' : 'max-w-md'}`}>
         <div className="mb-6">
           <div className="w-20 h-20 mx-auto rounded-full bg-red-100 flex items-center justify-center">
             <AlertCircle className="h-10 w-10 text-red-600" />
@@ -171,19 +172,25 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
         </div>
         
         <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-red-800 mb-2`}>
-          Erro ao carregar mapa
+          Configuração do Mapa Necessária
         </h3>
         
         <div className="space-y-2 text-red-700">
           <p className={`${isMobile ? 'text-sm' : 'text-base'}`}>
             {!isOnline ? 'Verifique sua conexão com a internet' : 
-             mapError || (error ? String(error) : 'Problema com o Google Maps')}
+             'A API key do Google Maps precisa ser configurada para este domínio'}
           </p>
           
+          <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-700`}>
+              <strong>🔧 Solução:</strong> Configure uma nova API key do Google Maps que permita o domínio "atalaia.global"
+            </p>
+          </div>
+          
           {isMobile && (
-            <div className="mt-4 p-3 bg-red-50 rounded-lg">
-              <p className="text-xs text-red-600">
-                💡 Dica: Tente recarregar a página ou verifique se está conectado à internet
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-xs text-blue-600">
+                💡 <strong>Dica:</strong> Clique em "Configurar API" abaixo para resolver este problema
               </p>
             </div>
           )}
@@ -191,17 +198,17 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
         
         <div className="mt-6 space-y-2">
           <button
-            onClick={() => window.location.reload()}
-            className={`w-full ${isMobile ? 'py-2 text-sm' : 'py-3 text-base'} bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors`}
+            onClick={handleApiKeyReset}
+            className={`w-full ${isMobile ? 'py-2 text-sm' : 'py-3 text-base'} bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors`}
           >
-            Tentar novamente
+            Configurar API Key
           </button>
           
           <button
-            onClick={handleApiKeyReset}
+            onClick={() => window.location.reload()}
             className={`w-full ${isMobile ? 'py-2 text-sm' : 'py-3 text-base'} bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors`}
           >
-            Reconfigurar API
+            Tentar Novamente
           </button>
         </div>
       </div>
@@ -224,7 +231,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
   }
 
   // Verificar se precisa configurar API key
-  if (showApiInput) {
+  if (showApiInput || !apiKey) {
     return <ApiKeyInput onApiKeySubmit={handleApiKeySubmit} />;
   }
 
@@ -241,7 +248,7 @@ const GoogleMapComponent = ({ onLocationSelect }: GoogleMapComponentProps) => {
         libraries={["marker", "geometry", "places"]}
         render={(status) => {
           if (status === 'FAILURE') {
-            handleMapError('Falha ao carregar Google Maps API');
+            handleMapError('Falha ao carregar Google Maps API - verifique a API key');
             return <MobileMapError />;
           }
           if (status === 'LOADING') {

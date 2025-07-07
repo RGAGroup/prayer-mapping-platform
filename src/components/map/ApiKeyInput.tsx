@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMobile } from '@/hooks/use-mobile';
-import { Key, ExternalLink, Smartphone, Wifi, AlertCircle } from 'lucide-react';
+import { Key, ExternalLink, Smartphone, Wifi, AlertCircle, Globe, Shield } from 'lucide-react';
 
 interface ApiKeyInputProps {
   onApiKeySubmit: (apiKey: string) => void;
@@ -44,30 +44,49 @@ const ApiKeyInput = ({ onApiKeySubmit }: ApiKeyInputProps) => {
         </div>
         
         <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
             <div className="flex items-start gap-2">
-              <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
+              <Shield className="h-4 w-4 text-red-600 mt-0.5" />
               <div>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-700 font-medium`}>
-                  API Key necessária
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-700 font-medium`}>
+                  Problema de Segurança CORS
                 </p>
-                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-600 mt-1`}>
-                  Para usar o mapa, você precisa inserir sua chave da API do Google Maps.
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-600 mt-1`}>
+                  A API key atual não permite acesso do domínio "atalaia.global"
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <Globe className="h-4 w-4 text-blue-600 mt-0.5" />
+              <div>
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-700 font-medium`}>
+                  Configuração Necessária
+                </p>
+                <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 mt-1`}>
+                  Configure uma API key que permita os domínios:
+                </p>
+                <ul className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-600 mt-1 ml-3`}>
+                  <li>• atalaia.global</li>
+                  <li>• www.atalaia.global</li>
+                  <li>• localhost (para desenvolvimento)</li>
+                </ul>
               </div>
             </div>
           </div>
           
           <div className="space-y-2">
             <label className={`${isMobile ? 'text-sm' : 'text-base'} font-medium text-foreground`}>
-              Chave da API:
+              Nova Chave da API:
             </label>
             <input
               type="text"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Inserir chave da API do Google Maps"
+              placeholder="Cole sua API key do Google Maps aqui"
               className={`w-full px-3 ${isMobile ? 'py-2 text-sm' : 'py-3 text-base'} bg-background border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
               autoComplete="off"
             />
@@ -96,10 +115,26 @@ const ApiKeyInput = ({ onApiKeySubmit }: ApiKeyInputProps) => {
             </a>
           </div>
           
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-700 font-medium mb-2`}>
+              📋 Passo a passo:
+            </p>
+            <ol className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-600 space-y-1 ml-3`}>
+              <li>1. Clique em "Obter chave da API" acima</li>
+              <li>2. Crie ou selecione um projeto no Google Cloud</li>
+              <li>3. Ative a API "Maps JavaScript API"</li>
+              <li>4. Crie credenciais (API Key)</li>
+              <li>5. <strong>Configure restrições de HTTP referrer:</strong></li>
+              <li className="ml-4">• atalaia.global/*</li>
+              <li className="ml-4">• www.atalaia.global/*</li>
+              <li>6. Cole a API key no campo acima</li>
+            </ol>
+          </div>
+          
           {isMobile && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-xs text-blue-700">
-                💡 <strong>Dica para mobile:</strong> A chave da API é necessária para carregar o mapa no seu dispositivo.
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-xs text-green-700">
+                ✅ <strong>Após configurar:</strong> O mapa funcionará perfeitamente no seu dispositivo móvel!
               </p>
             </div>
           )}
