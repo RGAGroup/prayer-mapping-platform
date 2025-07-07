@@ -6,7 +6,7 @@ import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface SpiritualData {
   region: string;
@@ -120,7 +120,7 @@ const getAlertColor = (level: string) => {
 };
 
 export const RegionalSidebar: React.FC<RegionalSidebarProps> = ({ data, isOpen, onClose }) => {
-  const isMobile = useIsMobile();
+  const { isMobile } = useMobile();
 
   if (!data) return null;
 
@@ -198,81 +198,110 @@ export const RegionalSidebar: React.FC<RegionalSidebarProps> = ({ data, isOpen, 
         {/* Tabs com conteúdo */}
         <Tabs defaultValue="activity" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="activity">Atividades</TabsTrigger>
-            <TabsTrigger value="prayers">Orações</TabsTrigger>
-            <TabsTrigger value="bases">Bases</TabsTrigger>
+            <TabsTrigger value="activity">Atividade</TabsTrigger>
+            <TabsTrigger value="prayer">Oração</TabsTrigger>
+            <TabsTrigger value="ministry">Ministério</TabsTrigger>
           </TabsList>
 
           <TabsContent value="activity" className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground">ATIVIDADES RECENTES</h3>
-            {data.recentActivity.map((activity) => (
-              <Card key={activity.id} className="border-l-4 border-l-blue-500">
-                <CardContent className="p-3">
-                  <div className="flex items-start gap-3">
-                    {getActivityIcon(activity.type)}
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium">{activity.title}</h4>
-                      <p className="text-xs text-muted-foreground mb-2">{activity.description}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Por {activity.author}</span>
-                        <span className="text-xs text-muted-foreground">{activity.date}</span>
+            <h4 className="text-sm font-semibold text-muted-foreground">ATIVIDADES RECENTES</h4>
+            <div className="space-y-2">
+              {data.recentActivity.map((activity) => (
+                <Card key={activity.id} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-3">
+                    <div className="flex items-start gap-3">
+                      {getActivityIcon(activity.type)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h5 className="text-sm font-medium truncate">{activity.title}</h5>
+                          {activity.priority && (
+                            <div className={`w-2 h-2 rounded-full ${getPriorityColor(activity.priority)}`} />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-1">{activity.description}</p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>{activity.author}</span>
+                          <span>{activity.date}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
-          <TabsContent value="prayers" className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground">ALVOS DE ORAÇÃO</h3>
-            {data.prayerTargets.map((target) => (
-              <Card key={target.id}>
+          <TabsContent value="prayer" className="space-y-3">
+            <h4 className="text-sm font-semibold text-muted-foreground">ALVOS DE ORAÇÃO</h4>
+            <div className="space-y-2">
+              {data.prayerTargets.map((target) => (
+                <Card key={target.id} className="hover:shadow-sm transition-shadow">
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <h5 className="text-sm font-medium">{target.title}</h5>
+                      <div className={`w-2 h-2 rounded-full ${getPriorityColor(target.priority)}`} />
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2">{target.description}</p>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        {target.intercessors} intercessores
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {target.priority.toUpperCase()}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ministry" className="space-y-3">
+            <h4 className="text-sm font-semibold text-muted-foreground">MINISTÉRIOS E BASES</h4>
+            <div className="grid gap-3">
+              <Card>
                 <CardContent className="p-3">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-sm font-medium">{target.title}</h4>
-                    <div className={`w-2 h-2 rounded-full ${getPriorityColor(target.priority)}`} />
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm font-medium">Bases Missionárias</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-2">{target.description}</p>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{target.intercessors} intercessores</span>
-                  </div>
+                  <div className="text-2xl font-bold text-blue-600">{data.stats.missionBases}</div>
                 </CardContent>
               </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="bases" className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground">BASES MISSIONÁRIAS</h3>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <div className="text-2xl font-bold text-green-600">{data.stats.missionBases}</div>
-                <div className="text-sm text-muted-foreground">Bases Ativas</div>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-medium">Grupos de Intercessão</span>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-600">{Math.floor(data.stats.totalIntercessors / 10)}</div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
     </div>
   );
 
-  // Mobile: Sheet (ocupa meia tela de baixo)
+  // Mobile: usar Sheet
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="h-[70vh] rounded-t-xl">
+        <SheetContent side="right" className="w-full p-0">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Informações Regionais</SheetTitle>
+          </SheetHeader>
           {sidebarContent}
         </SheetContent>
       </Sheet>
     );
   }
 
-  // Desktop: Sidebar lateral
+  // Desktop: usar sidebar fixa
   return (
-    <div className={`fixed inset-y-0 left-0 z-40 w-96 bg-card/95 backdrop-blur-md border-r border-border/50 shadow-2xl transform transition-transform duration-300 ${
-      isOpen ? 'translate-x-0' : '-translate-x-full'
+    <div className={`fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg transform transition-transform z-50 ${
+      isOpen ? 'translate-x-0' : 'translate-x-full'
     }`}>
       {sidebarContent}
     </div>

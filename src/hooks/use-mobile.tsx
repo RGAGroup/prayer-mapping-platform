@@ -1,19 +1,51 @@
-import * as React from "react"
+import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 768
+export const useMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0);
+  const [userAgent, setUserAgent] = useState('');
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  useEffect(() => {
+    const checkDevice = () => {
+      if (typeof window !== 'undefined') {
+        const width = window.innerWidth;
+        const ua = navigator.userAgent;
+        
+        setScreenWidth(width);
+        setUserAgent(ua);
+        setIsMobile(width <= 768);
+        setIsTablet(width > 768 && width <= 1024);
+        
+        // Detectar dispositivos móveis específicos
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        const isSmallScreen = width <= 768;
+        
+        // Forçar mobile se for dispositivo móvel OU tela pequena
+        if (isMobileDevice || isSmallScreen) {
+          setIsMobile(true);
+        }
+      }
+    };
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    window.addEventListener('orientationchange', checkDevice);
 
-  return !!isMobile
-}
+    return () => {
+      window.removeEventListener('resize', checkDevice);
+      window.removeEventListener('orientationchange', checkDevice);
+    };
+  }, []);
+
+  return {
+    isMobile,
+    isTablet,
+    isDesktop: !isMobile && !isTablet,
+    screenWidth,
+    userAgent,
+    isMobileDevice: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
+  };
+};
+
+export default useMobile;
