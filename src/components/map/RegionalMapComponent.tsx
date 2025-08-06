@@ -5,6 +5,8 @@ import { RegionalSidebar } from './RegionalSidebar';
 import { PrayerTimer } from '../PrayerTimer';
 import { PropheticWordModal } from '../PropheticWordModal';
 import { supabase } from '@/integrations/supabase/client';
+import { aiService } from '@/services/aiService';
+import advancedAgentService from '@/services/advancedAgentService';
 
 interface RegionalMapComponentProps {
   onRegionSelect: (regionName: string, regionType: string) => void;
@@ -34,7 +36,185 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
   // Estados para palavra profética
   const [showPropheticModal, setShowPropheticModal] = useState(false);
   const [prayerDuration, setPrayerDuration] = useState(0);
+  const [lastClickCoordinates, setLastClickCoordinates] = useState<{ lat: number, lng: number } | null>(null);
 
+  // 🎯 Função para detectar hierarquia automaticamente
+  const detectRegionHierarchy = async (regionName: string, regionType: string) => {
+    console.log(`🔍 Detectando hierarquia para ${regionName} (${regionType})`);
+    
+    try {
+      // 1. 📍 Obter coordenadas atuais do último clique
+      const coordinates = lastClickCoordinates || { lat: 0, lng: 0 };
+      console.log(`📍 Coordenadas detectadas:`, coordinates);
+      
+      // 2. 🌍 Usar Google Maps Geocoding para obter hierarquia completa
+      if (window.google && window.google.maps) {
+        const geocoder = new window.google.maps.Geocoder();
+        
+        return new Promise((resolve, reject) => {
+          geocoder.geocode({ 
+            location: { lat: coordinates.lat, lng: coordinates.lng }
+          }, (results, status) => {
+            if (status === 'OK' && results && results[0]) {
+              const result = results[0];
+              console.log('🗺️ Resultado do Geocoding:', result);
+              
+              // 3. 🧩 Extrair componentes hierárquicos
+              const components = result.address_components;
+              let country = '';
+              let state = '';
+              let continent = '';
+              
+              components.forEach(component => {
+                const types = component.types;
+                if (types.includes('country')) {
+                  country = component.long_name;
+                } else if (types.includes('administrative_area_level_1')) {
+                  state = component.long_name;
+                }
+              });
+              
+              // 4. 🗂️ Determinar continente baseado no país
+              continent = getContinent(country);
+              
+              // 5. 🔗 Buscar parent_id no banco
+              const hierarchyInfo = {
+                coordinates,
+                continent,
+                country,
+                state,
+                parentId: null,
+                hierarchyPath: ''
+              };
+              
+              // Buscar parent baseado no tipo da região
+              if (regionType === 'city') {
+                // Cidade: parent é o estado
+                hierarchyInfo.hierarchyPath = `${continent} > ${country} > ${state} > ${regionName}`;
+                // Buscar estado no banco
+                findParentInDatabase(state, 'state').then(parentId => {
+                  hierarchyInfo.parentId = parentId;
+                  resolve(hierarchyInfo);
+                }).catch(reject);
+              } else if (regionType === 'state') {
+                // Estado: parent é o país
+                hierarchyInfo.hierarchyPath = `${continent} > ${country} > ${regionName}`;
+                // Buscar país no banco
+                findParentInDatabase(country, 'country').then(parentId => {
+                  hierarchyInfo.parentId = parentId;
+                  resolve(hierarchyInfo);
+                }).catch(reject);
+              } else if (regionType === 'country') {
+                // País: sem parent
+                hierarchyInfo.hierarchyPath = `${continent} > ${regionName}`;
+                hierarchyInfo.parentId = null;
+                resolve(hierarchyInfo);
+              } else {
+                // Outros tipos: sem parent por enquanto
+                hierarchyInfo.hierarchyPath = regionName;
+                hierarchyInfo.parentId = null;
+                resolve(hierarchyInfo);
+              }
+              
+            } else {
+              console.warn('⚠️ Geocoding falhou, usando dados básicos');
+              resolve({
+                coordinates,
+                continent: 'Desconhecido',
+                country: '',
+                state: '',
+                parentId: null,
+                hierarchyPath: regionName
+              });
+            }
+          });
+        });
+      } else {
+        // Fallback sem Google Maps
+        console.warn('⚠️ Google Maps não disponível, usando dados básicos');
+        return {
+          coordinates,
+          continent: 'Desconhecido',
+          country: '',
+          state: '',
+          parentId: null,
+          hierarchyPath: regionName
+        };
+      }
+    } catch (error) {
+      console.error('❌ Erro na detecção de hierarquia:', error);
+      return {
+        coordinates: { lat: 0, lng: 0 },
+        continent: 'Desconhecido',
+        country: '',
+        state: '',
+        parentId: null,
+        hierarchyPath: regionName
+      };
+    }
+  };
+
+  // 🌍 Função para determinar continente baseado no país
+  const getContinent = (country: string) => {
+    const continents = {
+      'Brazil': 'América do Sul',
+      'Brasil': 'América do Sul',
+      'Argentina': 'América do Sul',
+      'Chile': 'América do Sul',
+      'Peru': 'América do Sul',
+      'Bolivia': 'América do Sul',
+      'Paraguay': 'América do Sul',
+      'United States': 'América do Norte',
+      'Canada': 'América do Norte',
+      'Mexico': 'América do Norte',
+      'Germany': 'Europa',
+      'France': 'Europa',
+      'Italy': 'Europa',
+      'Spain': 'Europa',
+      'Portugal': 'Europa',
+      'United Kingdom': 'Europa',
+      'Russia': 'Europa',
+      'China': 'Ásia',
+      'Japan': 'Ásia',
+      'India': 'Ásia',
+      'South Korea': 'Ásia',
+      'Indonesia': 'Ásia',
+      'Australia': 'Oceania',
+      'New Zealand': 'Oceania',
+      'South Africa': 'África',
+      'Nigeria': 'África',
+      'Egypt': 'África',
+      'Kenya': 'África'
+    };
+    
+    return continents[country] || 'Desconhecido';
+  };
+
+  // 🔍 Função para buscar parent_id no banco de dados
+  const findParentInDatabase = async (parentName: string, parentType: string) => {
+    try {
+      console.log(`🔍 Buscando parent no banco: ${parentName} (${parentType})`);
+      
+      const { data, error } = await supabase
+        .from('spiritual_regions')
+        .select('id')
+        .eq('name', parentName)
+        .eq('region_type', parentType)
+        .limit(1)
+        .single();
+      
+      if (error) {
+        console.warn(`⚠️ Parent ${parentName} não encontrado no banco:`, error);
+        return null;
+      }
+      
+      console.log(`✅ Parent encontrado: ${parentName} = ID ${data.id}`);
+      return data.id;
+    } catch (error) {
+      console.warn(`⚠️ Erro ao buscar parent ${parentName}:`, error);
+      return null;
+    }
+  };
 
   const getSpiritualData = async (regionName: string, regionType: string) => {
     // Debug - verificar valores
@@ -293,7 +473,18 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
         const anyRegionWithData = allRegions.find(r => r.spiritual_data && Object.keys(r.spiritual_data).length > 0);
         if (anyRegionWithData) {
           console.log(`✅ Usando fallback com dados: "${anyRegionWithData.name}" (${anyRegionWithData.region_type})`);
-          return await processRegionData(anyRegionWithData.spiritual_data, regionName, regionType);
+          
+          // 🎯 MARCAR COMO REGIÃO NÃO MAPEADA pois está usando fallback
+          const fallbackData = await processRegionData(anyRegionWithData.spiritual_data, regionName, regionType);
+          fallbackData.recentActivity = [
+            {
+              id: 'region-not-mapped',
+              text: `Esta região ainda não foi mapeada espiritualmente (usando dados de ${anyRegionWithData.name})`,
+              timestamp: new Date().toISOString(),
+              type: 'unmapped' as const
+            }
+          ];
+          return fallbackData;
         }
         
         // Se não tem dados espirituais mas tem registro, usar o primeiro
@@ -330,13 +521,10 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
           
           recentActivity: [
             {
-              id: 'no-spiritual-data',
-              type: 'alert' as const,
-              title: '📝 Dados Espirituais Pendentes',
-              description: `${regionName} está cadastrada no sistema mas ainda não possui dados espirituais gerados pela IA. Use o Dashboard Administrativo → Mapeamento → botão "⚡ Gerar IA" para criar conteúdo espiritual para esta região.`,
-              author: 'Sistema Atalaia',
-              date: new Date().toISOString(),
-              priority: 'medium' as const,
+              id: 'region-not-mapped',
+              text: `Esta região precisa de mapeamento espiritual`,
+              timestamp: new Date().toISOString(),
+              type: 'unmapped' as const
             }
           ],
           
@@ -518,7 +706,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
         } else {
         console.log(`⚠️ Nenhum dado espiritual encontrado para ${regionName}, retornando dados básicos`);
         
-        // Retornar estrutura básica sem dados mockados
+        // Retornar estrutura básica sem dados mockados - MARCANDO COMO REGIÃO SEM DADOS ESPIRITUAIS
         return {
           region: regionName,
           type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
@@ -532,7 +720,14 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
             alerts: 0,
           },
           
-          recentActivity: [],
+          recentActivity: [
+            {
+              id: 'region-not-mapped',
+              text: `Esta região precisa de mapeamento espiritual`,
+              timestamp: new Date().toISOString(),
+              type: 'unmapped' as const
+            }
+          ],
           
           prayerTargets: [
             {
@@ -773,6 +968,16 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
       const handleRegionClick = (event: google.maps.FeatureMouseEvent, layerType: string) => {
         console.log(`🖱️ CLIQUE detectado na camada: ${layerType}`, event);
         
+        // 📍 Capturar coordenadas do clique para uso posterior
+        if (event.latLng) {
+          const coordinates = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+          };
+          setLastClickCoordinates(coordinates);
+          console.log(`📍 Coordenadas capturadas:`, coordinates);
+        }
+        
         // Prevenir popup padrão do Google Maps
         event.stop();
         
@@ -1004,6 +1209,116 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
     setShowPrayerTimer(true);
   };
 
+  const handleSaveRegion = async (regionName: string, regionData: any) => {
+    console.log(`💾 [FASE 1B] Salvando região ${regionName} no banco`);
+    console.log('📊 Dados da região:', regionData);
+    
+    try {
+      // 1. 🎯 Detectar hierarquia automaticamente
+      console.log('🔍 Detectando hierarquia da região...');
+      const hierarcyInfo = await detectRegionHierarchy(regionName, regionData.type);
+      
+      // 2. 📍 Preparar dados para inserção
+      const regionDataToInsert = {
+        name: regionName,
+        region_type: regionData.type,
+        parent_id: hierarcyInfo.parentId, // ✅ Corrigido: parent_id não parent_region_id
+        coordinates: hierarcyInfo.coordinates || { lat: 0, lng: 0 }, // ✅ Formato JSONB {lat, lng}
+        data_source: 'manual', // ✅ Corrigido: 'manual' não 'google_maps_manual'
+        status: 'draft', // ✅ Adicionado: status obrigatório
+        spiritual_data: null, // Será preenchido depois pela IA
+        created_at: new Date().toISOString()
+      };
+      
+      console.log('📄 Dados para inserção:', regionDataToInsert);
+      
+      // 3. 💾 Inserir no Supabase
+      const { data: insertedRegion, error } = await supabase
+        .from('spiritual_regions')
+        .insert([regionDataToInsert])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('❌ Erro ao inserir região:', error);
+        alert(`❌ Erro ao salvar região!\n\n🚨 ${error.message}`);
+        return;
+      }
+      
+      console.log('✅ Região salva com sucesso:', insertedRegion);
+      alert(`✅ REGIÃO SALVA COM SUCESSO!\n\n📍 Nome: ${regionName}\n🆔 ID: ${insertedRegion.id}\n🔗 Hierarquia: ${hierarcyInfo.hierarchyPath}\n\n🎉 A região agora está mapeada!`);
+      
+      // 4. 🔄 Atualizar o popup para não mostrar mais os botões
+      // (O sistema já vai detectar automaticamente na próxima busca)
+      
+    } catch (error) {
+      console.error('❌ Erro geral ao salvar região:', error);
+      alert(`❌ ERRO INESPERADO!\n\n${error.message || error}`);
+    }
+  };
+
+  const handleGenerateAI = async (regionName: string, regionData: any) => {
+    console.log(`🤖 [VERSÃO DASHBOARD] Gerando dados espirituais IA para ${regionName}`);
+    console.log('📊 Dados da região:', regionData);
+    
+    try {
+      // 1. 🔍 Verificar se a região existe no banco (deve existir após "Salvar Região")
+      console.log('🔍 Buscando região no banco para gerar IA...');
+      const { data: existingRegion, error: searchError } = await supabase
+        .from('spiritual_regions')
+        .select('id, name, region_type, coordinates, country_code, spiritual_data')
+        .eq('name', regionName)
+        .eq('region_type', regionData.type)
+        .single();
+      
+      if (searchError || !existingRegion) {
+        alert(`❌ REGIÃO NÃO ENCONTRADA!\n\nPrimeiro clique em "Salvar Região" antes de gerar dados espirituais.`);
+        return;
+      }
+      
+      console.log('✅ Região encontrada:', existingRegion);
+      
+      // 2. 🎭 Obter persona padrão (como no dashboard)
+      console.log('🎭 Carregando personas...');
+      const personas = await advancedAgentService.getPersonas();
+      if (personas.length === 0) {
+        alert('❌ Nenhuma persona encontrada. Configure as personas no dashboard primeiro.');
+        return;
+      }
+      
+      const defaultPersona = personas.find(p => p.is_default) || personas[0];
+      console.log('✅ Persona encontrada:', defaultPersona.name);
+      
+      // 3. 🌍 Criar contexto da região (EXATAMENTE como no dashboard)
+      const regionContext = {
+        region_id: existingRegion.id,
+        region_name: existingRegion.name,
+        region_type: existingRegion.region_type as 'country' | 'state' | 'city' | 'neighborhood',
+        country_code: existingRegion.country_code,
+        coordinates: existingRegion.coordinates,
+        existing_spiritual_data: existingRegion.spiritual_data
+      };
+      
+      console.log('📋 Contexto da região:', regionContext);
+      
+      // 4. 🤖 Executar geração com advancedAgentService (EXATAMENTE como no dashboard)
+      console.log('🚀 Executando task com advancedAgentService...');
+      const result = await advancedAgentService.executeTask(
+        defaultPersona,
+        regionContext,
+        'spiritual_data'
+      );
+      
+      console.log('✅ Dados gerados com sucesso (versão dashboard):', result);
+      
+      alert(`✅ DADOS ESPIRITUAIS GERADOS COM SUCESSO!\n\n🤖 Região: ${regionName}\n🎭 Persona: ${defaultPersona.name}\n📝 Status: Dados gerados e salvos\n🔄 Próximo: Recarregue para ver os dados\n\n🎉 Gloria a Deus! (Versão Dashboard)`);
+      
+    } catch (error) {
+      console.error('❌ Erro geral na geração de IA (versão dashboard):', error);
+      alert(`❌ ERRO NA GERAÇÃO DE IA!\n\n${error.message || error}`);
+    }
+  };
+
   const handleFinishPrayer = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
@@ -1102,6 +1417,8 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
           position={popupPosition}
           data={spiritualData}
           onStartPrayer={handleStartPrayer}
+          onSaveRegion={handleSaveRegion}
+          onGenerateAI={handleGenerateAI}
         />
       )}
 

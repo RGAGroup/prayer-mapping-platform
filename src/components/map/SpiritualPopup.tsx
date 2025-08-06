@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp, FileText, Save, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SpiritualData {
   region: string;
@@ -53,6 +54,8 @@ interface SpiritualPopupProps {
   position: { x: number; y: number };
   onClose: () => void;
   onStartPrayer?: (regionName: string, regionData: SpiritualData) => void;
+  onSaveRegion?: (regionName: string, regionData: SpiritualData) => void;
+  onGenerateAI?: (regionName: string, regionData: SpiritualData) => void;
 }
 
 const getActivityIcon = (type: string) => {
@@ -96,10 +99,15 @@ const getAlertColor = (level: string) => {
   }
 };
 
-export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose, onStartPrayer }) => {
+export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose, onStartPrayer, onSaveRegion, onGenerateAI }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
+  const { isAdmin, userProfile, user } = useAuth();
+  
+  // FASE 1A: Liberado para TODOS os usuários para facilitar testes e colaboração
+  const isAdminUser = true; // Sempre true - qualquer usuário pode salvar regiões
 
   const handleStartPrayer = () => {
     console.log(`🙏 Iniciando oração por ${data.region}`);
@@ -108,8 +116,44 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
     }
   };
 
-  // Debug - verificar dados recebidos
-  console.log(`🎯 SpiritualPopup renderizado com dados:`, data);
+  const handleSaveRegion = async () => {
+    console.log(`💾 Salvando região ${data.region} no banco`);
+    setIsLoading(true);
+    try {
+      if (onSaveRegion) {
+        await onSaveRegion(data.region, data);
+      }
+    } catch (error) {
+      console.error('Erro ao salvar região:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateAI = async () => {
+    console.log(`🤖 Gerando dados espirituais IA para ${data.region}`);
+    setIsLoading(true);
+    try {
+      if (onGenerateAI) {
+        await onGenerateAI(data.region, data);
+      }
+    } catch (error) {
+      console.error('Erro ao gerar dados IA:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Detectar se a região precisa de dados espirituais - SIMPLIFICADO
+  const needsSpiritualData = data.recentActivity.some(activity => activity.id === 'region-not-mapped');
+  
+  // SEMPRE mostrar os 2 botões quando não há dados espirituais
+  const showButtons = needsSpiritualData;
+  
+  // Debug apenas quando necessário
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`🎯 SpiritualPopup - Região: ${data.region}, Precisa dados espirituais: ${needsSpiritualData}, Mostrar botões: ${showButtons}`);
+  }
 
   useEffect(() => {
     const checkMobile = () => {
@@ -162,6 +206,35 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 <X className="w-5 h-5 text-ios-gray dark:text-ios-dark-text2" />
               </Button>
             </div>
+
+            {/* Botões Administrativos - Região Sem Dados Espirituais */}
+            {showButtons && (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-ios-xl border border-blue-200 dark:border-blue-700/30 mb-6">
+                <div className="text-center text-blue-800 dark:text-blue-200 font-semibold mb-3 text-sm">
+                  🗺️ Esta região precisa de mapeamento espiritual
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    size="sm" 
+                    onClick={handleSaveRegion}
+                    disabled={isLoading}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 rounded-ios-lg font-medium shadow-lg transition-all duration-200 hover:scale-105"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    💾 Salvar Região
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleGenerateAI}
+                    disabled={isLoading}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white border-0 rounded-ios-lg font-medium shadow-lg transition-all duration-200 hover:scale-105"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    🤖 Gerar IA
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Conteúdo */}
             <div className="space-y-6">
@@ -412,21 +485,32 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             </div>
 
             {/* Botões de Ação */}
-            <div className="flex gap-3 pt-2 pb-4">
-              <Button 
-                size="lg" 
-                onClick={handleStartPrayer}
-                className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 min-h-[48px]"
-              >
-                {t('map.prayFor', { region: data.region })}
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 min-h-[48px]"
-              >
-                {t('map.viewDetails')}
-              </Button>
+            <div className="flex flex-col gap-3 pt-2 pb-4">
+              {/* Primeira linha - Botão principal de oração */}
+              <div className="flex gap-3">
+                <Button 
+                  size="lg" 
+                  onClick={handleStartPrayer}
+                  disabled={isLoading}
+                  className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 min-h-[48px] disabled:opacity-50"
+                >
+                  {t('map.prayFor', { region: data.region })}
+                </Button>
+                {!isUnmappedRegion && (
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    disabled={isLoading}
+                    className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 min-h-[48px] disabled:opacity-50"
+                  >
+                    {t('map.viewDetails')}
+                  </Button>
+                )}
+              </div>
+
+
+
+
             </div>
           </div>
         </div>
