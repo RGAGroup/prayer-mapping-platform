@@ -403,6 +403,34 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto px-4 pb-4">
           <div className="space-y-4">
+            {/* Botões Administrativos - Mobile */}
+            {showButtons && (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-ios-xl border border-blue-200 dark:border-blue-700/30">
+                <div className="text-center text-blue-800 dark:text-blue-200 font-semibold mb-3 text-sm">
+                  🗺️ Esta região precisa de mapeamento espiritual
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    size="sm" 
+                    onClick={handleSaveRegion}
+                    disabled={isLoading}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 rounded-ios-lg font-medium shadow-lg transition-all duration-200 hover:scale-105"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    💾 Salvar Região
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleGenerateAI}
+                    disabled={isLoading}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white border-0 rounded-ios-lg font-medium shadow-lg transition-all duration-200 hover:scale-105"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    🤖 Gerar IA
+                  </Button>
+                </div>
+              </div>
+            )}
             {/* Sistema Geopolítico */}
             <div className="p-4 rounded-ios-xl bg-ios-blue/10 border border-ios-blue/20 backdrop-blur-ios">
               <div className="flex items-center gap-3 mb-3">
@@ -496,7 +524,7 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
                 >
                   {t('map.prayFor', { region: data.region })}
                 </Button>
-                {!isUnmappedRegion && (
+                {!needsSpiritualData && (
                   <Button 
                     size="lg" 
                     variant="outline" 

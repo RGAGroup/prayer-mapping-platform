@@ -50,21 +50,24 @@ const Header = ({ onAuthClick }: HeaderProps) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border-b border-ios-gray5/50 dark:border-ios-dark-bg4/50 transition-all duration-300 ease-ios">
-      <div className="container mx-auto px-6 py-4">
+      <div className="container mx-auto px-3 py-2 md:px-6 md:py-4">
         <div className="flex items-center justify-between">
-          {/* Logo e Título */}
-          <div className="flex items-center space-x-4">
+          {/* Logo e Título - Mobile Otimizado */}
+          <div className="flex items-center space-x-2 md:space-x-4">
             <div className="relative">
-              <div className="w-12 h-12 rounded-ios-lg bg-gradient-to-br from-ios-blue to-ios-indigo shadow-ios-md flex items-center justify-center transform transition-transform duration-200 hover:scale-105 active:scale-95">
-                <MapPin className="h-6 w-6 text-white" />
+              <div className="w-8 h-8 md:w-12 md:h-12 rounded-ios-lg bg-gradient-to-br from-ios-blue to-ios-indigo shadow-ios-md flex items-center justify-center transform transition-transform duration-200 hover:scale-105 active:scale-95">
+                <MapPin className="h-4 w-4 md:h-6 md:w-6 text-white" />
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-ios-green rounded-full border-2 border-white dark:border-ios-dark-bg2 animate-pulse"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-ios-green rounded-full border-2 border-white dark:border-ios-dark-bg2 animate-pulse"></div>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text tracking-tight">
-                {t('map.title')}
+              {/* Mobile: Título compacto */}
+              <h1 className="text-base md:text-2xl font-bold text-gray-900 dark:text-ios-dark-text tracking-tight">
+                <span className="block md:hidden">Atalaia</span>
+                <span className="hidden md:block">{t('map.title')}</span>
               </h1>
-              <p className="text-sm text-ios-gray dark:text-ios-dark-text3 font-medium">
+              {/* Mobile: Sem subtítulo */}
+              <p className="hidden md:block text-sm text-ios-gray dark:text-ios-dark-text3 font-medium">
                 Rede mundial de oração estratégica
               </p>
             </div>
@@ -88,40 +91,40 @@ const Header = ({ onAuthClick }: HeaderProps) => {
             </div>
           </div>
 
-          {/* Seção Direita - Controles */}
-          <div className="flex items-center space-x-3">
-            {/* Seletor de Idiomas */}
-            <div className="hidden md:block">
+          {/* Seção Direita - Controles Mobile Otimizado */}
+          <div className="flex items-center space-x-1 md:space-x-3">
+            {/* Seletor de Idiomas - Apenas desktop */}
+            <div className="hidden lg:block">
               <LanguageSelector variant="compact" />
             </div>
 
-            {/* Toggle Modo Escuro */}
+            {/* Toggle Modo Escuro - Compacto no mobile */}
             <Button
               variant="ghost"
               size="sm"
               onClick={toggleDarkMode}
-              className="relative w-10 h-10 rounded-ios-md bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
+              className="relative w-8 h-8 md:w-10 md:h-10 rounded-ios-md bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               {isDarkMode ? (
-                <Sun className="w-5 h-5 text-ios-yellow transition-transform duration-200 rotate-0" />
+                <Sun className="w-4 h-4 md:w-5 md:h-5 text-ios-yellow transition-transform duration-200 rotate-0" />
               ) : (
-                <Moon className="w-5 h-5 text-ios-indigo transition-transform duration-200 rotate-0" />
+                <Moon className="w-4 h-4 md:w-5 md:h-5 text-ios-indigo transition-transform duration-200 rotate-0" />
               )}
             </Button>
 
-            {/* Notificações */}
+            {/* Notificações - Oculto no mobile para economizar espaço */}
             <Button
               variant="ghost"
               size="sm"
-              className="relative w-10 h-10 rounded-ios-md bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
+              className="hidden md:flex relative w-10 h-10 rounded-ios-md bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 hover:bg-ios-gray6 dark:hover:bg-ios-dark-bg3 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <Bell className="w-5 h-5 text-ios-gray dark:text-ios-dark-text2" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-ios-red rounded-full border border-white dark:border-ios-dark-bg2"></div>
             </Button>
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-3">
-                {/* Admin Button */}
+              <div className="flex items-center space-x-1 md:space-x-3">
+                {/* Admin Button - Mobile compacto */}
                 {userProfile?.role === 'admin' && (
                   <Link to="/admin">
                     <Button 
@@ -129,15 +132,15 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                       size="sm" 
                       className="bg-ios-orange/10 hover:bg-ios-orange/20 text-ios-orange border border-ios-orange/20 rounded-ios-md font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                     >
-                      <Shield className="w-4 h-4 mr-2" />
-                      {t('navigation.admin')}
+                      <Shield className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">{t('navigation.admin')}</span>
                     </Button>
                   </Link>
                 )}
 
-                {/* User Profile */}
-                <div className="flex items-center space-x-3 bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios rounded-ios-lg px-3 py-2 border border-ios-gray5/30 dark:border-ios-dark-bg4/30">
-                  <div className="text-right hidden sm:block">
+                {/* User Profile - Móbile otimizado */}
+                <div className="flex items-center space-x-1 md:space-x-3 bg-ios-gray6/50 dark:bg-ios-dark-bg3/50 backdrop-blur-ios rounded-ios-lg px-2 py-1 md:px-3 md:py-2 border border-ios-gray5/30 dark:border-ios-dark-bg4/30">
+                  <div className="text-right hidden lg:block">
                     <p className="text-sm font-semibold text-gray-900 dark:text-ios-dark-text">
                       {userProfile?.display_name || t('spiritualPopup.intercessors')}
                     </p>
@@ -147,31 +150,32 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                     </p>
                   </div>
                   
-                  {/* Avatar */}
+                  {/* Avatar - Menor no mobile */}
                   <div className="relative">
-                    <div className="w-9 h-9 rounded-ios-md bg-gradient-to-br from-ios-blue to-ios-purple shadow-ios-md flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-7 h-7 md:w-9 md:h-9 rounded-ios-md bg-gradient-to-br from-ios-blue to-ios-purple shadow-ios-md flex items-center justify-center text-white text-xs md:text-sm font-bold">
                       {userProfile?.display_name?.[0]?.toUpperCase() || 'U'}
                     </div>
-                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-ios-green rounded-full border-2 border-white dark:border-ios-dark-bg2"></div>
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-ios-green rounded-full border-2 border-white dark:border-ios-dark-bg2"></div>
                   </div>
 
-                  {/* Logout Button */}
+                  {/* Logout Button - Menor no mobile */}
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={handleSignOut}
-                    className="w-8 h-8 rounded-ios-md hover:bg-ios-red/10 hover:text-ios-red transition-all duration-200 hover:scale-105 active:scale-95"
+                    className="w-6 h-6 md:w-8 md:h-8 rounded-ios-md hover:bg-ios-red/10 hover:text-ios-red transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-3 h-3 md:w-4 md:h-4" />
                   </Button>
                 </div>
               </div>
             ) : (
               <Button 
                 onClick={onAuthClick}
-                className="bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-lg px-6 py-2.5 font-semibold shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-lg"
+                className="bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-lg px-3 py-2 md:px-6 md:py-2.5 font-semibold shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-lg text-sm md:text-base"
               >
-                {t('auth.login')}
+                <span className="hidden md:inline">{t('auth.login')}</span>
+                <span className="md:hidden">Login</span>
               </Button>
             )}
           </div>

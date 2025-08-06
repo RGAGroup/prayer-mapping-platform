@@ -342,7 +342,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
       let allRegions = [];
       for (const variation of searchVariations) {
         const { data: regions, error: debugError } = await supabase
-          .from('spiritual_regions')
+        .from('spiritual_regions')
           .select('id, name, region_type, spiritual_data')
           .ilike('name', `%${variation}%`);
         
@@ -607,8 +607,8 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
   const processRegionData = async (rawSpiritualData: any, regionName: string, regionType: string) => {
     try {
       console.log(`🔄 Processando dados para ${regionName}:`, rawSpiritualData);
-      
-      // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
+        
+        // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
       const spiritualData = rawSpiritualData as any;
         
         // NOVA ESTRUTURA - dados salvos pelo admin (mesma estrutura do modal Visualizar)
@@ -628,12 +628,12 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
               .filter(line => line.length > 3); // Filtra linhas muito pequenas
             
             prayerTargets = alvosLines.map((line: string, index: number) => ({
-              id: `target-${index}`,
-              title: line.length > 50 ? line.substring(0, 50) + '...' : line,
-              description: line,
-              priority: 'medium' as const,
-              intercessors: Math.floor(Math.random() * 20) + 5,
-            }));
+            id: `target-${index}`,
+            title: line.length > 50 ? line.substring(0, 50) + '...' : line,
+            description: line,
+            priority: 'medium' as const,
+            intercessors: Math.floor(Math.random() * 20) + 5,
+          }));
           }
           
           return {
@@ -701,9 +701,9 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
               revivalLevel: prayerTargets.length > 5 ? 'alto' : prayerTargets.length > 2 ? 'médio' : 'baixo' as const,
               alertLevel: 'amarelo' as const,
               description: `${regionName} possui dados espirituais atualizados com ${prayerTargets.length} alvos de intercessão identificados.`,
-            }
-          };
-        } else {
+          }
+        };
+      } else {
         console.log(`⚠️ Nenhum dado espiritual encontrado para ${regionName}, retornando dados básicos`);
         
         // Retornar estrutura básica sem dados mockados - MARCANDO COMO REGIÃO SEM DADOS ESPIRITUAIS
@@ -1365,20 +1365,20 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
         }`} 
       />
 
-      {/* Controles de Zoom e Legenda */}
-      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 space-y-2 z-30">
-        <div className="text-sm font-medium text-gray-700">
+      {/* Controles de Zoom e Legenda - Mobile Otimizado */}
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2 md:p-3 space-y-1 md:space-y-2 z-30 text-xs md:text-sm">
+        <div className="text-xs md:text-sm font-medium text-gray-700">
           Zoom: {currentZoom.toFixed(1)} ({determineRegionType(currentZoom)})
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="hidden md:block text-xs text-gray-500">
           Fronteiras oficiais Google
         </div>
         <div className="text-xs text-green-600 font-medium">
           ✅ Dados carregados
         </div>
-        <div className="border-t pt-2 mt-2">
+        <div className="border-t pt-1 md:pt-2 mt-1 md:mt-2">
           <div className="text-xs font-medium text-gray-600 mb-1">Camadas Ativas:</div>
-          <div className="space-y-1">
+          <div className="space-y-0.5 md:space-y-1">
             {getActiveLayers(currentZoom).includes('countries') && (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-0.5 bg-red-500"></div>
@@ -1404,7 +1404,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
               </div>
             )}
           </div>
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="hidden md:block text-xs text-gray-500 mt-2">
             💡 Use o zoom para navegar entre níveis
           </div>
         </div>
