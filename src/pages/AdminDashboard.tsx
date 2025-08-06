@@ -63,7 +63,7 @@ const AdminDashboard = () => {
       <GoogleMapsLoader />
       <div className="min-h-screen bg-gradient-to-br from-ios-gray6 to-white dark:from-ios-dark-bg to-ios-dark-bg2">
         {/* Header iOS Style */}
-        <div className="bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border-b border-ios-gray5/30 dark:border-ios-dark-bg4/30 sticky top-20 z-40">
+        <div className="bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border-b border-ios-gray5/30 dark:border-ios-dark-bg4/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0">
               <div className="flex-1 min-w-0">

@@ -41,13 +41,269 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
     console.log(`🔍 getSpiritualData chamado com: regionName="${regionName}", regionType="${regionType}"`);
     
     try {
-      // Buscar dados reais do Supabase
-      const { data: regionData, error } = await supabase
+      // Debug: Primeiro vamos ver todas as regiões similares com múltiplas variações
+      console.log(`🔍 Buscando regiões com nome similar a "${regionName}"...`);
+      
+      // Dicionário de tradução PT -> EN para países
+      const countryTranslations: { [key: string]: string[] } = {
+        'Sudão': ['Sudan'],
+        'Rússia': ['Russia', 'Russian Federation'],
+        'Sudão do Sul': ['South Sudan'],
+        'Estados Unidos': ['United States', 'United States of America', 'USA'],
+        'Reino Unido': ['United Kingdom', 'UK'],
+        'Coreia do Sul': ['South Korea', 'Republic of Korea'],
+        'Coreia do Norte': ['North Korea', 'Democratic People\'s Republic of Korea'],
+        'República Democrática do Congo': ['Democratic Republic of the Congo', 'Congo (Kinshasa)', 'DRC'],
+        'República do Congo': ['Republic of the Congo', 'Congo (Brazzaville)'],
+        'Costa do Marfim': ['Ivory Coast', 'Côte d\'Ivoire'],
+        'Alemanha': ['Germany'],
+        'França': ['France'],
+        'Espanha': ['Spain'],
+        'Itália': ['Italy'],
+        'Portugal': ['Portugal'],
+        'Brasil': ['Brazil'],
+        'China': ['China'],
+        'Japão': ['Japan'],
+        'Índia': ['India'],
+        'África do Sul': ['South Africa'],
+        'Arábia Saudita': ['Saudi Arabia'],
+        'Emirados Árabes Unidos': ['United Arab Emirates', 'UAE'],
+        'Suíça': ['Switzerland'],
+        'Áustria': ['Austria'],
+        'Bélgica': ['Belgium'],
+        'Holanda': ['Netherlands', 'Holland'],
+        'Polônia': ['Poland'],
+        'Suécia': ['Sweden'],
+        'Noruega': ['Norway'],
+        'Dinamarca': ['Denmark'],
+        'Finlândia': ['Finland'],
+        'Grécia': ['Greece'],
+        'Turquia': ['Turkey'],
+        'Egito': ['Egypt'],
+        'México': ['Mexico'],
+        'Argentina': ['Argentina'],
+        'Chile': ['Chile'],
+        'Peru': ['Peru'],
+        'Colômbia': ['Colombia'],
+        'Venezuela': ['Venezuela'],
+        'Canadá': ['Canada'],
+        'Austrália': ['Australia'],
+        'Nova Zelândia': ['New Zealand'],
+        'Tailândia': ['Thailand'],
+        'Vietnã': ['Vietnam'],
+        'Filipinas': ['Philippines'],
+        'Indonésia': ['Indonesia'],
+        'Malásia': ['Malaysia'],
+        'Singapura': ['Singapore'],
+        'Israel': ['Israel'],
+        'Irã': ['Iran'],
+        'Iraque': ['Iraq'],
+        'Afeganistão': ['Afghanistan'],
+        'Paquistão': ['Pakistan'],
+        'Bangladesh': ['Bangladesh'],
+        'Sri Lanka': ['Sri Lanka'],
+        'Myanmar': ['Myanmar', 'Burma'],
+        'Camboja': ['Cambodia'],
+        'Laos': ['Laos'],
+        'Nepal': ['Nepal'],
+        'Butão': ['Bhutan'],
+        'Mongólia': ['Mongolia'],
+        'Cazaquistão': ['Kazakhstan'],
+        'Uzbequistão': ['Uzbekistan'],
+        'Quirguistão': ['Kyrgyzstan'],
+        'Tajiquistão': ['Tajikistan'],
+        'Turcomenistão': ['Turkmenistan'],
+        'Geórgia': ['Georgia'],
+        'Armênia': ['Armenia'],
+        'Azerbaijão': ['Azerbaijan'],
+        'Moldávia': ['Moldova'],
+        'Ucrânia': ['Ukraine'],
+        'Bielorrússia': ['Belarus'],
+        'Estônia': ['Estonia'],
+        'Letônia': ['Latvia'],
+        'Lituânia': ['Lithuania'],
+        'República Tcheca': ['Czech Republic', 'Czechia'],
+        'Eslováquia': ['Slovakia'],
+        'Hungria': ['Hungary'],
+        'Romênia': ['Romania'],
+        'Bulgária': ['Bulgaria'],
+        'Sérvia': ['Serbia'],
+        'Croácia': ['Croatia'],
+        'Eslovênia': ['Slovenia'],
+        'Bósnia e Herzegovina': ['Bosnia and Herzegovina'],
+        'Montenegro': ['Montenegro'],
+        'Macedônia do Norte': ['North Macedonia'],
+        'Albânia': ['Albania'],
+        'Kosovo': ['Kosovo']
+      };
+
+      // Criar variações de busca incluindo traduções
+      const searchVariations = [
+        regionName,
+        regionName.toLowerCase(),
+        regionName.replace(/í/g, 'i').replace(/ã/g, 'a').replace(/ç/g, 'c'), // Remove acentos
+      ];
+
+      // Adicionar traduções específicas se existirem
+      if (countryTranslations[regionName]) {
+        searchVariations.push(...countryTranslations[regionName]);
+        console.log(`🌍 Traduções encontradas para "${regionName}":`, countryTranslations[regionName]);
+      }
+
+      // Adicionar mais variações genéricas
+      searchVariations.push(
+        regionName.replace(/Sudão do Sul/g, 'South Sudan'),
+        regionName.replace(/Estados Unidos/g, 'United States'),
+        regionName.replace(/Reino Unido/g, 'United Kingdom')
+      );
+      
+      console.log(`🔍 Testando variações:`, searchVariations);
+      
+      let allRegions = [];
+      for (const variation of searchVariations) {
+        const { data: regions, error: debugError } = await supabase
+          .from('spiritual_regions')
+          .select('id, name, region_type, spiritual_data')
+          .ilike('name', `%${variation}%`);
+        
+        if (regions && regions.length > 0) {
+          allRegions = regions;
+          console.log(`✅ Encontrado com variação "${variation}":`, regions.map(r => r.name));
+          break;
+        } else {
+          console.log(`❌ Nada encontrado com "${variation}"`);
+        }
+      }
+      
+      console.log(`📊 Regiões encontradas com nome similar:`, allRegions);
+      
+      // Mostrar detalhes das regiões similares
+      if (allRegions && allRegions.length > 0) {
+        console.log(`🔍 Detalhes das regiões similares:`);
+        allRegions.forEach((region, index) => {
+          console.log(`  ${index + 1}. Nome: "${region.name}" | Tipo: "${region.region_type}" | Tem dados: ${!!region.spiritual_data}`);
+          if (region.spiritual_data) {
+            const hasNew = region.spiritual_data.sistema_geopolitico_completo || 
+                          region.spiritual_data.alvos_intercessao_completo || 
+                          region.spiritual_data.outras_informacoes_importantes;
+            console.log(`     🎯 Estrutura nova: ${hasNew ? 'SIM' : 'NÃO'}`);
+          }
+        });
+      }
+
+      // 🚀 SISTEMA DE FALLBACK INTELIGENTE
+      // Se não encontrou nada, tentar estratégias de fallback
+      if (!allRegions || allRegions.length === 0) {
+        console.log(`🔄 Iniciando sistema de fallback inteligente...`);
+        
+        // Estratégia 1: Se for estado/província, buscar pelo país pai
+        if (regionType.toLowerCase() === 'state') {
+          console.log(`🏛️ Estado não encontrado, tentando buscar dados do país pai...`);
+          
+          // Tentar identificar o país pela localização geográfica
+          const countryFallbacks = [
+            // Sudão e estados
+            { states: ['South Kordofan', 'North Kurdufan', 'Blue Nile'], country: 'Sudan' },
+            { states: ['South Kordofan', 'North Kordofan', 'Blue Nile'], country: 'Sudan' },
+            // Egito
+            { states: ['The New Valley Governorate', 'New Valley'], country: 'Egypt' },
+            // Arábia Saudita  
+            { states: ['Riyadh Province', 'Eastern Province'], country: 'Saudi Arabia' },
+            // Etiópia
+            { states: ['Oromia', 'Amhara', 'Tigray'], country: 'Ethiopia' },
+            // Índia
+            { states: ['Madhya Pradesh', 'Karnataka', 'Uttar Pradesh'], country: 'India' }
+          ];
+          
+          const parentCountry = countryFallbacks.find(f => 
+            f.states.some(state => state.toLowerCase().includes(regionName.toLowerCase()) || 
+                                 regionName.toLowerCase().includes(state.toLowerCase()))
+          );
+          
+          if (parentCountry) {
+            console.log(`🌍 Tentando buscar dados do país pai: ${parentCountry.country}`);
+            const { data: countryData } = await supabase
+              .from('spiritual_regions')
+              .select('spiritual_data, name, region_type')
+              .ilike('name', `%${parentCountry.country}%`)
+              .eq('region_type', 'country')
+              .limit(1)
+              .single();
+            
+            if (countryData && countryData.spiritual_data) {
+              console.log(`✅ Usando dados do país pai: ${countryData.name}`);
+              allRegions = [countryData];
+            }
+          }
+        }
+        
+        // Estratégia 2: Busca fuzzy mais ampla
+        if ((!allRegions || allRegions.length === 0) && regionName.length > 3) {
+          console.log(`🔍 Tentando busca fuzzy mais ampla...`);
+          const fuzzyTerms = [
+            regionName.substring(0, 4), // Primeiros 4 chars
+            regionName.substring(0, 5), // Primeiros 5 chars
+            regionName.split(' ')[0],   // Primeira palavra
+            regionName.split(' ').pop() // Última palavra
+          ].filter(term => term && term.length > 2);
+          
+          for (const term of fuzzyTerms) {
+            const { data: fuzzyResults } = await supabase
+              .from('spiritual_regions')
+              .select('spiritual_data, name, region_type')
+              .ilike('name', `%${term}%`)
+              .limit(3);
+            
+            if (fuzzyResults && fuzzyResults.length > 0) {
+              console.log(`🎯 Busca fuzzy encontrou com "${term}":`, fuzzyResults.map(r => r.name));
+              allRegions = fuzzyResults;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Buscar dados reais do Supabase (query original)
+      let { data: regionData, error } = await supabase
         .from('spiritual_regions')
-        .select('spiritual_data')
+        .select('spiritual_data, name, region_type')
         .eq('name', regionName)
         .eq('region_type', regionType.toLowerCase())
         .maybeSingle();
+      
+      console.log(`🎯 Query exata resultado:`, regionData);
+      console.log(`🎯 Query exata - spiritual_data:`, regionData?.spiritual_data);
+      
+      // Se não encontrou com query exata OU encontrou mas sem dados, tentar variações
+      if ((!regionData || !regionData.spiritual_data) && allRegions && allRegions.length > 0) {
+        console.log(`🔄 Query exata falhou, tentando com regiões similares...`);
+        
+        // Priorizar região com estrutura nova
+        const regionWithNewData = allRegions.find(r => r.spiritual_data && 
+          (r.spiritual_data.sistema_geopolitico_completo || 
+           r.spiritual_data.alvos_intercessao_completo ||
+           r.spiritual_data.outras_informacoes_importantes));
+        
+        if (regionWithNewData) {
+          console.log(`✅ Usando região com estrutura nova: "${regionWithNewData.name}" (${regionWithNewData.region_type})`);
+          return await processRegionData(regionWithNewData.spiritual_data, regionName, regionType);
+        }
+        
+        // Fallback: primeira região com qualquer dado espiritual
+        const anyRegionWithData = allRegions.find(r => r.spiritual_data && Object.keys(r.spiritual_data).length > 0);
+        if (anyRegionWithData) {
+          console.log(`✅ Usando fallback com dados: "${anyRegionWithData.name}" (${anyRegionWithData.region_type})`);
+          return await processRegionData(anyRegionWithData.spiritual_data, regionName, regionType);
+        }
+        
+        // Se não tem dados espirituais mas tem registro, usar o primeiro
+        const firstRegion = allRegions[0];
+        if (firstRegion) {
+          console.log(`📋 Usando primeiro registro encontrado: "${firstRegion.name}" (sem dados espirituais)`);
+          // Forçar para usar a estrutura "região sem dados"
+          regionData = { spiritual_data: null, name: firstRegion.name, region_type: firstRegion.region_type };
+        }
+      }
 
       if (error) {
         console.error('❌ Erro ao buscar dados espirituais:', error);
@@ -55,26 +311,142 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
 
       if (regionData?.spiritual_data) {
         console.log(`✅ Dados espirituais encontrados para ${regionName}:`, regionData.spiritual_data);
+        return await processRegionData(regionData.spiritual_data, regionName, regionType);
+      } else if (regionData) {
+        console.log(`📋 Região ${regionName} encontrada mas sem dados espirituais, criando estrutura básica`);
+        // Região existe mas não tem dados espirituais - criar estrutura informativa
+        return {
+          region: regionName,
+          type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
+          
+          stats: {
+            totalIntercessors: 0,
+            activePrayers: 0,
+            propheticWords: 0,
+            testimonies: 0,
+            missionBases: 0,
+            alerts: 1,
+          },
+          
+          recentActivity: [
+            {
+              id: 'no-spiritual-data',
+              type: 'alert' as const,
+              title: '📝 Dados Espirituais Pendentes',
+              description: `${regionName} está cadastrada no sistema mas ainda não possui dados espirituais gerados pela IA. Use o Dashboard Administrativo → Mapeamento → botão "⚡ Gerar IA" para criar conteúdo espiritual para esta região.`,
+              author: 'Sistema Atalaia',
+              date: new Date().toISOString(),
+              priority: 'medium' as const,
+            }
+          ],
+          
+          prayerTargets: [
+            {
+              id: 'generate-data',
+              title: `Gerar dados espirituais para ${regionName}`,
+              description: `Esta região precisa de dados espirituais gerados pela IA. Vá ao Dashboard Administrativo para gerar conteúdo.`,
+              priority: 'medium' as const,
+              intercessors: 0,
+            }
+          ],
+          
+          spiritualStatus: {
+            revivalLevel: 'baixo' as const,
+            alertLevel: 'amarelo' as const,
+            description: `${regionName} aguarda geração de dados espirituais. Use o painel administrativo para ativar o sistema de IA.`,
+          }
+        };
+      } else {
+        console.log(`❌ Nenhum registro encontrado para ${regionName}`);
         
-        // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
-        const spiritualData = regionData.spiritual_data as any;
+        // Criar estrutura informativa mesmo quando não há dados
+        return {
+          region: regionName,
+          type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
+          
+          stats: {
+            totalIntercessors: 0,
+            activePrayers: 0,
+            propheticWords: 0,
+            testimonies: 0,
+            missionBases: 0,
+            alerts: 1,
+          },
+          
+          recentActivity: [
+            {
+              id: 'region-not-mapped',
+              type: 'alert' as const,
+              title: '🗺️ Região Não Mapeada',
+              description: `${regionName} ainda não foi cadastrada em nosso sistema de mapeamento espiritual. Esta é uma excelente oportunidade para expandir nosso alcance global através da intercessão.`,
+              author: 'Sistema Atalaia',
+              date: new Date().toISOString(),
+              priority: 'high' as const,
+            }
+          ],
+          
+          prayerTargets: [
+            {
+              id: 'intercession-pioneer',
+              title: `Interceder como pioneiro por ${regionName}`,
+              description: `Seja um pioneiro na intercessão por esta região ainda não mapeada. Sua oração pode abrir caminhos espirituais.`,
+              priority: 'high' as const,
+              intercessors: 0,
+            },
+            {
+              id: 'request-mapping',
+              title: `Solicitar mapeamento de ${regionName}`,
+              description: `Contate a administração para incluir esta região em nosso sistema de mapeamento espiritual.`,
+              priority: 'medium' as const,
+              intercessors: 0,
+            }
+          ],
+          
+          spiritualStatus: {
+            revivalLevel: 'desconhecido' as const,
+            alertLevel: 'laranja' as const,
+            description: `${regionName} é uma região não mapeada espiritualmente. Sua intercessão pioneira é crucial para estabelecer cobertura espiritual.`,
+          }
+        };
+      }
+    } catch (error) {
+      console.error('💥 Erro geral na função getSpiritualData:', error);
+      return null;
+    }
+  };
+
+  // Função separada para processar dados da região
+  const processRegionData = async (rawSpiritualData: any, regionName: string, regionType: string) => {
+    try {
+      console.log(`🔄 Processando dados para ${regionName}:`, rawSpiritualData);
+      
+      // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
+      const spiritualData = rawSpiritualData as any;
         
-        // NOVA ESTRUTURA - dados salvos pelo admin
-        const hasNewStructure = spiritualData.sistema_geopolitico_completo || spiritualData.alvos_intercessao_completo;
+        // NOVA ESTRUTURA - dados salvos pelo admin (mesma estrutura do modal Visualizar)
+        const hasNewStructure = spiritualData.sistema_geopolitico_completo || spiritualData.alvos_intercessao_completo || spiritualData.outras_informacoes_importantes;
         
         if (hasNewStructure) {
-          console.log('🆕 Usando nova estrutura de dados');
+          console.log('🆕 Usando nova estrutura de dados (compatível com modal Visualizar)');
           
-          // Extrair alvos de intercessão do texto
+          // Extrair alvos de intercessão do texto - melhor processamento
           const alvosText = spiritualData.alvos_intercessao_completo || '';
-          const alvosLines = alvosText.split('\n').filter((line: string) => line.trim().length > 0);
-          const prayerTargets = alvosLines.map((line: string, index: number) => ({
-            id: `target-${index}`,
-            title: line.length > 50 ? line.substring(0, 50) + '...' : line,
-            description: line,
-            priority: 'medium' as const,
-            intercessors: Math.floor(Math.random() * 20) + 5,
-          }));
+          let prayerTargets = [];
+          
+          if (alvosText.trim()) {
+            // Tentar diferentes delimitadores para extrair alvos
+            const alvosLines = alvosText.split(/[\n\r•\-\*]/)
+              .map(line => line.trim())
+              .filter(line => line.length > 3); // Filtra linhas muito pequenas
+            
+            prayerTargets = alvosLines.map((line: string, index: number) => ({
+              id: `target-${index}`,
+              title: line.length > 50 ? line.substring(0, 50) + '...' : line,
+              description: line,
+              priority: 'medium' as const,
+              intercessors: Math.floor(Math.random() * 20) + 5,
+            }));
+          }
           
           return {
             region: regionName,
@@ -90,32 +462,48 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
             },
             
             recentActivity: [
-              {
+              // Sistema Geopolítico (sempre incluir se existe)
+              ...(spiritualData.sistema_geopolitico_completo ? [{
                 id: 'sistema-geo',
                 type: 'prophetic_word' as const,
-                title: '🏛️ Sistema Geopolítico Atualizado',
-                description: spiritualData.sistema_geopolitico_completo || 'Informações sobre o sistema geopolítico não disponíveis.',
-                author: 'Administrador',
+                title: '🏛️ Sistema Geopolítico',
+                description: spiritualData.sistema_geopolitico_completo,
+                author: 'Agente IA Atalaia',
                 date: new Date().toISOString(),
                 priority: 'high' as const,
-              },
-              {
+              }] : []),
+              
+              // Alvos de Intercessão (só se tiver alvos)
+              ...(prayerTargets.length > 0 ? [{
                 id: 'alvos-intercesao',
                 type: 'prayer_target' as const,
-                title: '🔥 Alvos de Intercessão Definidos',
-                description: `${prayerTargets.length} alvos de oração identificados`,
+                title: '🔥 Alvos de Intercessão',
+                description: `${prayerTargets.length} alvos específicos de oração identificados:\n\n${prayerTargets.map(t => `• ${t.description}`).join('\n')}`,
                 author: 'Rede de Oração',
                 date: new Date().toISOString(),
                 priority: 'high' as const,
-              },
+              }] : []),
+              
+              // Outras Informações Importantes
               ...(spiritualData.outras_informacoes_importantes ? [{
                 id: 'outras-info',
                 type: 'mission_base' as const,
                 title: '📋 Outras Informações Importantes',
                 description: spiritualData.outras_informacoes_importantes,
-                author: 'Agente Atalaia',
+                author: 'Agente IA Atalaia',
                 date: new Date().toISOString(),
                 priority: 'medium' as const,
+              }] : []),
+              
+              // Fallback se não tiver nenhum dado
+              ...(!spiritualData.sistema_geopolitico_completo && prayerTargets.length === 0 && !spiritualData.outras_informacoes_importantes ? [{
+                id: 'no-data',
+                type: 'alert' as const,
+                title: '⚠️ Dados Espirituais Limitados',
+                description: 'Esta região ainda não possui dados espirituais completos gerados pela IA. Use o Dashboard Administrativo para gerar conteúdo.',
+                author: 'Sistema Atalaia',
+                date: new Date().toISOString(),
+                priority: 'low' as const,
               }] : [])
             ],
             
@@ -127,58 +515,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
               description: `${regionName} possui dados espirituais atualizados com ${prayerTargets.length} alvos de intercessão identificados.`,
             }
           };
-        }
-        
-        // ESTRUTURA ANTIGA - manter compatibilidade
-        return {
-          region: regionName,
-          type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
-          
-          stats: {
-            totalIntercessors: spiritualData.stats?.total_intercessors || 0,
-            activePrayers: spiritualData.stats?.active_prayers || 0,
-            propheticWords: spiritualData.prophetic_words?.length || 0,
-            testimonies: spiritualData.testimonies?.length || 0,
-            missionBases: spiritualData.mission_bases?.length || 0,
-            alerts: spiritualData.spiritual_alerts?.length || 0,
-          },
-          
-          recentActivity: [
-            ...(spiritualData.prophetic_words || []).slice(0, 2).map((word: any, index: number) => ({
-              id: `pw-${index}`,
-              type: 'prophetic_word' as const,
-              title: word.content?.substring(0, 50) + '...' || 'Palavra Profética',
-              description: word.content || '',
-              author: word.author || 'Anônimo',
-              date: word.date || new Date().toISOString(),
-              priority: 'high' as const,
-            })),
-            ...(spiritualData.prayer_targets || []).slice(0, 2).map((target: any, index: number) => ({
-              id: `pt-${index}`,
-              type: 'prayer_target' as const,
-              title: target.title || 'Alvo de Oração',
-              description: target.description || '',
-              author: 'Rede de Oração',
-              date: new Date().toISOString(),
-              priority: target.urgency || 'medium' as const,
-            }))
-          ],
-          
-          prayerTargets: (spiritualData.prayer_targets || []).map((target: any) => ({
-            id: target.id || Math.random().toString(),
-            title: target.title || 'Alvo de Oração',
-            description: target.description || '',
-            priority: target.urgency || 'medium' as const,
-            intercessors: Math.floor(Math.random() * 50) + 10,
-          })),
-          
-          spiritualStatus: {
-            revivalLevel: spiritualData.stats?.revival_level || 'baixo' as 'baixo' | 'médio' | 'alto' | 'avivamento',
-            alertLevel: spiritualData.stats?.alert_level || 'verde' as 'verde' | 'amarelo' | 'laranja' | 'vermelho',
-            description: `Status espiritual atual de ${regionName}. ${spiritualData.prayer_targets?.length || 0} alvos de oração ativos.`,
-          }
-        };
-      } else {
+        } else {
         console.log(`⚠️ Nenhum dado espiritual encontrado para ${regionName}, retornando dados básicos`);
         
         // Retornar estrutura básica sem dados mockados

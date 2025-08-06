@@ -452,25 +452,37 @@ class QueueManagementService {
 
       const supabaseUrl = 'https://cxibuehwbuobwruhzwka.supabase.co';
       
-      const response = await fetch(`${supabaseUrl}/functions/v1/bright-api`, {
+      const requestData = {
+        regionName: item.region_name,
+        regionType: item.region_type,
+        queueId: item.id,
+        countryCode: item.country_code || 'US',
+        parentRegion: item.parent_region_name || '',
+        context: `Continente: ${item.continent || 'Americas'}`
+      };
+      
+      // Validar dados obrigatórios
+      if (!requestData.regionName || !requestData.regionType) {
+        throw new Error(`❌ Dados obrigatórios faltando: regionName=${requestData.regionName}, regionType=${requestData.regionType}`);
+      }
+      
+      console.log('📤 Enviando dados para Edge Function:', requestData);
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/spiritual-ai-generation`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          regionName: item.region_name,
-          regionType: item.region_type,
-          queueId: item.id,
-          countryCode: item.country_code,
-          parentRegion: item.parent_region_name,
-          context: `Continente: ${item.continent}`
-        })
+        body: JSON.stringify(requestData)
       });
 
+      console.log('📥 Status da resposta:', response.status, response.statusText);
+
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Edge Function Error: ${response.status} - ${errorData}`);
+        const errorText = await response.text();
+        console.error('❌ Erro da Edge Function:', errorText);
+        throw new Error(`Edge Function Error: ${response.status} - ${errorText}`);
       }
 
       const result = await response.json();

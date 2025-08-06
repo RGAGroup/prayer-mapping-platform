@@ -154,7 +154,7 @@ const getRegionContext = (regionName: string, countryCode?: string, parentRegion
     'Estados Unidos': 'Nação com herança cristã, polarização política, centro mundial de missões.',
     'México': 'País católico tradicional, movimento evangélico crescente, desafios de violência.',
     'Canadá': 'Nação secular, declínio cristão, liberdades religiosas em risco.'
-  };
+  }
 
   return contexts[regionName] || `Região ${regionName} - análise espiritual necessária para intercessão estratégica.`;
 };
@@ -166,6 +166,31 @@ serve(async (req) => {
 
   try {
     const { regionName, regionType, prompt, queueId, countryCode, parentRegion, context } = await req.json()
+    
+    // Validação dos dados obrigatórios
+    if (!regionName || !regionType) {
+      console.error('❌ Dados obrigatórios faltando:', { regionName, regionType });
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "Invalid request data: regionName and regionType are required" 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('📥 Dados recebidos:', {
+      regionName,
+      regionType,
+      queueId,
+      countryCode,
+      parentRegion,
+      context,
+      hasPrompt: !!prompt
+    });
     
     // Criar cliente Supabase com service role para RLS bypass
     const supabase = createClient(
