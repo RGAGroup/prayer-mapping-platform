@@ -129,10 +129,10 @@ class AIService {
       // Build the prompt using the existing method
       const prompt = this.buildPrompt(request);
 
-      console.log(`🔗 Chamando Edge Function: ${supabaseUrl}/functions/v1/bright-api`);
+      console.log(`🔗 Chamando Edge Function: ${supabaseUrl}/functions/v1/spiritual-ai-generation`);
 
       // Chamar Edge Function com a estrutura correta
-      const response = await fetch(`${supabaseUrl}/functions/v1/bright-api`, {
+      const response = await fetch(`${supabaseUrl}/functions/v1/spiritual-ai-generation`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
