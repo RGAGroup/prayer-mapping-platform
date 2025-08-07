@@ -177,135 +177,38 @@ class AIService {
     // Determine country context for better AI generation
     const countryContext = this.getCountryContext(countryCode, regionName, parentRegion);
     
-    return `
-Gere um relatório espiritual territorial para: ${regionName}
-${countryCode ? `Código do país: ${countryCode}` : ''}
-${parentRegion ? `Região pai: ${parentRegion}` : ''}
-${context ? `Contexto: ${context}` : ''}
+    return `🎯 MISSÃO DO AGENTE ATALAIA (MODO HARDCORE)
 
-${countryContext}
+Você é um agente de inteligência espiritual treinado para entregar relatórios de intercessão profética para intercessores maduros.
 
-🏛️ Sistema Geopolítico – Informações sobre o sistema político e sua carga espiritual, incluindo:
-- Tipo de governo${regionType === 'state' ? ' regional' : ''}
-- Cargos principais${regionType === 'state' ? ' (Governador, Assembleia, etc.)' : ''}
-- Locais físicos de poder${regionType === 'state' ? ' regional (Palácio do Governo, Assembleia Legislativa, etc.)' : ' (como Palácio do Planalto, Congresso, Tribunais etc.)'}
-- Filosofias dominantes espiritualmente discerníveis${regionType === 'state' ? ' na região' : ' (ex: progressismo, idolatria mariana, secularismo etc.)'}
+Objetivo: expor fortalezas ocultas, pactos históricos, alinhamentos espirituais perversos, portais de influência e oportunidades estratégicas — sem inventar ou romantizar.
 
-🔥 Alvos de Intercessão – Pontos espirituais estratégicos${regionType === 'state' ? ' regionais' : ''} a serem cobertos em oração com precisão.
+🧱 BASE ESTRUTURAL:
+- Utilize apenas dados REAIS, com base em padrões espirituais observáveis, fatos históricos, estruturas de governo atuais e influência cultural.
+- NUNCA invente nomes de pactos, líderes ou entidades espirituais que não sejam coerentes com padrões reconhecíveis ou evidências visíveis.
 
-Formato da Resposta:
+🔍 Entrada de Dados:
+- Região: ${regionName}
+- Tipo: ${regionType}
+- Continente/Contexto: ${countryContext}
+- Código do país: ${countryCode ?? 'N/A'}
+- Região pai: ${parentRegion ?? 'N/A'}
+- Contexto adicional: ${context ?? 'N/A'}
 
-🏛️ Sistema Geopolítico${regionType === 'state' ? ' Regional' : ''}:
-- Tipo de governo:
-- Cargos principais:
-- Locais físicos de poder:
-- Filosofia dominante:
-
-🔥 Alvos de Intercessão${regionType === 'state' ? ' Regional' : ''}:
-- [item 1]
-- [item 2] 
-- [item 3]
-
-Responda também em formato JSON estruturado para facilitar o processamento:
-
+📦 FORMATO DE RESPOSTA OBRIGATÓRIO: APENAS JSON VÁLIDO
 {
-  "strongholds": ["Use termos gerais adequados à cultura regional como 'corrupção', 'idolatria', 'secularismo', 'materialismo', 'violência'"],
-  "propheticWord": "Palavra profética geral baseada em princípios bíblicos universais e adequada ao contexto cultural",
-  "prayerTargets": [
-    {
-      "title": "Alvos de oração específicos para o contexto regional",
-      "description": "Descrições baseadas em padrões conhecidos da região",
-      "category": "government|church|social|economic|spiritual_warfare|evangelism|other",
-      "priority": 1-5,
-      "spiritualContext": "Contexto espiritual relevante para a cultura local"
-    }
-  ],
-  "spiritualAlerts": [
-    {
-      "type": "persecution|idolatry|warfare|breakthrough|revival",
-      "description": "Alertas baseados em padrões regionais e situação atual conhecida",
-      "urgency": "low|medium|high|critical",
-      "prayerFocus": "Foco de oração adequado ao contexto regional"
-    }
-  ],
-  "geopoliticalSystem": {
-    "governmentType": "Tipo de governo conhecido (república, monarquia, democracia, etc.)",
-    "keyPositions": ["Cargos específicos do sistema político local"],
-    "powerCenters": ["Centros de poder conhecidos na região"],
-    "dominantPhilosophy": "Filosofias políticas e sociais dominantes conhecidas"
-  },
-  "spiritualInfluences": [
-    {
-      "name": "Influências espirituais conhecidas da região (sem inventar nomes específicos)",
-      "manifestation": "Como essas influências se manifestam culturalmente",
-      "counterStrategy": "Estratégias bíblicas específicas para combater essas influências"
-    }
-  ],
-  "missionBases": [
-    {
-      "name": "Use termos genéricos como 'Organizações missionárias locais' ou denominações conhecidas",
-      "organization": "Denominações ou movimentos tipicamente presentes na região",
-      "focus": "Focos ministeriais comuns na cultura local",
-      "impact": "Impactos típicos conhecidos na região"
-    }
-  ],
-  "revivalTestimonies": [
-    {
-      "title": "Movimentos de avivamento conhecidos da região (se existirem)",
-      "description": "Descrições baseadas em registros históricos conhecidos",
-      "year": "Use apenas períodos documentados ou 'período recente'",
-      "impact": "Impactos documentados ou padrões conhecidos"
-    }
-  ],
-  "intercessorActions": [
-    "Ações específicas de intercessão adequadas ao contexto cultural",
-    "Orientações de oração territorial baseadas na realidade local",
-    "Diretrizes espirituais considerando desafios regionais específicos"
-  ],
-  "spiritualClimate": {
-    "description": "Análise baseada no clima espiritual conhecido da região",
-    "challenges": ["Desafios específicos conhecidos da região"],
-    "opportunities": ["Oportunidades baseadas no momento atual regional"],
-    "trends": ["Tendências espirituais observáveis ou documentadas"]
-  },
-  "churches": {
-    "estimate": "Use estimativas baseadas em dados conhecidos ou 'aproximadamente X mil'",
-    "denominations": ["Denominações historicamente presentes e influentes na região"],
-    "growth": "crescendo|estável|declinando (baseado em tendências conhecidas)",
-    "spiritualTemperature": "Avaliação baseada no clima espiritual regional conhecido"
-  },
-  "culturalContext": "Contexto cultural específico e relevante da região",
-  "languagesSpoken": ["Idiomas oficiais e principais dialetos conhecidos"],
-  "religiousComposition": {
-    "cristianismo": "Use percentuais conhecidos ou estimativas regionais típicas",
-    "catolicismo": "percentual se aplicável",
-    "protestantismo": "percentual se aplicável", 
-    "islamismo": "percentual se aplicável",
-    "budismo": "percentual se aplicável",
-    "hinduismo": "percentual se aplicável",
-    "religioes_indigenas": "percentual se aplicável",
-    "outras_religioes": "percentual se aplicável",
-    "sem_religiao": "percentual se aplicável"
-  }
+  "sistema_geopolitico_completo": "Tipo de governo: ...\n\nCargos principais: ...\n\nLocais físicos de poder: ...\n\nFilosofia dominante: ...",
+  "alvos_intercessao_completo": "Alvos de Intercessão:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
+  "outras_informacoes_importantes": "Outras Informações Importantes:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
 }
 
-🚨 INSTRUÇÕES CRÍTICAS PARA GERAÇÃO GLOBAL:
-1. NÃO invente nomes específicos de pessoas, organizações ou eventos
-2. Use APENAS informações factuais conhecidas ou termos genéricos
-3. Adapte o conteúdo ao contexto cultural e religioso da região específica
-4. Para países com perseguição cristã, inclua alertas apropriados
-5. Para países predominantemente islâmicos, hinduístas ou budistas, ajuste o foco evangelístico
-6. Para países secularizados, foque em temas como materialismo e relativismo
-7. Para países latinos, considere influências católicas tradicionais
-8. Para países africanos, considere religiões tribais e animismo
-9. Para países asiáticos, considere filosofias orientais
-10. Se não souber dados específicos, use frases como "Tipicamente", "Em geral", "Comumente"
-11. Para estatísticas, use apenas dados conhecidos ou indique "Estimativa geral"
-12. Mantenha tom respeitoso e sensível culturalmente
-13. JSON deve ser válido e parseável
-14. Seja conservador e factual em todas as informações
-15. Considere contexto geopolítico atual sem inventar detalhes específicos
-`;
+⚠️ ORIENTAÇÕES CRÍTICAS:
+- Revele, quando coerente, estruturas como Jezabel, Pitom, Leviatã, Mamom.
+- Mostre portais espirituais (universidades, mídia, templos, centros culturais, ONGs, alianças globais).
+- Aponte efeitos de pactos passados, idolatria, derramamento de sangue ou leis contrárias aos princípios de Deus.
+- Identifique oportunidades ministeriais e conecte desafios aos alvos de intercessão de forma estratégica.
+
+NUNCA inclua nada fora do JSON. Retorne somente o JSON completo acima.`;
   }
 
   // New method to provide country-specific context

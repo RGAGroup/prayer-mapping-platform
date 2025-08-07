@@ -1278,40 +1278,22 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
       
       console.log('✅ Região encontrada:', existingRegion);
       
-      // 2. 🎭 Obter persona padrão (como no dashboard)
-      console.log('🎭 Carregando personas...');
-      const personas = await advancedAgentService.getPersonas();
-      if (personas.length === 0) {
-        alert('❌ Nenhuma persona encontrada. Configure as personas no dashboard primeiro.');
-        return;
-      }
+      // 2. 🎭 Edge Function não precisa de persona (usa API diretamente)
+      console.log('🎭 Edge Function usa API OpenAI diretamente - sem necessidade de persona');
       
-      const defaultPersona = personas.find(p => p.is_default) || personas[0];
-      console.log('✅ Persona encontrada:', defaultPersona.name);
-      
-      // 3. 🌍 Criar contexto da região (EXATAMENTE como no dashboard)
-      const regionContext = {
-        region_id: existingRegion.id,
-        region_name: existingRegion.name,
-        region_type: existingRegion.region_type as 'country' | 'state' | 'city' | 'neighborhood',
-        country_code: existingRegion.country_code,
+      // 3. 🤖 Executar geração via Edge Function (versão segura)
+      console.log('🚀 Chamando Edge Function spiritual-ai-generation...');
+      const result = await aiService.generateSpiritualData({
+        regionName: existingRegion.name,
+        regionType: existingRegion.region_type as 'country' | 'state' | 'city' | 'neighborhood',
+        countryCode: existingRegion.country_code,
         coordinates: existingRegion.coordinates,
-        existing_spiritual_data: existingRegion.spiritual_data
-      };
-      
-      console.log('📋 Contexto da região:', regionContext);
-      
-      // 4. 🤖 Executar geração com advancedAgentService (EXATAMENTE como no dashboard)
-      console.log('🚀 Executando task com advancedAgentService...');
-      const result = await advancedAgentService.executeTask(
-        defaultPersona,
-        regionContext,
-        'spiritual_data'
-      );
+        context: `Região encontrada no banco de dados: ${existingRegion.name} (${existingRegion.region_type})`
+      });
       
       console.log('✅ Dados gerados com sucesso (versão dashboard):', result);
       
-      alert(`✅ DADOS ESPIRITUAIS GERADOS COM SUCESSO!\n\n🤖 Região: ${regionName}\n🎭 Persona: ${defaultPersona.name}\n📝 Status: Dados gerados e salvos\n🔄 Próximo: Recarregue para ver os dados\n\n🎉 Gloria a Deus! (Versão Dashboard)`);
+      alert(`✅ DADOS ESPIRITUAIS GERADOS COM SUCESSO!\n\n🤖 Região: ${regionName}\n🚀 Via: Edge Function (segura)\n📝 Status: Dados gerados e salvos\n🔄 Próximo: Recarregue para ver os dados\n\n🎉 Gloria a Deus!`);
       
     } catch (error) {
       console.error('❌ Erro geral na geração de IA (versão dashboard):', error);

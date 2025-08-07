@@ -74,72 +74,40 @@ interface AIGenerationRequest {
 
 const buildPropheticPrompt = (request: AIGenerationRequest): string => {
   const { regionName, regionType, countryCode, parentRegion } = request;
-  
-  return `
-MISSÃO PROFÉTICA: Gere análise espiritual territorial precisa para ${regionName} (${regionType})
+  const countryCtx = getRegionContext(regionName, countryCode, parentRegion);
 
-VOCÊ É: Especialista em mapeamento espiritual territorial com discernimento profético
-TAREFA: Análise espiritual estratégica baseada em dados confiáveis e discernimento
+  return `🎯 MISSÃO DO AGENTE ATALAIA (MODO HARDCORE)
 
-🏛️ SISTEMA GEOPOLÍTICO:
-Analise o sistema político/governamental de ${regionName}:
-- Tipo de governo atual e estrutura hierárquica
-- Posições-chave de liderança (Presidente, Primeiro-Ministro, etc.)
-- Centros físicos de poder (Palácio Presidencial, Parlamento, Suprema Corte)
-- Filosofias espirituais dominantes no governo
-- Influências espirituais sobre tomada de decisões políticas
+Você é um agente de inteligência espiritual treinado para entregar relatórios de intercessão profética para intercessores maduros.
 
-🔥 ALVOS DE INTERCESSÃO:
-Identifique alvos estratégicos específicos para ${regionName}:
-- Liderança governamental e autoridades
-- Igreja local e liderança cristã
-- Questões sociais críticas atuais
-- Sistemas econômicos e corporações influentes
-- Guerra espiritual específica regional
-- Oportunidades evangelísticas estratégicas
+Objetivo: expor fortalezas ocultas, pactos históricos, alinhamentos espirituais perversos, portais de influência e oportunidades estratégicas de intercessão — sem inventar ou romantizar.
 
-INSTRUÇÕES CRÍTICAS:
-- Responda APENAS em JSON válido 
-- Use dados verificáveis e contexto real
-- Mantenha tom profético mas factual
-- Seja específico para ${regionName}
-- Inclua coordenadas geográficas se relevante
+🧱 BASE ESTRUTURAL:
+- Utilize apenas dados REAIS, baseados em padrões espirituais observáveis, fatos históricos, estruturas de governo atuais e influência cultural.
+- NUNCA invente nomes de pactos, líderes ou entidades espirituais que não sejam coerentes com padrões reconhecíveis ou evidências visíveis.
 
-FORMATO DE RESPOSTA JSON:
+🔍 Entrada:
+- Região: ${regionName}
+- Tipo: ${regionType}
+- Código do país: ${countryCode ?? 'N/A'}
+- Região pai: ${parentRegion ?? 'N/A'}
+- Contexto: ${countryCtx}
+
+📦 FORMATO DE RESPOSTA OBRIGATÓRIO (APENAS JSON VÁLIDO):
 {
-  "geopoliticalSystem": {
-    "governmentType": "string - tipo de governo",
-    "keyPositions": ["array de cargos principais"],
-    "powerCenters": ["array de locais físicos de poder"],
-    "dominantPhilosophy": "string - filosofia espiritual dominante"
-  },
-  "intercessionTargets": [
-    {
-      "title": "string - título do alvo",
-      "description": "string - descrição detalhada", 
-      "category": "government|church|social|economic|spiritual_warfare|evangelism",
-      "priority": "number 1-10",
-      "spiritualContext": "string - contexto espiritual específico"
-    }
-  ],
-  "spiritualClimate": {
-    "description": "string - clima espiritual geral",
-    "challenges": ["array de desafios espirituais"],
-    "opportunities": ["array de oportunidades"],
-    "trends": ["array de tendências atuais"]
-  },
-  "culturalContext": "string - contexto cultural relevante",
-  "religiousComposition": {
-    "Christianity": "number - % de cristãos",
-    "Islam": "number - % de muçulmanos", 
-    "Other": "number - % de outras religiões"
-  },
-  "propheticWord": "string - palavra profética específica para intercessão",
-  "intercessorActions": ["array de ações práticas de intercessão"]
+  "sistema_geopolitico_completo": "Tipo de governo: ...\n\nCargos principais: ...\n\nLocais físicos de poder: ...\n\nFilosofia dominante: ...",
+  "alvos_intercessao_completo": "Alvos de Intercessão:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
+  "outras_informacoes_importantes": "Outras Informações Importantes:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
 }
 
-${getRegionContext(regionName, countryCode, parentRegion)}
-`;
+⚠️ ORIENTAÇÕES CRÍTICAS:
+- Revele estruturas de influência demoníaca como Jezabel, Pitom, Leviatã, Mamom somente quando fizer sentido para o território.
+- Mostre portais espirituais (universidades, mídia, templos, centros culturais, ONGs, alianças globais).
+- Indique consequências de pactos passados, idolatria, derramamento de sangue ou leis contrárias aos princípios de Deus.
+- Identifique focos de avivamento e oportunidades ministeriais.
+- Conecte desafios aos alvos de intercessão de forma estratégica.
+
+NUNCA escreva nada fora do JSON. Responda somente com o JSON completo acima.`;
 };
 
 const getRegionContext = (regionName: string, countryCode?: string, parentRegion?: string): string => {
@@ -226,13 +194,30 @@ serve(async (req) => {
       context
     });
 
+    // Validar API Key
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!apiKey) {
+      throw new Error('API Key OpenAI não configurada no ambiente');
+    }
+    
+    // Limpar API Key de caracteres especiais (se houver)
+    const cleanApiKey = apiKey.trim().replace(/[^\w\-\.]/g, '');
+    console.log('🔑 API Key encontrada, tamanho:', apiKey.length);
+
+    // Validar formato da API Key OpenAI
+    if (!cleanApiKey.startsWith('sk-')) {
+      throw new Error('Formato inválido da API Key OpenAI');
+    }
+
+    // Construir headers de forma mais segura
+    const requestHeaders = new Headers();
+    requestHeaders.set('Authorization', `Bearer ${cleanApiKey}`);
+    requestHeaders.set('Content-Type', 'application/json');
+
     // Chamar OpenAI
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
+      headers: requestHeaders,
       body: JSON.stringify({
         model: 'gpt-4o-2024-08-06',
         messages: [
@@ -297,25 +282,9 @@ serve(async (req) => {
     const regionData = {
       name: regionName,
       region_type: regionType,
-      country_code: getCountryCode(regionName),
-      continent: 'America',
-      hierarchy_level: regionType === 'country' ? 1 : 2,
-      strongholds: parsedResponse.strongholds || [],
-      prophetic_word: parsedResponse.propheticWord || '',
-             prayer_targets: parsedResponse.prayerTargets || [],
-       spiritual_alerts: parsedResponse.spiritualAlerts || [],
-      geopolitical_system: parsedResponse.geopoliticalSystem || {},
-             spiritual_influences: parsedResponse.spiritualInfluences || [],
-       mission_bases: parsedResponse.missionBases || [],
-       revival_testimonies: parsedResponse.revivalTestimonies || [],
-      intercessor_actions: parsedResponse.intercessorActions || [],
-      spiritual_climate: parsedResponse.spiritualClimate || {},
-      churches: parsedResponse.churches || {},
-      cultural_context: parsedResponse.culturalContext || '',
-      languages_spoken: parsedResponse.languagesSpoken || [],
-      religious_composition: parsedResponse.religiousComposition || {},
-      ai_generated: true,
-      generated_at: new Date().toISOString(),
+      spiritual_data: parsedResponse,
+      data_source: 'ai_generated',
+      status: 'approved',
       updated_at: new Date().toISOString()
     }
 
