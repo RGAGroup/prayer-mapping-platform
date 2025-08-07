@@ -1,0 +1,5 @@
+[33mf650205[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m  OTIMIZAÇÃO MOBILE COMPLETA - Header + Popup + Modal Zoom
+[33m94e5e65[m[33m ([m[1;33mtag: [m[1;33mv1.1.0[m[33m)[m  FASE 1 COMPLETA: Sistema de botões dinâmicos funcionando
+[33mbe317ac[m  BACKUP ANTES DA FASE 1: Sistema de adição dinâmica de regiões
+[33mfeac2b7[m CHECKPOINT PRE-EXPANSION: Sistema funcionando perfeitamente
+[33m78c0e4a[m Corrigir problemas CORS do Google Maps - Remover API key padrao que causava erros CORS - Melhorar componente ApiKeyInput com instrucoes detalhadas - Adicionar alertas especificos sobre configuracao de dominios - Otimizar mensagens de erro para mobile - Incluir passo a passo para configuracao da API key
