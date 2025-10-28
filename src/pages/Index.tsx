@@ -6,6 +6,7 @@ import ContributionModal from '@/components/ContributionModal';
 import LocationPanel from '@/components/LocationPanel';
 import RegionalMapComponent from '@/components/map/RegionalMapComponent';
 import ApiKeyInput from '@/components/map/ApiKeyInput';
+import { PrayerClockView } from '@/components/PrayerClockView';
 
 import { LocationData } from '@/types/Location';
 import { useLocations } from '@/hooks/useLocations';
@@ -19,6 +20,7 @@ const Index = () => {
   const [showContributionModal, setShowContributionModal] = useState(false);
   const [apiKey, setApiKey] = useState<string>('AIzaSyCbk0kgeAlS_eU3QFNsR-Cysk_sRsPXTW0');
   const [showApiInput, setShowApiInput] = useState(false);
+  const [prayerClockRegion, setPrayerClockRegion] = useState<{ name: string; type: 'continent' | 'country' | 'state' | 'city' | 'neighborhood' } | null>(null);
 
   
   const { data: locations = [] } = useLocations();
@@ -68,7 +70,13 @@ const Index = () => {
       <main className="relative h-screen">
         {/* Wrapper do Google Maps */}
         <Wrapper apiKey={apiKey} version="beta" libraries={["marker", "geometry", "places"]}>
-          <RegionalMapComponent onRegionSelect={handleRegionSelect} />
+          <RegionalMapComponent
+            onRegionSelect={handleRegionSelect}
+            onOpenPrayerClock={(regionName, regionType) => {
+              console.log('🕐 Index: Abrindo Prayer Clock para:', regionName, regionType);
+              setPrayerClockRegion({ name: regionName, type: regionType as any });
+            }}
+          />
         </Wrapper>
         
         {/* Location Panel */}
@@ -99,6 +107,19 @@ const Index = () => {
           isOpen={showContributionModal}
           onClose={() => setShowContributionModal(false)}
           onSuccess={() => setShowContributionModal(false)}
+        />
+      )}
+
+      {/* Prayer Clock View */}
+      {prayerClockRegion && (
+        <PrayerClockView
+          isOpen={!!prayerClockRegion}
+          onClose={() => {
+            console.log('🔴 Index: Fechando Prayer Clock');
+            setPrayerClockRegion(null);
+          }}
+          regionName={prayerClockRegion.name}
+          regionType={prayerClockRegion.type}
         />
       )}
     </div>

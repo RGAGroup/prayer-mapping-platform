@@ -10,9 +10,10 @@ import advancedAgentService from '@/services/advancedAgentService';
 
 interface RegionalMapComponentProps {
   onRegionSelect: (regionName: string, regionType: string) => void;
+  onOpenPrayerClock?: (regionName: string, regionType: string) => void;
 }
 
-const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => {
+const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMapComponentProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [currentZoom, setCurrentZoom] = useState(3);
@@ -1401,6 +1402,7 @@ const RegionalMapComponent = ({ onRegionSelect }: RegionalMapComponentProps) => 
           onStartPrayer={handleStartPrayer}
           onSaveRegion={handleSaveRegion}
           onGenerateAI={handleGenerateAI}
+          onOpenPrayerClock={onOpenPrayerClock}
         />
       )}
 

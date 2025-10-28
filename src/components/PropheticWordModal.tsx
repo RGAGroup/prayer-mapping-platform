@@ -31,6 +31,15 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [sessionSaved, setSessionSaved] = useState(false);
 
+  // Resetar estado quando o modal fechar
+  useEffect(() => {
+    if (!isOpen) {
+      setSessionSaved(false);
+      setCustomReflection('');
+      setIsSaving(false);
+    }
+  }, [isOpen]);
+
   const formatDuration = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -62,19 +71,31 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
   const savePrayerSessionToDatabase = async () => {
     try {
       setIsSaving(true);
-      
+      console.log('🔄 Iniciando salvamento de sessão de oração...');
+
       // Verificar se usuário está logado
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log('⚠️ Usuário não logado - sessão não será salva');
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError) {
+        console.error('❌ Erro ao verificar autenticação:', authError);
+        alert('❌ Erro de autenticação. Por favor, faça login novamente.');
         setIsSaving(false);
         return;
       }
 
+      if (!user) {
+        console.error('⚠️ Usuário não logado - sessão não será salva');
+        alert('⚠️ Você precisa estar logado para salvar a oração.');
+        setIsSaving(false);
+        return;
+      }
+
+      console.log('✅ Usuário autenticado:', user.email);
+
       // Preparar dados da sessão
       const now = new Date();
       const startTime = new Date(now.getTime() - (prayerDuration * 1000));
-      
+
       const sessionData = {
         user_id: user.id,
         region_name: regionName,
@@ -87,18 +108,21 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
         spiritual_data: spiritualData || null,
       };
 
-      console.log('💾 Salvando sessão de oração:', sessionData);
+      console.log('💾 Dados da sessão preparados:', sessionData);
 
       const savedSession = await savePrayerSession(sessionData);
-      
+
       if (savedSession) {
-        console.log('✅ Sessão salva com sucesso!');
+        console.log('✅ Sessão salva com sucesso no banco de dados!', savedSession);
         setSessionSaved(true);
+        alert('✅ Oração registrada com sucesso!');
       } else {
-        console.error('❌ Erro ao salvar sessão');
+        console.error('❌ Falha ao salvar sessão - savePrayerSession retornou null');
+        alert('❌ Erro ao salvar oração. Verifique o console para mais detalhes.');
       }
     } catch (error) {
       console.error('❌ Erro inesperado ao salvar sessão:', error);
+      alert(`❌ Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     } finally {
       setIsSaving(false);
     }

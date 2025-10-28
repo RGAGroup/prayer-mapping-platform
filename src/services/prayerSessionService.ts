@@ -37,7 +37,7 @@ export interface IntercessorRanking {
  */
 export const savePrayerSession = async (sessionData: Omit<PrayerSession, 'id'>): Promise<PrayerSession | null> => {
   try {
-    console.log('💾 Salvando sessão de oração:', sessionData);
+    console.log('💾 [prayerSessionService] Salvando sessão de oração:', sessionData);
 
     const { data, error } = await supabase
       .from('prayer_sessions')
@@ -46,14 +46,20 @@ export const savePrayerSession = async (sessionData: Omit<PrayerSession, 'id'>):
       .single();
 
     if (error) {
-      console.error('❌ Erro ao salvar sessão de oração:', error);
+      console.error('❌ [prayerSessionService] Erro ao salvar sessão de oração:', error);
+      console.error('❌ [prayerSessionService] Detalhes do erro:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return null;
     }
 
-    console.log('✅ Sessão de oração salva com sucesso:', data);
+    console.log('✅ [prayerSessionService] Sessão de oração salva com sucesso:', data);
     return data;
   } catch (error) {
-    console.error('❌ Erro inesperado ao salvar sessão:', error);
+    console.error('❌ [prayerSessionService] Erro inesperado ao salvar sessão:', error);
     return null;
   }
 };
@@ -123,6 +129,29 @@ export const getTopPrayedRegions = async (limit = 10): Promise<any[]> => {
 
     return data || [];
   } catch (error) {
+    console.error('❌ Erro inesperado ao buscar regiões mais oradas:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca as regiões menos oradas (que precisam de mais intercessão)
+ */
+export const getLeastPrayedRegions = async (limit = 10): Promise<any[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('region_prayer_stats')
+      .select('*')
+      .order('total_prayer_time', { ascending: true })
+      .limit(limit);
+
+    if (error) {
+      console.error('❌ Erro ao buscar regiões menos oradas:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
     console.error('❌ Erro inesperado ao buscar regiões:', error);
     return [];
   }
@@ -133,24 +162,41 @@ export const getTopPrayedRegions = async (limit = 10): Promise<any[]> => {
  */
 export const getIntercessorRankings = async (limit = 20): Promise<IntercessorRanking[]> => {
   try {
-    const { data, error } = await supabase
+    // Buscar rankings
+    const { data: rankingsData, error: rankingsError } = await supabase
       .from('intercessor_rankings')
-      .select(`
-        *,
-        user_profiles!intercessor_rankings_user_id_fkey (
-          full_name
-        )
-      `)
+      .select('*')
       .order('rank_position', { ascending: true })
       .limit(limit);
 
-    if (error) {
-      console.error('❌ Erro ao buscar ranking de intercessores:', error);
+    if (rankingsError) {
+      console.error('❌ Erro ao buscar ranking de intercessores:', rankingsError);
       return [];
     }
 
-    // Mapear dados para incluir informações do perfil
-    return (data || []).map(item => ({
+    if (!rankingsData || rankingsData.length === 0) {
+      console.log('ℹ️ Nenhum ranking encontrado');
+      return [];
+    }
+
+    // Buscar perfis dos usuários
+    const userIds = rankingsData.map(r => r.user_id);
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('user_profiles')
+      .select('user_id, display_name')
+      .in('user_id', userIds);
+
+    if (profilesError) {
+      console.error('⚠️ Erro ao buscar perfis, continuando sem nomes:', profilesError);
+    }
+
+    // Criar mapa de perfis para lookup rápido
+    const profilesMap = new Map(
+      (profilesData || []).map(p => [p.user_id, p.display_name])
+    );
+
+    // Mapear dados combinando rankings com perfis
+    return rankingsData.map(item => ({
       user_id: item.user_id,
       total_prayer_time: item.total_prayer_time,
       total_sessions: item.total_sessions,
@@ -158,7 +204,7 @@ export const getIntercessorRankings = async (limit = 20): Promise<IntercessorRan
       longest_session: item.longest_session,
       current_streak: item.current_streak,
       rank_position: item.rank_position,
-      full_name: item.user_profiles?.full_name || 'Intercessor Anônimo',
+      full_name: profilesMap.get(item.user_id) || 'Intercessor Anônimo',
     }));
   } catch (error) {
     console.error('❌ Erro inesperado ao buscar rankings:', error);
@@ -270,7 +316,7 @@ export const getIntercessorLevel = (totalSeconds: number): {
 export const updateRankings = async (): Promise<boolean> => {
   try {
     const { error } = await supabase.rpc('update_rankings');
-    
+
     if (error) {
       console.error('❌ Erro ao atualizar rankings:', error);
       return false;
@@ -282,4 +328,111 @@ export const updateRankings = async (): Promise<boolean> => {
     console.error('❌ Erro inesperado ao atualizar rankings:', error);
     return false;
   }
-}; 
+};
+
+export interface PersonalReflection {
+  id: string;
+  region_name: string;
+  region_type: string;
+  duration_seconds: number;
+  personal_reflection: string;
+  prophetic_word: string;
+  created_at: string;
+  finished_at: string;
+  user_id?: string;
+  user_email?: string;
+  display_name?: string;
+}
+
+/**
+ * Busca reflexões pessoais do usuário atual
+ */
+export const getUserReflections = async (limit = 10): Promise<PersonalReflection[]> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.log('⚠️ Usuário não logado');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('prayer_sessions')
+      .select('id, region_name, region_type, duration_seconds, personal_reflection, prophetic_word, created_at, finished_at, user_id')
+      .eq('user_id', user.id)
+      .not('personal_reflection', 'is', null)
+      .neq('personal_reflection', '')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('❌ Erro ao buscar reflexões:', error);
+      return [];
+    }
+
+    console.log(`✅ ${data?.length || 0} reflexões encontradas`);
+    return data || [];
+  } catch (error) {
+    console.error('❌ Erro inesperado ao buscar reflexões:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca reflexões pessoais de TODOS os usuários (apenas para admins)
+ */
+export const getAllReflections = async (limit = 20): Promise<PersonalReflection[]> => {
+  try {
+    // 1. Buscar as reflexões
+    const { data: sessions, error: sessionsError } = await supabase
+      .from('prayer_sessions')
+      .select('id, region_name, region_type, duration_seconds, personal_reflection, prophetic_word, created_at, finished_at, user_id')
+      .not('personal_reflection', 'is', null)
+      .neq('personal_reflection', '')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (sessionsError) {
+      console.error('❌ Erro ao buscar todas as reflexões:', sessionsError);
+      return [];
+    }
+
+    if (!sessions || sessions.length === 0) {
+      return [];
+    }
+
+    // 2. Buscar os perfis dos usuários
+    const userIds = [...new Set(sessions.map(s => s.user_id))];
+    const { data: profiles, error: profilesError } = await supabase
+      .from('user_profiles')
+      .select('user_id, display_name')
+      .in('user_id', userIds);
+
+    if (profilesError) {
+      console.error('⚠️ Erro ao buscar perfis:', profilesError);
+    }
+
+    // 3. Criar um mapa de user_id -> display_name
+    const profileMap = new Map<string, string>();
+    (profiles || []).forEach(p => {
+      profileMap.set(p.user_id, p.display_name || 'Usuário Desconhecido');
+    });
+
+    // 4. Combinar os dados
+    return sessions.map(session => ({
+      id: session.id,
+      region_name: session.region_name,
+      region_type: session.region_type,
+      duration_seconds: session.duration_seconds,
+      personal_reflection: session.personal_reflection,
+      prophetic_word: session.prophetic_word,
+      created_at: session.created_at,
+      finished_at: session.finished_at,
+      user_id: session.user_id,
+      display_name: profileMap.get(session.user_id) || 'Usuário Desconhecido',
+    }));
+  } catch (error) {
+    console.error('❌ Erro inesperado ao buscar todas as reflexões:', error);
+    return [];
+  }
+};

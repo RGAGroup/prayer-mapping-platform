@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp, FileText, Save, Sparkles } from 'lucide-react';
+import { X, MapPin, Heart, Shield, Star, Users, Calendar, Globe, ChevronDown, ChevronUp, FileText, Save, Sparkles, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -56,6 +56,7 @@ interface SpiritualPopupProps {
   onStartPrayer?: (regionName: string, regionData: SpiritualData) => void;
   onSaveRegion?: (regionName: string, regionData: SpiritualData) => void;
   onGenerateAI?: (regionName: string, regionData: SpiritualData) => void;
+  onOpenPrayerClock?: (regionName: string, regionType: string) => void;
 }
 
 const getActivityIcon = (type: string) => {
@@ -99,13 +100,13 @@ const getAlertColor = (level: string) => {
   }
 };
 
-export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose, onStartPrayer, onSaveRegion, onGenerateAI }) => {
+export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, onClose, onStartPrayer, onSaveRegion, onGenerateAI, onOpenPrayerClock }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const { isAdmin, userProfile, user } = useAuth();
-  
+
   // FASE 1A: Liberado para TODOS os usuários para facilitar testes e colaboração
   const isAdminUser = true; // Sempre true - qualquer usuário pode salvar regiões
 
@@ -321,19 +322,27 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
 
               {/* Botões de Ação */}
               <div className="flex gap-3 pt-4">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   onClick={handleStartPrayer}
                   className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-xl"
                 >
                   {t('map.prayFor', { region: data.region })}
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🕐 Abrindo Relógio de Oração:', data.region, data.type);
+                    if (onOpenPrayerClock) {
+                      onOpenPrayerClock(data.region, data.type);
+                    }
+                  }}
                   className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80"
                 >
-                  {t('map.viewDetails')}
+                  <Clock className="w-5 h-5 mr-2" />
+                  Relógio de Oração
                 </Button>
               </div>
             </div>
@@ -516,24 +525,30 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
             <div className="flex flex-col gap-3 pt-2 pb-4">
               {/* Primeira linha - Botão principal de oração */}
               <div className="flex gap-3">
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   onClick={handleStartPrayer}
                   disabled={isLoading}
                   className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white border-0 rounded-ios-xl font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 min-h-[48px] disabled:opacity-50"
                 >
                   {t('map.prayFor', { region: data.region })}
                 </Button>
-                {!needsSpiritualData && (
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    disabled={isLoading}
-                    className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 min-h-[48px] disabled:opacity-50"
-                  >
-                    {t('map.viewDetails')}
-                  </Button>
-                )}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('🕐 Abrindo Relógio de Oração (Mobile):', data.region, data.type);
+                    if (onOpenPrayerClock) {
+                      onOpenPrayerClock(data.region, data.type);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="flex-1 bg-white/60 dark:bg-ios-dark-bg3/60 backdrop-blur-ios border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-xl font-semibold transition-all duration-200 hover:scale-105 active:scale-95 text-gray-900 dark:text-ios-dark-text hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 min-h-[48px] disabled:opacity-50"
+                >
+                  <Clock className="w-5 h-5 mr-2" />
+                  Relógio
+                </Button>
               </div>
 
 
@@ -545,4 +560,4 @@ export const SpiritualPopup: React.FC<SpiritualPopupProps> = ({ data, position, 
       </div>
     </>
   );
-}; 
+};
