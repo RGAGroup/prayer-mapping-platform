@@ -29,7 +29,7 @@ export interface IntercessorRanking {
   current_streak: number;
   rank_position?: number;
   user_email?: string;
-  full_name?: string;
+  display_name?: string;
 }
 
 /**
@@ -127,6 +127,7 @@ export const getTopPrayedRegions = async (limit = 10): Promise<any[]> => {
       return [];
     }
 
+    console.log('🌍 Regiões mais oradas (bruto):', data);
     return data || [];
   } catch (error) {
     console.error('❌ Erro inesperado ao buscar regiões mais oradas:', error);
@@ -150,6 +151,7 @@ export const getLeastPrayedRegions = async (limit = 10): Promise<any[]> => {
       return [];
     }
 
+    console.log('🙏 Regiões menos oradas (bruto):', data);
     return data || [];
   } catch (error) {
     console.error('❌ Erro inesperado ao buscar regiões:', error);
@@ -162,11 +164,12 @@ export const getLeastPrayedRegions = async (limit = 10): Promise<any[]> => {
  */
 export const getIntercessorRankings = async (limit = 20): Promise<IntercessorRanking[]> => {
   try {
-    // Buscar rankings
+    // Buscar rankings ordenados por tempo de oração (DESC) e número de sessões (DESC)
     const { data: rankingsData, error: rankingsError } = await supabase
       .from('intercessor_rankings')
       .select('*')
-      .order('rank_position', { ascending: true })
+      .order('total_prayer_time', { ascending: false })
+      .order('total_sessions', { ascending: false })
       .limit(limit);
 
     if (rankingsError) {
@@ -179,8 +182,12 @@ export const getIntercessorRankings = async (limit = 20): Promise<IntercessorRan
       return [];
     }
 
+    console.log('📊 Rankings brutos do banco:', rankingsData);
+
     // Buscar perfis dos usuários
     const userIds = rankingsData.map(r => r.user_id);
+    console.log('🔍 Buscando perfis para user_ids:', userIds);
+
     const { data: profilesData, error: profilesError } = await supabase
       .from('user_profiles')
       .select('user_id, display_name')
@@ -190,22 +197,29 @@ export const getIntercessorRankings = async (limit = 20): Promise<IntercessorRan
       console.error('⚠️ Erro ao buscar perfis, continuando sem nomes:', profilesError);
     }
 
+    console.log('📋 Perfis encontrados:', profilesData);
+
     // Criar mapa de perfis para lookup rápido
     const profilesMap = new Map(
       (profilesData || []).map(p => [p.user_id, p.display_name])
     );
 
-    // Mapear dados combinando rankings com perfis
-    return rankingsData.map(item => ({
+    console.log('🗺️ Mapa de perfis criado:', Array.from(profilesMap.entries()));
+
+    // Mapear dados combinando rankings com perfis e atualizar rank_position
+    const result = rankingsData.map((item, index) => ({
       user_id: item.user_id,
       total_prayer_time: item.total_prayer_time,
       total_sessions: item.total_sessions,
       regions_prayed_for: item.regions_prayed_for,
       longest_session: item.longest_session,
       current_streak: item.current_streak,
-      rank_position: item.rank_position,
-      full_name: profilesMap.get(item.user_id) || 'Intercessor Anônimo',
+      rank_position: index + 1, // Posição baseada na ordenação por total_prayer_time
+      display_name: profilesMap.get(item.user_id) || 'Intercessor Anônimo',
     }));
+
+    console.log('✅ Rankings finais com nomes:', result);
+    return result;
   } catch (error) {
     console.error('❌ Erro inesperado ao buscar rankings:', error);
     return [];
@@ -241,10 +255,17 @@ export const getCurrentUserStats = async (): Promise<IntercessorRanking | null> 
 /**
  * Formata tempo em segundos para formato legível
  */
-export const formatPrayerTime = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+export const formatPrayerTime = (seconds: number | null | undefined): string => {
+  // Verificar se o valor é válido
+  if (seconds === null || seconds === undefined || isNaN(seconds)) {
+    console.warn('⚠️ formatPrayerTime recebeu valor inválido:', seconds);
+    return '0s';
+  }
+
+  const totalSeconds = Math.floor(seconds);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
 
   if (hours > 0) {
     return `${hours}h ${minutes}m ${secs}s`;

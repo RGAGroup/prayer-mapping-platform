@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Wrapper } from '@googlemaps/react-wrapper';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  Globe, 
-  MapPin, 
-  Shield, 
-  Activity, 
-  Settings, 
+import {
+  Users,
+  Globe,
+  MapPin,
+  Shield,
+  Activity,
+  Settings,
   BarChart3,
   AlertTriangle,
   CheckCircle,
@@ -20,7 +21,9 @@ import {
   WifiOff,
   Sparkles,
   TrendingUp,
-  Zap
+  Zap,
+  X,
+  Home
 } from 'lucide-react';
 import { useAdminData } from '@/hooks/useAdminData';
 import RegionsTab from '@/components/admin/RegionsTab';
@@ -28,9 +31,14 @@ import { PrayerStatsTab } from '@/components/admin/PrayerStatsTab';
 import { AdvancedAgentTab } from '@/components/admin/AdvancedAgentTab';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const { stats, loading, error, isConnected } = useAdminData();
   const [activeTab, setActiveTab] = useState('overview');
   const [apiKey, setApiKey] = useState<string>('AIzaSyCbk0kgeAlS_eU3QFNsR-Cysk_sRsPXTW0');
+
+  const handleClose = () => {
+    navigate('/');
+  };
 
   useEffect(() => {
     const savedApiKey = localStorage.getItem('google-maps-api-key');
@@ -96,6 +104,14 @@ const AdminDashboard = () => {
                   <Settings className="w-4 h-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Configurações</span>
                   <span className="sm:hidden">Config</span>
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  className="ios-button bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border border-ios-blue/20 rounded-ios-md text-xs sm:text-sm px-2 sm:px-3 py-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  <Home className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Voltar ao Mapa</span>
+                  <span className="sm:hidden">Mapa</span>
                 </Button>
               </div>
             </div>

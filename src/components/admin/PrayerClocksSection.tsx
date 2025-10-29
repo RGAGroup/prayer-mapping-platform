@@ -175,7 +175,7 @@ export const PrayerClocksSection: React.FC<PrayerClocksSectionProps> = ({ isAdmi
         </div>
       </CardHeader>
       <CardContent>
-        {clocks.length === 0 ? (
+        {regionGroups.length === 0 ? (
           <div className="text-center py-8">
             <Clock className="w-12 h-12 mx-auto mb-3 text-ios-gray" />
             <p className="text-ios-gray dark:text-ios-dark-text3">
@@ -183,79 +183,153 @@ export const PrayerClocksSection: React.FC<PrayerClocksSectionProps> = ({ isAdmi
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {clocks.map((clock) => (
-              <div
-                key={clock.id}
-                className="p-4 bg-white/50 dark:bg-ios-dark-bg3/50 rounded-ios-lg border border-ios-gray5/20 dark:border-ios-dark-bg4/20 hover:shadow-ios-md transition-all duration-200"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    {/* Usuário */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-4 h-4 text-ios-blue flex-shrink-0" />
-                      <span className="font-semibold text-gray-900 dark:text-ios-dark-text">
-                        {clock.display_name || 'Usuário Desconhecido'}
-                      </span>
-                    </div>
-
-                    {/* Região */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="w-4 h-4 text-ios-green flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-ios-dark-text2">
-                        {clock.region_name}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {clock.region_type}
-                      </Badge>
-                    </div>
-
-                    {/* Horário */}
-                    <div className="flex items-center gap-4 text-xs text-ios-gray dark:text-ios-dark-text3">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {clock.is_recurring 
-                          ? `${getDayName(clock.day_of_week || 0)}s` 
-                          : new Date(clock.specific_date || '').toLocaleDateString('pt-BR')}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatTime(clock.start_time)} ({formatDuration(clock.duration_minutes)})
-                      </span>
-                    </div>
-
-                    {/* Badges */}
-                    <div className="flex items-center gap-2 mt-2">
-                      {clock.is_recurring && (
-                        <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 text-xs">
-                          Recorrente
-                        </Badge>
-                      )}
-                      {clock.notification_enabled && (
-                        <Badge className="bg-ios-orange/10 text-ios-orange border-ios-orange/20 text-xs">
-                          🔔 Notificações
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Ações */}
-                  <Button
-                    onClick={() => handleDelete(clock.id)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-ios-red hover:bg-ios-red/10 rounded-ios-md"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+          <div className="space-y-2">
+            {/* Estatísticas gerais */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="p-3 bg-ios-blue/5 rounded-ios-lg border border-ios-blue/10">
+                <div className="text-xs text-ios-gray dark:text-ios-dark-text3 mb-1">Total de Regiões</div>
+                <div className="text-2xl font-bold text-ios-blue">{regionGroups.length}</div>
+              </div>
+              <div className="p-3 bg-ios-green/5 rounded-ios-lg border border-ios-green/10">
+                <div className="text-xs text-ios-gray dark:text-ios-dark-text3 mb-1">Total de Compromissos</div>
+                <div className="text-2xl font-bold text-ios-green">{clocks.length}</div>
+              </div>
+              <div className="p-3 bg-ios-purple/5 rounded-ios-lg border border-ios-purple/10">
+                <div className="text-xs text-ios-gray dark:text-ios-dark-text3 mb-1">Intercessores Únicos</div>
+                <div className="text-2xl font-bold text-ios-purple">
+                  {new Set(clocks.map(c => c.user_id)).size}
                 </div>
               </div>
-            ))}
+            </div>
 
-            {clocks.length >= 50 && (
+            {/* Lista de regiões agrupadas */}
+            {regionGroups.map((group) => {
+              const isExpanded = expandedRegions.has(group.region_name);
+
+              return (
+                <div
+                  key={`${group.region_name}-${group.region_type}`}
+                  className="bg-white/50 dark:bg-ios-dark-bg3/50 rounded-ios-lg border border-ios-gray5/20 dark:border-ios-dark-bg4/20 overflow-hidden"
+                >
+                  {/* Header da região (clicável) */}
+                  <button
+                    onClick={() => toggleRegion(group.region_name)}
+                    className="w-full p-4 flex items-center justify-between hover:bg-white/80 dark:hover:bg-ios-dark-bg3/80 transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      {/* Ícone de expandir/colapsar */}
+                      {isExpanded ? (
+                        <ChevronDown className="w-5 h-5 text-ios-blue flex-shrink-0" />
+                      ) : (
+                        <ChevronRight className="w-5 h-5 text-ios-gray flex-shrink-0" />
+                      )}
+
+                      {/* Nome da região */}
+                      <div className="flex items-center gap-2 flex-1">
+                        <MapPin className="w-5 h-5 text-ios-green flex-shrink-0" />
+                        <div className="text-left">
+                          <h3 className="font-semibold text-gray-900 dark:text-ios-dark-text">
+                            {group.region_name}
+                          </h3>
+                          <p className="text-xs text-ios-gray dark:text-ios-dark-text3">
+                            {getRegionTypeLabel(group.region_type)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Estatísticas */}
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Cobertura</div>
+                          <div className="font-semibold text-ios-blue">
+                            {group.coveragePercentage}%
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Intercessores</div>
+                          <div className="font-semibold text-ios-green">
+                            {group.totalIntercessors}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs text-ios-gray dark:text-ios-dark-text3">Compromissos</div>
+                          <div className="font-semibold text-ios-purple">
+                            {group.clocks.length}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Conteúdo expandido (horários) */}
+                  {isExpanded && (
+                    <div className="border-t border-ios-gray5/20 dark:border-ios-dark-bg4/20 bg-white/30 dark:bg-ios-dark-bg4/30">
+                      <div className="p-4 space-y-2">
+                        {group.clocks.map((clock) => (
+                          <div
+                            key={clock.id}
+                            className="p-3 bg-white/60 dark:bg-ios-dark-bg3/60 rounded-ios-md border border-ios-gray5/10 dark:border-ios-dark-bg4/10 flex items-center justify-between gap-3"
+                          >
+                            <div className="flex-1 min-w-0">
+                              {/* Usuário */}
+                              <div className="flex items-center gap-2 mb-1">
+                                <Users className="w-3 h-3 text-ios-blue flex-shrink-0" />
+                                <span className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">
+                                  {clock.display_name || 'Usuário Desconhecido'}
+                                </span>
+                              </div>
+
+                              {/* Horário */}
+                              <div className="flex items-center gap-3 text-xs text-ios-gray dark:text-ios-dark-text3">
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="w-3 h-3" />
+                                  {clock.is_recurring
+                                    ? `${getDayName(clock.day_of_week || 0)}s`
+                                    : new Date(clock.specific_date || '').toLocaleDateString('pt-BR')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {formatTime(clock.start_time)} ({formatDuration(clock.duration_minutes)})
+                                </span>
+                              </div>
+
+                              {/* Badges */}
+                              <div className="flex items-center gap-1 mt-1">
+                                {clock.is_recurring && (
+                                  <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 text-xs py-0 px-1.5">
+                                    Recorrente
+                                  </Badge>
+                                )}
+                                {clock.notification_enabled && (
+                                  <Badge className="bg-ios-orange/10 text-ios-orange border-ios-orange/20 text-xs py-0 px-1.5">
+                                    🔔
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Botão deletar */}
+                            <Button
+                              onClick={() => handleDelete(clock.id, group.region_name)}
+                              variant="ghost"
+                              size="sm"
+                              className="text-ios-red hover:bg-ios-red/10 rounded-ios-md h-8 w-8 p-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {clocks.length >= 100 && (
               <div className="mt-4 text-center">
                 <p className="text-xs text-ios-gray dark:text-ios-dark-text3">
-                  Mostrando os 50 compromissos mais recentes
+                  Mostrando os 100 compromissos mais recentes
                 </p>
               </div>
             )}

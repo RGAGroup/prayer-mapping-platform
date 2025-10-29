@@ -146,7 +146,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
                       </div>
                       <div>
                         <div className="font-medium text-gray-900 dark:text-ios-dark-text">
-                          {intercessor.full_name}
+                          {intercessor.display_name || 'Intercessor Anônimo'}
                         </div>
                         <div className="text-sm text-ios-gray dark:text-ios-dark-text3">
                           {intercessor.total_sessions} sessões

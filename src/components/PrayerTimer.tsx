@@ -170,18 +170,18 @@ export const PrayerTimer: React.FC<PrayerTimerProps> = ({
 
               {isActive && (
                 <>
-                  <Button 
+                  <Button
                     onClick={handlePause}
                     variant="outline"
-                    className="w-full border-2 border-orange-300 text-orange-600 hover:bg-orange-50 py-3 md:py-2"
+                    className="w-full bg-white border-2 border-orange-400 text-orange-600 hover:bg-orange-600 hover:text-white hover:border-orange-600 py-3 md:py-2 font-semibold transition-all duration-200"
                     size="lg"
                   >
                     <Pause className="w-5 h-5 mr-2" />
                     Pausar
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleFinish}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2"
+                    className="w-full bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2 font-semibold"
                     size="lg"
                   >
                     <Square className="w-5 h-5 mr-2" />
@@ -192,17 +192,17 @@ export const PrayerTimer: React.FC<PrayerTimerProps> = ({
 
               {isPaused && (
                 <>
-                  <Button 
+                  <Button
                     onClick={handleResume}
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2"
+                    className="w-full bg-gradient-to-r from-ios-green to-green-600 hover:from-ios-green/90 hover:to-green-600/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2 font-semibold"
                     size="lg"
                   >
                     <Play className="w-5 h-5 mr-2" />
                     Continuar
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleFinish}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2"
+                    className="w-full bg-gradient-to-r from-ios-blue to-ios-indigo hover:from-ios-blue/90 hover:to-ios-indigo/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 py-3 md:py-2 font-semibold"
                     size="lg"
                   >
                     <Square className="w-5 h-5 mr-2" />
@@ -213,11 +213,11 @@ export const PrayerTimer: React.FC<PrayerTimerProps> = ({
             </div>
 
             {/* Botão cancelar sempre visível */}
-            <Button 
+            <Button
               onClick={handleCancel}
               variant="outline"
               size="lg"
-              className="w-full text-gray-600 hover:text-red-600 hover:border-red-300 hover:bg-red-50 border-2 py-3 md:py-2 transition-all duration-200"
+              className="w-full bg-white text-red-600 hover:text-white hover:bg-red-600 border-2 border-red-300 hover:border-red-600 py-3 md:py-2 transition-all duration-200 font-semibold"
             >
               <X className="w-4 h-4 mr-2" />
               {seconds > 0 ? 'Cancelar Oração' : 'Fechar'}

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Shield, LogOut, Bell, Settings, Moon, Sun } from 'lucide-react';
+import { MapPin, Shield, LogOut, Bell, Settings, Moon, Sun, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LanguageSelector } from './LanguageSelector';
@@ -124,12 +124,24 @@ const Header = ({ onAuthClick }: HeaderProps) => {
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-1 md:space-x-3">
+                {/* Dashboard Button - Para todos os usuários */}
+                <Link to="/dashboard">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border border-ios-blue/20 rounded-ios-md font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+                  >
+                    <BarChart3 className="w-4 h-4 md:mr-2" />
+                    <span className="hidden md:inline">Dashboard</span>
+                  </Button>
+                </Link>
+
                 {/* Admin Button - Mobile compacto */}
                 {userProfile?.role === 'admin' && (
                   <Link to="/admin">
-                    <Button 
+                    <Button
                       variant="ghost"
-                      size="sm" 
+                      size="sm"
                       className="bg-ios-orange/10 hover:bg-ios-orange/20 text-ios-orange border border-ios-orange/20 rounded-ios-md font-medium transition-all duration-200 hover:scale-105 active:scale-95"
                     >
                       <Shield className="w-4 h-4 md:mr-2" />
