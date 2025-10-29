@@ -158,6 +158,16 @@
     background: rgba(255, 255, 255, 0.3);
   }
 
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
   /* Legacy styles (manter compatibilidade) */
   .celestial-text {
     color: #007AFF;

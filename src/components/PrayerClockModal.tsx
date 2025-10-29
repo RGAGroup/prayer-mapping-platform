@@ -111,17 +111,17 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <Card className="w-full max-w-2xl bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios rounded-ios-2xl shadow-ios-2xl animate-ios-slide-up max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4">
+        <Card className="w-full max-w-2xl bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios rounded-ios-xl sm:rounded-ios-2xl shadow-ios-2xl animate-ios-slide-up max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-r from-ios-blue to-ios-indigo p-6 rounded-t-ios-2xl">
+          <div className="sticky top-0 bg-gradient-to-r from-ios-blue to-ios-indigo p-4 sm:p-6 rounded-t-ios-xl sm:rounded-t-ios-2xl">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Clock className="w-6 h-6" />
-                  Criar Compromisso de Oração
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                  <span className="truncate">Criar Compromisso de Oração</span>
                 </h2>
-                <p className="text-ios-gray6 mt-1">
+                <p className="text-ios-gray6 mt-1 text-xs sm:text-sm truncate">
                   {regionName} • {regionType === 'country' ? 'País' : regionType === 'state' ? 'Estado' : 'Cidade'}
                 </p>
               </div>
@@ -129,7 +129,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onClose}
-                className="text-white hover:bg-white/20 rounded-ios-md"
+                className="text-white hover:bg-white/20 rounded-ios-md flex-shrink-0 ml-2"
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -137,33 +137,33 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             {/* Tipo de Agendamento */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3">
+              <label className="block text-xs sm:text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-2 sm:mb-3">
                 📅 Tipo de Agendamento
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsRecurring(true)}
-                  className={`p-4 rounded-ios-lg border-2 transition-all ${
+                  className={`p-3 sm:p-4 rounded-ios-lg border-2 transition-all ${
                     isRecurring
                       ? 'border-ios-blue bg-ios-blue/10 text-ios-blue'
                       : 'border-ios-gray5 dark:border-ios-dark-bg4 text-gray-600 dark:text-ios-dark-text3'
                   }`}
                 >
-                  <div className="font-semibold">Recorrente</div>
+                  <div className="font-semibold text-sm sm:text-base">Recorrente</div>
                   <div className="text-xs mt-1">Repete toda semana</div>
                 </button>
                 <button
                   onClick={() => setIsRecurring(false)}
-                  className={`p-4 rounded-ios-lg border-2 transition-all ${
+                  className={`p-3 sm:p-4 rounded-ios-lg border-2 transition-all ${
                     !isRecurring
                       ? 'border-ios-blue bg-ios-blue/10 text-ios-blue'
                       : 'border-ios-gray5 dark:border-ios-dark-bg4 text-gray-600 dark:text-ios-dark-text3'
                   }`}
                 >
-                  <div className="font-semibold">Data Específica</div>
+                  <div className="font-semibold text-sm sm:text-base">Data Específica</div>
                   <div className="text-xs mt-1">Apenas uma vez</div>
                 </button>
               </div>
@@ -172,15 +172,15 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {/* Dia da Semana ou Data Específica */}
             {isRecurring ? (
               <div>
-                <label className="block text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-2 sm:mb-3">
                   📆 Dia da Semana
                 </label>
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day, index) => (
                     <button
                       key={index}
                       onClick={() => setDayOfWeek(index)}
-                      className={`p-3 rounded-ios-lg font-semibold transition-all ${
+                      className={`p-2 sm:p-3 rounded-ios-lg text-xs sm:text-sm font-semibold transition-all ${
                         dayOfWeek === index
                           ? 'bg-ios-blue text-white'
                           : 'bg-ios-gray6 dark:bg-ios-dark-bg3 text-gray-600 dark:text-ios-dark-text3'

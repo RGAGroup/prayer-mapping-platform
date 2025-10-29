@@ -261,13 +261,24 @@ export const updatePrayerClock = async (
 
 /**
  * Desativa um compromisso (soft delete)
+ * SEGURANÇA: Apenas o dono pode desativar seu próprio compromisso
  */
 export const deactivatePrayerClock = async (id: string): Promise<boolean> => {
   try {
+    // Verificar autenticação
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.error('❌ Usuário não autenticado');
+      return false;
+    }
+
+    // Atualizar apenas se for o dono (RLS também garante isso no banco)
     const { error } = await supabase
       .from('prayer_clocks')
       .update({ is_active: false })
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id); // SEGURANÇA: Apenas o dono pode deletar
 
     if (error) {
       console.error('❌ Erro ao desativar compromisso:', error);
