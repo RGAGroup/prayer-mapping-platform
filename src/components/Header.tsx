@@ -93,7 +93,10 @@ const Header = ({ onAuthClick }: HeaderProps) => {
 
           {/* Seção Direita - Controles Mobile Otimizado */}
           <div className="flex items-center space-x-1 md:space-x-3">
-            {/* Seletor de Idiomas - Apenas desktop */}
+            {/* Seletor de Idiomas - Icon-only no mobile, compact no desktop */}
+            <div className="lg:hidden">
+              <LanguageSelector variant="icon-only" />
+            </div>
             <div className="hidden lg:block">
               <LanguageSelector variant="compact" />
             </div>

@@ -822,5 +822,26 @@
     "noData": "No data available",
     "verified": "Verified",
     "underReview": "Under review"
+  },
+  "pwa": {
+    "install": {
+      "title": "Install Atalaia",
+      "subtitle": "Quick access from your phone",
+      "iosInstructions": "To install on iPhone/iPad:",
+      "iosStep1": "Tap the share icon (square with arrow)",
+      "iosStep2": "Scroll down and tap 'Add to Home Screen'",
+      "iosStep3": "Tap 'Add' in the top right corner",
+      "benefit1": "Quick access like a native app",
+      "benefit2": "Works offline after installation",
+      "benefit3": "Receive activity notifications",
+      "installButton": "Install Now",
+      "laterButton": "Later"
+    },
+    "update": {
+      "title": "Update Available",
+      "message": "A new version of Atalaia is available!",
+      "updateButton": "Update Now",
+      "dismissButton": "Later"
+    }
   }
 }

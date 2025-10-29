@@ -807,5 +807,26 @@
     "noData": "Nenhum dado disponível",
     "verified": "Verificada",
     "underReview": "Em análise"
+  },
+  "pwa": {
+    "install": {
+      "title": "Instalar Atalaia",
+      "subtitle": "Acesse rapidamente do seu celular",
+      "iosInstructions": "Para instalar no iPhone/iPad:",
+      "iosStep1": "Toque no ícone de compartilhar (quadrado com seta)",
+      "iosStep2": "Role para baixo e toque em 'Adicionar à Tela de Início'",
+      "iosStep3": "Toque em 'Adicionar' no canto superior direito",
+      "benefit1": "Acesso rápido como um app nativo",
+      "benefit2": "Funciona offline após instalação",
+      "benefit3": "Receba notificações de atividades",
+      "installButton": "Instalar Agora",
+      "laterButton": "Mais Tarde"
+    },
+    "update": {
+      "title": "Atualização Disponível",
+      "message": "Uma nova versão do Atalaia está disponível!",
+      "updateButton": "Atualizar Agora",
+      "dismissButton": "Depois"
+    }
   }
 }

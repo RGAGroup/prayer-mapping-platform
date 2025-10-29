@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
 import AuthModal from "./components/AuthModal";
+import InstallPWA from "./components/InstallPWA";
 import { useState, useEffect } from "react";
 import { Shield, Globe, Sparkles } from "lucide-react";
 
@@ -170,6 +171,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <InstallPWA />
         <AppContent />
       </TooltipProvider>
     </LanguageProvider>

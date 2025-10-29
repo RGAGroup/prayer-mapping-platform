@@ -3,12 +3,28 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Atalaia" />
+    <meta name="application-name" content="Atalaia - Global Vision" />
+    <meta name="theme-color" content="#8B5CF6" />
+    <meta name="msapplication-TileColor" content="#8B5CF6" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <title>Mapa Global de Intercessão Profética</title>
-    <meta name="description" content="Plataforma interativa para intercessores do mundo inteiro compartilharem palavras proféticas, alvos de oração e testemunhos" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <title>Atalaia - Global Vision</title>
+    <meta name="description" content="Plataforma global de intercessão profética e oração estratégica. Conecte-se com intercessores do mundo inteiro!" />
     <meta name="author" content="Reino Digital" />
+    <meta name="keywords" content="oração, intercessão, profético, global, mapa, espiritual, avivamento" />
 
     <meta property="og:title" content="Mapa Global de Intercessão Profética" />
     <meta property="og:description" content="Uma rede global de oração estratégica e colaborativa" />
@@ -27,5 +43,25 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registrado:', registration.scope);
+
+              // Verificar atualizações a cada 1 hora
+              setInterval(() => {
+                registration.update();
+              }, 60 * 60 * 1000);
+            })
+            .catch((error) => {
+              console.log('❌ Falha ao registrar Service Worker:', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
