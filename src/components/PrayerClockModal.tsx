@@ -8,6 +8,7 @@ import { X, Clock, Calendar, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   createPrayerClock,
   getClockCoverage24h,
@@ -35,6 +36,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
   regionCode,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   // Estados do formulário
   const [isRecurring, setIsRecurring] = useState(true);
   const [dayOfWeek, setDayOfWeek] = useState<number>(1); // Segunda-feira
@@ -83,11 +85,11 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
     setSaving(false);
 
     if (result) {
-      alert('✅ Compromisso de oração criado com sucesso!');
+      alert(t('prayerClock.createSuccess'));
       if (onSuccess) onSuccess();
       onClose();
     } else {
-      alert('❌ Erro ao criar compromisso. Tente novamente.');
+      alert(t('prayerClock.createError'));
     }
   };
 
@@ -119,10 +121,10 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
                   <Clock className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                  <span className="truncate">Criar Compromisso de Oração</span>
+                  <span className="truncate">{t('prayerClock.createTitle')}</span>
                 </h2>
                 <p className="text-ios-gray6 mt-1 text-xs sm:text-sm truncate">
-                  {regionName} • {regionType === 'country' ? 'País' : regionType === 'state' ? 'Estado' : 'Cidade'}
+                  {regionName} • {regionType === 'country' ? t('prayerClock.country') : regionType === 'state' ? t('prayerClock.state') : t('prayerClock.city')}
                 </p>
               </div>
               <Button
@@ -141,7 +143,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {/* Tipo de Agendamento */}
             <div>
               <label className="block text-xs sm:text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-2 sm:mb-3">
-                📅 Tipo de Agendamento
+                {t('prayerClock.scheduleType')}
               </label>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <button
@@ -152,8 +154,8 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                       : 'border-ios-gray5 dark:border-ios-dark-bg4 text-gray-600 dark:text-ios-dark-text3'
                   }`}
                 >
-                  <div className="font-semibold text-sm sm:text-base">Recorrente</div>
-                  <div className="text-xs mt-1">Repete toda semana</div>
+                  <div className="font-semibold text-sm sm:text-base">{t('prayerClock.recurring')}</div>
+                  <div className="text-xs mt-1">{t('prayerClock.recurringDesc')}</div>
                 </button>
                 <button
                   onClick={() => setIsRecurring(false)}
@@ -163,8 +165,8 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                       : 'border-ios-gray5 dark:border-ios-dark-bg4 text-gray-600 dark:text-ios-dark-text3'
                   }`}
                 >
-                  <div className="font-semibold text-sm sm:text-base">Data Específica</div>
-                  <div className="text-xs mt-1">Apenas uma vez</div>
+                  <div className="font-semibold text-sm sm:text-base">{t('prayerClock.oneTime')}</div>
+                  <div className="text-xs mt-1">{t('prayerClock.oneTimeDesc')}</div>
                 </button>
               </div>
             </div>
@@ -173,7 +175,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {isRecurring ? (
               <div>
                 <label className="block text-xs sm:text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-2 sm:mb-3">
-                  📆 Dia da Semana
+                  {t('prayerClock.dayOfWeek')}
                 </label>
                 <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day, index) => (
@@ -197,7 +199,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             ) : (
               <div>
                 <label className="block text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3">
-                  📆 Data Específica
+                  {t('prayerClock.specificDate')}
                 </label>
                 <input
                   type="date"
@@ -212,7 +214,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {/* Horário */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3">
-                🕐 Horário de Início
+                {t('prayerClock.startTime')}
               </label>
               <input
                 type="time"
@@ -225,7 +227,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {/* Duração */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 dark:text-ios-dark-text mb-3">
-                ⏱️ Duração
+                {t('prayerClock.duration')}
               </label>
               <div className="grid grid-cols-4 gap-3">
                 {[15, 30, 45, 60].map((mins) => (
@@ -238,7 +240,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                         : 'bg-ios-gray6 dark:bg-ios-dark-bg3 text-gray-600 dark:text-ios-dark-text3'
                     }`}
                   >
-                    {mins}min
+                    {t('prayerClock.durationMinutes', { count: mins })}
                   </button>
                 ))}
               </div>
@@ -257,10 +259,10 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                   }`} />
                   <div className="flex-1">
                     <div className="font-semibold text-gray-900 dark:text-ios-dark-text">
-                      {selectedSlot.is_covered ? '✅ Horário já coberto' : '⚠️ Horário disponível'}
+                      {selectedSlot.is_covered ? t('prayerClock.slotCovered') : t('prayerClock.slotEmpty')}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-ios-dark-text3 mt-1">
-                      {selectedSlot.total_intercessors} intercessor(es) • {selectedSlot.total_duration_minutes} minutos de oração
+                      {t('prayerClock.slotIntercessors', { count: selectedSlot.total_intercessors })} • {t('prayerClock.durationMinutes', { count: selectedSlot.total_duration_minutes })}
                     </div>
                   </div>
                 </div>
@@ -271,7 +273,7 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
             {isRecurring && emptySlots.length > 0 && (
               <div className="p-4 rounded-ios-lg bg-ios-red/10 border border-ios-red/20">
                 <div className="font-semibold text-gray-900 dark:text-ios-dark-text mb-2">
-                  🙏 Horários que precisam de intercessão:
+                  {t('prayerClock.emptySlots')}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {emptySlots.slice(0, 6).map((slot) => (
@@ -298,14 +300,14 @@ export const PrayerClockModal: React.FC<PrayerClockModalProps> = ({
                 className="flex-1 rounded-ios-lg"
                 disabled={saving}
               >
-                Cancelar
+                {t('prayerClock.cancel')}
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={saving || (!isRecurring && !specificDate)}
                 className="flex-1 bg-gradient-to-r from-ios-blue to-ios-indigo text-white rounded-ios-lg"
               >
-                {saving ? 'Salvando...' : '✅ Criar Compromisso'}
+                {saving ? t('prayerClock.creating') : t('prayerClock.create')}
               </Button>
             </div>
           </div>

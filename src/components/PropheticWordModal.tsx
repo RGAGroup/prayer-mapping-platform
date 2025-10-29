@@ -11,6 +11,7 @@ import { Textarea } from './ui/textarea';
 import { Heart, Copy, Share2, BookOpen, Database } from 'lucide-react';
 import { savePrayerSession } from '@/services/prayerSessionService';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PropheticWordModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
   prayerDuration,
   spiritualData
 }) => {
+  const { t } = useTranslation();
   const [customReflection, setCustomReflection] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [sessionSaved, setSessionSaved] = useState(false);
@@ -80,14 +82,14 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
 
       if (authError) {
         console.error('❌ Erro ao verificar autenticação:', authError);
-        alert('❌ Erro de autenticação. Por favor, faça login novamente.');
+        alert(t('propheticWord.errorAuth'));
         setIsSaving(false);
         return;
       }
 
       if (!user) {
         console.error('⚠️ Usuário não logado - sessão não será salva');
-        alert('⚠️ Você precisa estar logado para salvar a oração.');
+        alert(t('propheticWord.errorNotLogged'));
         setIsSaving(false);
         return;
       }
@@ -121,11 +123,11 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
         alert('✅ Oração registrada com sucesso!');
       } else {
         console.error('❌ Falha ao salvar sessão - savePrayerSession retornou null');
-        alert('❌ Erro ao salvar oração. Verifique o console para mais detalhes.');
+        alert(t('propheticWord.errorSavingSession'));
       }
     } catch (error) {
       console.error('❌ Erro inesperado ao salvar sessão:', error);
-      alert(`❌ Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      alert(`${t('propheticWord.errorSaving')}: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     } finally {
       setIsSaving(false);
     }
@@ -133,7 +135,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
 
   const handleCopyWord = () => {
     navigator.clipboard.writeText(propheticWord);
-    alert('✅ Palavra profética copiada!');
+    alert(t('propheticWord.copied'));
   };
 
   const handleShareWord = () => {
@@ -146,7 +148,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
       // Fallback para navegadores sem Web Share API
       const text = `Palavra Profética para ${regionName}\nApós ${formatDuration(prayerDuration)} de oração:\n\n${propheticWord}`;
       navigator.clipboard.writeText(text);
-      alert('📋 Palavra profética copiada para compartilhar!');
+      alert(t('propheticWord.copiedToShare'));
     }
   };
 
@@ -155,7 +157,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
 
     // Verificar se temos o ID da sessão
     if (!sessionId) {
-      alert('❌ Erro: Sessão não foi salva corretamente. Por favor, tente novamente.');
+      alert(t('propheticWord.errorSessionNotSaved'));
       console.error('❌ sessionId não está disponível');
       return;
     }
@@ -165,7 +167,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        alert('❌ Você precisa estar logado para salvar a reflexão');
+        alert(t('propheticWord.errorNotLogged'));
         return;
       }
 
@@ -180,14 +182,14 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
 
       if (error) {
         console.error('❌ Erro ao salvar reflexão:', error);
-        alert('❌ Erro ao salvar reflexão');
+        alert(t('propheticWord.errorSavingReflection'));
       } else {
         console.log('✅ Reflexão salva com sucesso para sessão:', sessionId);
 
         // Copiar reflexão completa
         const fullText = `Oração por ${regionName} - ${formatDuration(prayerDuration)}\n\nPalavra Profética:\n${propheticWord}\n\nReflexão Pessoal:\n${customReflection}`;
         navigator.clipboard.writeText(fullText);
-        alert('📋 Reflexão salva e copiada!');
+        alert(t('propheticWord.copiedToShare'));
       }
     } catch (error) {
       console.error('❌ Erro inesperado ao salvar reflexão:', error);
@@ -260,7 +262,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
                   className="flex items-center gap-1 bg-white hover:bg-gray-100 border-gray-300 text-gray-700"
                 >
                   <Copy className="w-4 h-4" />
-                  Copiar
+                  {t('propheticWord.copy')}
                 </Button>
                 <Button
                   onClick={handleShareWord}
@@ -269,7 +271,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
                   className="flex items-center gap-1 bg-white hover:bg-gray-100 border-gray-300 text-gray-700"
                 >
                   <Share2 className="w-4 h-4" />
-                  Compartilhar
+                  {t('propheticWord.share')}
                 </Button>
               </div>
             </CardContent>
@@ -309,10 +311,10 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
             <CardContent className="p-4">
               <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                 <Heart className="w-5 h-5 text-red-500" />
-                Sua Reflexão Pessoal (Opcional)
+                {t('propheticWord.personalReflection')}
               </h3>
               <Textarea
-                placeholder="Como você se sente após este tempo de oração? O que Deus falou ao seu coração sobre esta região? Registre aqui suas impressões..."
+                placeholder={t('propheticWord.reflectionPlaceholder')}
                 value={customReflection}
                 onChange={(e) => setCustomReflection(e.target.value)}
                 className="min-h-[100px] bg-white border-gray-300 text-gray-800"
@@ -326,7 +328,7 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
               onClick={onClose}
               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             >
-              Finalizar Sessão
+              {t('propheticWord.close')}
             </Button>
             {customReflection.trim() && (
               <Button
@@ -338,12 +340,12 @@ export const PropheticWordModal: React.FC<PropheticWordModalProps> = ({
                 {isSaving ? (
                   <>
                     <Database className="w-4 h-4 animate-spin" />
-                    Salvando...
+                    {t('prayerStats.saving')}
                   </>
                 ) : (
                   <>
                     <Database className="w-4 h-4" />
-                    Salvar Reflexão
+                    {t('propheticWord.save')}
                   </>
                 )}
               </Button>

@@ -17,6 +17,7 @@ import {
 import { Trophy, Crown, Target, Clock, Users, TrendingUp, RefreshCw, BookOpen, Calendar, AlertCircle } from 'lucide-react';
 import { PrayerClocksSection } from './PrayerClocksSection';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface PrayerStatsTabProps {
   // Props opcionais para futura extensão
@@ -24,6 +25,7 @@ interface PrayerStatsTabProps {
 
 export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
   const { isAdmin } = useAuth();
+  const { t } = useTranslation();
   const [rankings, setRankings] = useState<any[]>([]);
   const [topRegions, setTopRegions] = useState<any[]>([]);
   const [leastPrayedRegions, setLeastPrayedRegions] = useState<any[]>([]);
@@ -51,7 +53,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
       setUserStats(userStatsData);
       setReflections(reflectionsData);
     } catch (error) {
-      console.error('❌ Erro ao carregar estatísticas:', error);
+      console.error(t('prayerStats.errorLoading'), error);
     } finally {
       setLoading(false);
     }
@@ -62,9 +64,9 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
       setUpdating(true);
       await updateRankings();
       await loadData(); // Recarregar dados
-      console.log('✅ Rankings atualizados!');
+      console.log(t('prayerStats.rankingsUpdated'));
     } catch (error) {
-      console.error('❌ Erro ao atualizar rankings:', error);
+      console.error(t('prayerStats.errorUpdating'), error);
     } finally {
       setUpdating(false);
     }
@@ -78,7 +80,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-ios-blue border-t-transparent"></div>
-        <span className="ml-3 text-ios-gray dark:text-ios-dark-text2">Carregando estatísticas...</span>
+        <span className="ml-3 text-ios-gray dark:text-ios-dark-text2">{t('prayerStats.loading')}</span>
       </div>
     );
   }
@@ -106,17 +108,17 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
       {/* Header com ação de atualizar */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text">📊 Estatísticas de Oração</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text">{t('prayerStats.title')}</h2>
           <p className="text-ios-gray dark:text-ios-dark-text3">Rankings e dados dos intercessores</p>
         </div>
-        <Button 
+        <Button
           onClick={handleUpdateRankings}
           disabled={updating}
           variant="ghost"
           className="flex items-center gap-2 bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border-ios-blue/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
         >
           <RefreshCw className={`w-4 h-4 ${updating ? 'animate-spin' : ''}`} />
-          {updating ? 'Atualizando...' : 'Atualizar Rankings'}
+          {updating ? t('prayerStats.updating') : t('prayerStats.updateRankings')}
         </Button>
       </div>
 
@@ -129,7 +131,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
               <div className="w-8 h-8 rounded-ios-sm bg-ios-yellow/10 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-ios-yellow" />
               </div>
-              🏆 Top Intercessores
+              {t('prayerStats.topIntercessors')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -179,7 +181,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
               <div className="w-8 h-8 rounded-ios-sm bg-ios-green/10 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-ios-green" />
               </div>
-              🌍 Regiões Mais Oradas
+              {t('prayerStats.topRegions')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -232,7 +234,7 @@ export const PrayerStatsTab: React.FC<PrayerStatsTabProps> = () => {
               <div className="w-8 h-8 rounded-ios-sm bg-ios-red/10 flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 text-ios-red" />
               </div>
-              🙏 Regiões Menos Oradas (Precisam de Intercessão)
+              {t('prayerStats.leastRegions')}
             </CardTitle>
           </CardHeader>
           <CardContent>

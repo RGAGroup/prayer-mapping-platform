@@ -1,28 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useLanguage, SupportedLanguage } from '../contexts/LanguageContext';
 
-// Importações diretas dos arquivos de tradução
+// Importações diretas dos arquivos de tradução - APENAS 3 IDIOMAS
 import ptTranslations from '../locales/pt.json';
 import enTranslations from '../locales/en.json';
 import esTranslations from '../locales/es.json';
-import frTranslations from '../locales/fr.json';
-import deTranslations from '../locales/de.json';
 
 type TranslationData = Record<string, any>;
 
-// Mapeamento estático das traduções
+// Mapeamento estático das traduções - PT, EN, ES
 const translationsMap: Record<SupportedLanguage, TranslationData> = {
   pt: ptTranslations,
   en: enTranslations,
   es: esTranslations,
-  fr: frTranslations,
-  de: deTranslations,
-  // Para idiomas ainda não implementados, usar português como fallback
-  zh: ptTranslations,
-  ar: ptTranslations,
-  ru: ptTranslations,
-  hi: ptTranslations,
-  ja: ptTranslations,
 };
 
 export const useTranslation = () => {

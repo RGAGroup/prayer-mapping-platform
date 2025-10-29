@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   getIntercessorRankings,
   getTopPrayedRegions,
@@ -39,6 +40,7 @@ import {
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [rankings, setRankings] = useState<any[]>([]);
   const [topRegions, setTopRegions] = useState<any[]>([]);
   const [leastPrayedRegions, setLeastPrayedRegions] = useState<any[]>([]);
@@ -95,7 +97,7 @@ const UserDashboard = () => {
           <div className="w-16 h-16 rounded-ios-xl bg-ios-glass backdrop-blur-ios border border-white/20 flex items-center justify-center mb-6 animate-ios-bounce">
             <div className="w-8 h-8 border-3 border-ios-blue border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">Carregando seu dashboard...</p>
+          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">{t('userDashboard.loading')}</p>
         </div>
       </div>
     );
@@ -127,10 +129,10 @@ const UserDashboard = () => {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ios-dark-text tracking-tight truncate">
-                Meu Painel de Oração
+                {t('userDashboard.title')}
               </h1>
               <p className="text-ios-gray dark:text-ios-dark-text3 font-medium mt-1 text-sm sm:text-base">
-                Acompanhe suas estatísticas e compromissos de intercessão
+                {t('userDashboard.subtitle')}
               </p>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
@@ -165,7 +167,7 @@ const UserDashboard = () => {
                 <div className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-ios-blue" />
                 </div>
-                📊 Suas Estatísticas
+                {t('userDashboard.yourStats')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -174,7 +176,7 @@ const UserDashboard = () => {
                   <div className="p-4 bg-gradient-to-br from-ios-blue/5 to-ios-blue/10 rounded-ios-lg border border-ios-blue/20">
                     <div className="flex items-center gap-3 mb-2">
                       <Clock className="w-5 h-5 text-ios-blue" />
-                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Tempo Total</span>
+                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('userDashboard.totalTime')}</span>
                     </div>
                     <p className="text-2xl font-bold text-ios-blue">{formatPrayerTime(userStats.total_prayer_time)}</p>
                     <div className="mt-2">
@@ -184,18 +186,18 @@ const UserDashboard = () => {
                   <div className="p-4 bg-gradient-to-br from-ios-green/5 to-ios-green/10 rounded-ios-lg border border-ios-green/20">
                     <div className="flex items-center gap-3 mb-2">
                       <Target className="w-5 h-5 text-ios-green" />
-                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Sessões</span>
+                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('userDashboard.totalSessions')}</span>
                     </div>
                     <p className="text-2xl font-bold text-ios-green">{userStats.total_sessions}</p>
                   </div>
                   <div className="p-4 bg-gradient-to-br from-ios-purple/5 to-ios-purple/10 rounded-ios-lg border border-ios-purple/20">
                     <div className="flex items-center gap-3 mb-2">
                       <MapPin className="w-5 h-5 text-ios-purple" />
-                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Regiões Oradas</span>
+                      <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('userDashboard.regionsReached')}</span>
                     </div>
                     <p className="text-2xl font-bold text-ios-purple">{userStats.regions_prayed_for || 0}</p>
                     <p className="text-xs text-ios-gray dark:text-ios-dark-text3 mt-1">
-                      {userStats.regions_prayed_for === 1 ? 'região alcançada' : 'regiões alcançadas'}
+                      {userStats.regions_prayed_for === 1 ? t('userDashboard.regionReached') : t('userDashboard.regionsReachedPlural')}
                     </p>
                   </div>
                 </div>
@@ -216,7 +218,7 @@ const UserDashboard = () => {
                   <div className="w-8 h-8 rounded-ios-sm bg-ios-yellow/10 flex items-center justify-center">
                     <Trophy className="w-5 h-5 text-ios-yellow" />
                   </div>
-                  🏆 Top Intercessores
+                  {t('userDashboard.topIntercessors')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -235,7 +237,7 @@ const UserDashboard = () => {
                             {rank.display_name || 'Intercessor Anônimo'}
                           </p>
                           <p className="text-xs text-ios-gray dark:text-ios-dark-text3">
-                            {rank.total_sessions} sessões
+                            {rank.total_sessions} {t('userDashboard.sessions')}
                           </p>
                         </div>
                       </div>
@@ -255,7 +257,7 @@ const UserDashboard = () => {
                   <div className="w-8 h-8 rounded-ios-sm bg-ios-green/10 flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-ios-green" />
                   </div>
-                  🌍 Regiões Mais Oradas
+                  {t('userDashboard.topRegions')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -274,7 +276,7 @@ const UserDashboard = () => {
                             {region.region_name}
                           </p>
                           <p className="text-xs text-ios-gray dark:text-ios-dark-text3">
-                            {region.total_sessions} sessões
+                            {region.total_sessions} {t('userDashboard.sessions')}
                           </p>
                         </div>
                       </div>
@@ -295,7 +297,7 @@ const UserDashboard = () => {
                 <div className="w-8 h-8 rounded-ios-sm bg-ios-orange/10 flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-ios-orange" />
                 </div>
-                🙏 Regiões Menos Oradas
+                {t('userDashboard.leastRegions')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -313,7 +315,7 @@ const UserDashboard = () => {
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-ios-gray dark:text-ios-dark-text3">
-                        {region.total_sessions} {region.total_sessions === 1 ? 'sessão' : 'sessões'}
+                        {region.total_sessions} {region.total_sessions === 1 ? t('userDashboard.session') : t('userDashboard.sessions')}
                       </span>
                       <span className="font-semibold text-ios-orange">
                         {formatPrayerTime(region.total_prayer_time)}
@@ -332,7 +334,7 @@ const UserDashboard = () => {
                 <div className="w-8 h-8 rounded-ios-sm bg-ios-purple/10 flex items-center justify-center">
                   <BookOpen className="w-5 h-5 text-ios-purple" />
                 </div>
-                📝 Suas Reflexões Pessoais
+                {t('userDashboard.yourReflections')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -340,10 +342,10 @@ const UserDashboard = () => {
                 <div className="text-center py-8">
                   <BookOpen className="w-12 h-12 mx-auto mb-3 text-ios-gray" />
                   <p className="text-ios-gray dark:text-ios-dark-text3">
-                    Você ainda não tem reflexões pessoais.
+                    {t('userDashboard.noReflections')}
                   </p>
                   <p className="text-xs text-ios-gray dark:text-ios-dark-text3 mt-1">
-                    Adicione reflexões durante suas sessões de oração!
+                    {t('userDashboard.addReflections')}
                   </p>
                 </div>
               ) : (
@@ -398,7 +400,7 @@ const UserDashboard = () => {
                   {reflections.length >= 10 && (
                     <div className="text-center">
                       <p className="text-xs text-ios-gray dark:text-ios-dark-text3">
-                        Mostrando suas 10 reflexões mais recentes
+                        {t('userDashboard.showingReflections')}
                       </p>
                     </div>
                   )}
@@ -414,7 +416,7 @@ const UserDashboard = () => {
                 <div className="w-8 h-8 rounded-ios-sm bg-ios-indigo/10 flex items-center justify-center">
                   <Clock className="w-5 h-5 text-ios-indigo" />
                 </div>
-                🕐 Seus Relógios de Oração
+                {t('userDashboard.yourPrayerClocks')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -422,10 +424,10 @@ const UserDashboard = () => {
                 <div className="text-center py-8">
                   <Clock className="w-12 h-12 mx-auto mb-3 text-ios-gray" />
                   <p className="text-ios-gray dark:text-ios-dark-text3">
-                    Você ainda não tem compromissos de oração.
+                    {t('userDashboard.noPrayerClocks')}
                   </p>
                   <p className="text-xs text-ios-gray dark:text-ios-dark-text3 mt-1">
-                    Clique em uma região no mapa e crie seu primeiro relógio de oração!
+                    {t('userDashboard.createFirstClock')}
                   </p>
                 </div>
               ) : (

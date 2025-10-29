@@ -8,24 +8,25 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  queueManagementService, 
-  type QueueBuilderConfig, 
-  type QueuePreview, 
+import { useTranslation } from '@/hooks/useTranslation';
+import {
+  queueManagementService,
+  type QueueBuilderConfig,
+  type QueuePreview,
   type ProcessingProgress,
   type Batch
 } from '@/services/queueManagementService';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  Eye, 
-  Settings, 
-  List, 
-  Zap, 
-  DollarSign, 
-  Clock, 
-  Globe, 
+import {
+  Play,
+  Pause,
+  Square,
+  Eye,
+  Settings,
+  List,
+  Zap,
+  DollarSign,
+  Clock,
+  Globe,
   ChevronRight,
   RefreshCw,
   CheckCircle,
@@ -51,6 +52,7 @@ interface QueueBuilderState {
 }
 
 export const QueueBuilderTab: React.FC = () => {
+  const { t } = useTranslation();
   const [state, setState] = useState<QueueBuilderState>({
     config: {
       continent: 'Americas',
@@ -179,12 +181,12 @@ export const QueueBuilderTab: React.FC = () => {
 
   const getBatchStatusBadge = (status: string) => {
     const statusConfig = {
-      'created': { color: 'bg-ios-gray5/10 text-ios-gray border-ios-gray5/20', icon: Settings },
-      'running': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', icon: Play },
-      'paused': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', icon: Pause },
-      'completed': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', icon: CheckCircle },
-      'cancelled': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: XCircle },
-      'failed': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: AlertCircle }
+      'created': { color: 'bg-ios-gray5/10 text-ios-gray border-ios-gray5/20', icon: Settings, label: t('queueBuilder.status.created') },
+      'running': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', icon: Play, label: t('queueBuilder.status.running') },
+      'paused': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', icon: Pause, label: t('queueBuilder.status.paused') },
+      'completed': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', icon: CheckCircle, label: t('queueBuilder.status.completed') },
+      'cancelled': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: XCircle, label: t('queueBuilder.status.cancelled') },
+      'failed': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', icon: AlertCircle, label: t('queueBuilder.status.failed') }
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.created;
@@ -193,7 +195,7 @@ export const QueueBuilderTab: React.FC = () => {
     return (
       <Badge className={`${config.color} rounded-ios-sm font-medium flex items-center gap-1`}>
         <Icon className="w-3 h-3" />
-        {status}
+        {config.label}
       </Badge>
     );
   };
@@ -203,14 +205,13 @@ export const QueueBuilderTab: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text">🤖 Queue Builder - Geração IA</h2>
-          <p className="text-ios-gray dark:text-ios-dark-text3">Construa e gerencie filas de processamento para dados espirituais</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-ios-dark-text">{t('queueBuilder.title')}</h2>
         </div>
         <div className="flex items-center gap-3">
           {state.activeBatch && state.batchProgress && (
             <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm font-medium">
               <Zap className="w-3 h-3 mr-1" />
-              {state.batchProgress.progressPercent.toFixed(0)}% concluído
+              {state.batchProgress.progressPercent.toFixed(0)}% {t('queueBuilder.completed')}
             </Badge>
           )}
         </div>
@@ -218,9 +219,9 @@ export const QueueBuilderTab: React.FC = () => {
 
       <Tabs defaultValue="builder" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 rounded-ios-lg p-1">
-          <TabsTrigger value="builder" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">🔧 Queue Builder</TabsTrigger>
-          <TabsTrigger value="monitor" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">📊 Monitor</TabsTrigger>
-          <TabsTrigger value="history" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">📜 Histórico</TabsTrigger>
+          <TabsTrigger value="builder" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">{t('queueBuilder.tabs.builder')}</TabsTrigger>
+          <TabsTrigger value="monitor" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">{t('queueBuilder.tabs.monitor')}</TabsTrigger>
+          <TabsTrigger value="history" className="rounded-ios-md data-[state=active]:bg-white dark:data-[state=active]:bg-ios-dark-bg2 data-[state=active]:shadow-ios-sm">{t('queueBuilder.tabs.history')}</TabsTrigger>
         </TabsList>
 
         {/* TAB 1: QUEUE BUILDER */}
@@ -234,38 +235,38 @@ export const QueueBuilderTab: React.FC = () => {
                     <div className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 flex items-center justify-center">
                       <Settings className="w-5 h-5 text-ios-blue" />
                     </div>
-                    Configuração da Fila
+                    {t('queueBuilder.config.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Seleção de Continente */}
                   <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Continente</label>
-                    <Select 
-                      value={state.config.continent} 
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">{t('queueBuilder.config.continent')}</label>
+                    <Select
+                      value={state.config.continent}
                       onValueChange={(value) => updateConfig({ continent: value })}
                     >
                       <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
-                        <SelectItem value="Americas">🌎 Américas</SelectItem>
-                        <SelectItem value="Europe">🇪🇺 Europa</SelectItem>
-                        <SelectItem value="Asia">🌏 Ásia</SelectItem>
-                        <SelectItem value="Africa">🌍 África</SelectItem>
-                        <SelectItem value="Oceania">🏝️ Oceania</SelectItem>
+                        <SelectItem value="Americas">🌎 {t('queueBuilder.config.continents.americas')}</SelectItem>
+                        <SelectItem value="Europe">🇪🇺 {t('queueBuilder.config.continents.europe')}</SelectItem>
+                        <SelectItem value="Asia">🌏 {t('queueBuilder.config.continents.asia')}</SelectItem>
+                        <SelectItem value="Africa">🌍 {t('queueBuilder.config.continents.africa')}</SelectItem>
+                        <SelectItem value="Oceania">🏝️ {t('queueBuilder.config.continents.oceania')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {/* Tipos de Região */}
                   <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">Tipos de Região</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">{t('queueBuilder.config.regionTypes')}</label>
                     <div className="space-y-3">
                       {[
-                        { value: 'country', label: '🏛️ Países', desc: 'Nações e territórios' },
-                        { value: 'state', label: '🗺️ Estados/Províncias', desc: 'Divisões administrativas' },
-                        { value: 'city', label: '🏙️ Cidades', desc: 'Centros urbanos principais' }
+                        { value: 'country', label: t('queueBuilder.config.types.countries'), desc: t('queueBuilder.config.types.countriesDesc') },
+                        { value: 'state', label: t('queueBuilder.config.types.states'), desc: t('queueBuilder.config.types.statesDesc') },
+                        { value: 'city', label: t('queueBuilder.config.types.cities'), desc: t('queueBuilder.config.types.citiesDesc') }
                       ].map(type => (
                         <div key={type.value} className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                           <Checkbox
@@ -273,12 +274,12 @@ export const QueueBuilderTab: React.FC = () => {
                             checked={state.config.regionTypes.includes(type.value)}
                             onCheckedChange={(checked) => {
                               if (checked) {
-                                updateConfig({ 
-                                  regionTypes: [...state.config.regionTypes, type.value] 
+                                updateConfig({
+                                  regionTypes: [...state.config.regionTypes, type.value]
                                 });
                               } else {
-                                updateConfig({ 
-                                  regionTypes: state.config.regionTypes.filter(t => t !== type.value) 
+                                updateConfig({
+                                  regionTypes: state.config.regionTypes.filter(t => t !== type.value)
                                 });
                               }
                             }}
@@ -297,24 +298,24 @@ export const QueueBuilderTab: React.FC = () => {
 
                   {/* Filtros */}
                   <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">Filtros Avançados</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-3 block">{t('queueBuilder.config.advancedFilters')}</label>
                     <div className="space-y-3">
                       <div className="flex items-start space-x-3 p-3 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
                         <Checkbox
                           id="christian-majority"
                           checked={state.config.filters.onlyChristianMajority || false}
-                          onCheckedChange={(checked) => 
-                            updateConfig({ 
-                              filters: { 
-                                ...state.config.filters, 
-                                onlyChristianMajority: checked as boolean 
-                              } 
+                          onCheckedChange={(checked) =>
+                            updateConfig({
+                              filters: {
+                                ...state.config.filters,
+                                onlyChristianMajority: checked as boolean
+                              }
                             })
                           }
                           className="mt-0.5"
                         />
                         <label htmlFor="christian-majority" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
-                          ✝️ Apenas regiões com maioria cristã
+                          {t('queueBuilder.config.filters.christianMajority')}
                         </label>
                       </div>
 
@@ -322,18 +323,18 @@ export const QueueBuilderTab: React.FC = () => {
                         <Checkbox
                           id="crisis-regions"
                           checked={state.config.filters.crisisRegions || false}
-                          onCheckedChange={(checked) => 
-                            updateConfig({ 
-                              filters: { 
-                                ...state.config.filters, 
-                                crisisRegions: checked as boolean 
-                              } 
+                          onCheckedChange={(checked) =>
+                            updateConfig({
+                              filters: {
+                                ...state.config.filters,
+                                crisisRegions: checked as boolean
+                              }
                             })
                           }
                           className="mt-0.5"
                         />
                         <label htmlFor="crisis-regions" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
-                          🆘 Regiões em crise (perseguição, conflito, crise humanitária)
+                          {t('queueBuilder.config.filters.crisisRegions')}
                         </label>
                       </div>
 
@@ -341,52 +342,33 @@ export const QueueBuilderTab: React.FC = () => {
                         <Checkbox
                           id="strategic"
                           checked={state.config.filters.strategicImportance || false}
-                          onCheckedChange={(checked) => 
-                            updateConfig({ 
-                              filters: { 
-                                ...state.config.filters, 
-                                strategicImportance: checked as boolean 
-                              } 
+                          onCheckedChange={(checked) =>
+                            updateConfig({
+                              filters: {
+                                ...state.config.filters,
+                                strategicImportance: checked as boolean
+                              }
                             })
                           }
                           className="mt-0.5"
                         />
                         <label htmlFor="strategic" className="text-sm text-gray-900 dark:text-ios-dark-text cursor-pointer">
-                          🎯 Importância estratégica missionária
+                          {t('queueBuilder.config.filters.unreachedPeoples')}
                         </label>
                       </div>
                     </div>
                   </div>
 
-                  {/* População Mínima */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">População Mínima</label>
-                    <Input
-                      type="number"
-                      placeholder="Ex: 1000000 (1 milhão)"
-                      value={state.config.filters.populationMin || ''}
-                      onChange={(e) => 
-                        updateConfig({ 
-                          filters: { 
-                            ...state.config.filters, 
-                            populationMin: e.target.value ? parseInt(e.target.value) : undefined 
-                          } 
-                        })
-                      }
-                      className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
-                    />
-                  </div>
-
                   {/* Custo por Região */}
                   <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Custo Estimado por Região (USD)</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">{t('queueBuilder.config.costPerRegion')}</label>
                     <Input
                       type="number"
                       step="0.01"
                       min="0.01"
                       max="1.00"
                       value={state.config.estimatedCostPerRegion}
-                      onChange={(e) => 
+                      onChange={(e) =>
                         updateConfig({ estimatedCostPerRegion: parseFloat(e.target.value) || 0.03 })
                       }
                       className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
@@ -395,9 +377,9 @@ export const QueueBuilderTab: React.FC = () => {
 
                   {/* Prompt Customizado */}
                   <div>
-                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">Prompt Customizado (Opcional)</label>
+                    <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2 block">{t('queueBuilder.config.customPrompt')}</label>
                     <Textarea
-                      placeholder="Deixe vazio para usar o template padrão..."
+                      placeholder={t('queueBuilder.config.customPromptPlaceholder')}
                       value={state.config.customPrompt || ''}
                       onChange={(e) => updateConfig({ customPrompt: e.target.value || undefined })}
                       rows={3}
@@ -406,7 +388,7 @@ export const QueueBuilderTab: React.FC = () => {
                   </div>
 
                   {/* Botão Gerar Preview */}
-                  <Button 
+                  <Button
                     onClick={generatePreview}
                     disabled={state.isGeneratingPreview || state.config.regionTypes.length === 0}
                     className="w-full"
@@ -414,12 +396,12 @@ export const QueueBuilderTab: React.FC = () => {
                     {state.isGeneratingPreview ? (
                       <>
                         <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        Gerando Preview...
+                        {t('queueBuilder.preview.generating')}
                       </>
                     ) : (
                       <>
                         <Eye className="w-4 h-4 mr-2" />
-                        Gerar Preview da Fila
+                        {t('queueBuilder.preview.generate')}
                       </>
                     )}
                   </Button>
@@ -434,21 +416,21 @@ export const QueueBuilderTab: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <List className="w-5 h-5" />
-                    Resumo
+                    {t('queueBuilder.summary.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Continente:</span>
+                      <span>{t('queueBuilder.summary.continent')}</span>
                       <Badge variant="outline">{state.config.continent}</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>Tipos:</span>
+                      <span>{t('queueBuilder.summary.types')}</span>
                       <span>{state.config.regionTypes.join(', ')}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Filtros:</span>
+                      <span>{t('queueBuilder.summary.filters')}</span>
                       <span>{Object.keys(state.config.filters).length}</span>
                     </div>
                   </div>
@@ -461,7 +443,7 @@ export const QueueBuilderTab: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Globe className="w-5 h-5" />
-                      Preview da Fila
+                      {t('queueBuilder.preview.title')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -471,46 +453,46 @@ export const QueueBuilderTab: React.FC = () => {
                         <div className="text-2xl font-bold text-blue-600">
                           {state.preview.summary.totalRegions}
                         </div>
-                        <div className="text-xs text-gray-600">Total de Regiões</div>
+                        <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.preview.totalRegions')}</div>
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-green-600">
                           ${state.preview.totalCost.toFixed(2)}
                         </div>
-                        <div className="text-xs text-gray-600">Custo Estimado</div>
+                        <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.preview.estimatedCost')}</div>
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-purple-600">
                           {state.preview.totalTime}min
                         </div>
-                        <div className="text-xs text-gray-600">Tempo Estimado</div>
+                        <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.preview.estimatedTime')}</div>
                       </div>
                       <div>
                         <div className="text-2xl font-bold text-orange-600">
                           {state.preview.regions.filter(r => r.priority === 1).length}
                         </div>
-                        <div className="text-xs text-gray-600">Alta Prioridade</div>
+                        <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.preview.highPriority')}</div>
                       </div>
                     </div>
 
                     {/* Breakdown por Tipo */}
                     <div className="space-y-2">
-                      <h4 className="font-medium text-sm">Breakdown:</h4>
+                      <h4 className="font-medium text-sm">{t('queueBuilder.preview.breakdown')}</h4>
                       {state.preview.summary.countries > 0 && (
                         <div className="flex justify-between text-sm">
-                          <span>🏛️ Países:</span>
+                          <span>{t('queueBuilder.preview.countries')}</span>
                           <span>{state.preview.summary.countries}</span>
                         </div>
                       )}
                       {state.preview.summary.states > 0 && (
                         <div className="flex justify-between text-sm">
-                          <span>🗺️ Estados:</span>
+                          <span>{t('queueBuilder.preview.states')}</span>
                           <span>{state.preview.summary.states}</span>
                         </div>
                       )}
                       {state.preview.summary.cities > 0 && (
                         <div className="flex justify-between text-sm">
-                          <span>🏙️ Cidades:</span>
+                          <span>{t('queueBuilder.preview.cities')}</span>
                           <span>{state.preview.summary.cities}</span>
                         </div>
                       )}
@@ -518,13 +500,13 @@ export const QueueBuilderTab: React.FC = () => {
 
                     {/* Lista de Regiões (Preview) */}
                     <div>
-                      <h4 className="font-medium text-sm mb-2">Primeiras Regiões:</h4>
+                      <h4 className="font-medium text-sm mb-2">{t('queueBuilder.preview.firstRegions')}</h4>
                       <div className="space-y-1 max-h-32 overflow-y-auto">
                         {state.preview.regions.slice(0, 8).map((region, index) => (
-                          <div key={index} className="flex justify-between items-center text-xs p-2 bg-gray-50 rounded">
+                          <div key={index} className="flex justify-between items-center text-xs p-2 bg-gray-50 dark:bg-ios-dark-bg3/30 rounded">
                             <span className="font-medium">{region.name}</span>
-                            <Badge 
-                              variant="outline" 
+                            <Badge
+                              variant="outline"
                               className={
                                 region.priority === 1 ? 'border-red-300 text-red-700' :
                                 region.priority === 2 ? 'border-yellow-300 text-yellow-700' :
@@ -536,15 +518,15 @@ export const QueueBuilderTab: React.FC = () => {
                           </div>
                         ))}
                         {state.preview.regions.length > 8 && (
-                          <div className="text-xs text-gray-500 text-center p-2">
-                            ... e mais {state.preview.regions.length - 8} regiões
+                          <div className="text-xs text-gray-500 dark:text-ios-dark-text3 text-center p-2">
+                            {t('queueBuilder.preview.andMore', { count: state.preview.regions.length - 8 })}
                           </div>
                         )}
                       </div>
                     </div>
 
                     {/* Botão Criar e Executar */}
-                    <Button 
+                    <Button
                       onClick={createAndStartBatch}
                       disabled={state.isCreatingBatch || state.activeBatch !== null}
                       className="w-full"
@@ -552,12 +534,12 @@ export const QueueBuilderTab: React.FC = () => {
                       {state.isCreatingBatch ? (
                         <>
                           <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                          Criando Fila...
+                          {t('queueBuilder.actions.creating')}
                         </>
                       ) : (
                         <>
                           <Play className="w-4 h-4 mr-2" />
-                          Criar e Executar Fila
+                          {t('queueBuilder.actions.createAndStart')}
                         </>
                       )}
                     </Button>
@@ -576,7 +558,7 @@ export const QueueBuilderTab: React.FC = () => {
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Zap className="w-5 h-5" />
-                    Processamento em Andamento
+                    {t('queueBuilder.monitor.title')}
                   </div>
                   {getBatchStatusBadge(state.batchProgress.status)}
                 </CardTitle>
@@ -585,55 +567,49 @@ export const QueueBuilderTab: React.FC = () => {
                 {/* Progresso Geral */}
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span>Progresso</span>
+                    <span>{t('queueBuilder.monitor.progress')}</span>
                     <span>{state.batchProgress.progressPercent.toFixed(1)}%</span>
                   </div>
                   <Progress value={state.batchProgress.progressPercent} className="h-2" />
                 </div>
 
                 {/* Estatísticas */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">
                       {state.batchProgress.totalRegions}
                     </div>
-                    <div className="text-xs text-gray-600">Total</div>
+                    <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.monitor.total')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
                       {state.batchProgress.completedRegions}
                     </div>
-                    <div className="text-xs text-gray-600">Concluídas</div>
+                    <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.monitor.completed')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-red-600">
                       {state.batchProgress.failedRegions}
                     </div>
-                    <div className="text-xs text-gray-600">Falharam</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {state.batchProgress.skippedRegions}
-                    </div>
-                    <div className="text-xs text-gray-600">Puladas</div>
+                    <div className="text-xs text-gray-600 dark:text-ios-dark-text3">{t('queueBuilder.monitor.failed')}</div>
                   </div>
                 </div>
 
                 {/* Região Atual */}
                 {state.batchProgress.currentRegion && (
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <div className="text-sm font-medium text-blue-900">
-                      🔄 Processando agora:
+                  <div className="p-3 bg-blue-50 dark:bg-ios-blue/10 rounded-lg">
+                    <div className="text-sm font-medium text-blue-900 dark:text-ios-blue">
+                      {t('queueBuilder.monitor.processingNow')}
                     </div>
-                    <div className="text-blue-700">
+                    <div className="text-blue-700 dark:text-ios-blue">
                       {state.batchProgress.currentRegion}
                     </div>
                   </div>
                 )}
 
                 {/* Custo Atual */}
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <span className="text-sm font-medium">💰 Custo Atual:</span>
+                <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-ios-dark-bg3/30 rounded-lg">
+                  <span className="text-sm font-medium">{t('queueBuilder.monitor.currentCost')}</span>
                   <span className="text-lg font-bold text-green-600">
                     ${state.batchProgress.actualCost.toFixed(2)}
                   </span>
@@ -644,18 +620,18 @@ export const QueueBuilderTab: React.FC = () => {
                   {state.batchProgress.status === 'running' ? (
                     <Button onClick={pauseBatch} variant="outline" className="flex-1">
                       <Pause className="w-4 h-4 mr-2" />
-                      Pausar
+                      {t('queueBuilder.actions.pause')}
                     </Button>
                   ) : state.batchProgress.status === 'paused' ? (
                     <Button onClick={() => queueManagementService.startBatchProcessing(state.activeBatch!)} className="flex-1">
                       <Play className="w-4 h-4 mr-2" />
-                      Continuar
+                      {t('queueBuilder.actions.continue')}
                     </Button>
                   ) : null}
-                  
+
                   <Button onClick={stopBatch} variant="destructive" className="flex-1">
                     <Square className="w-4 h-4 mr-2" />
-                    Parar
+                    {t('queueBuilder.actions.stop')}
                   </Button>
                 </div>
               </CardContent>
@@ -663,14 +639,14 @@ export const QueueBuilderTab: React.FC = () => {
           ) : (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="text-gray-400 mb-4">
+                <div className="text-gray-400 dark:text-ios-dark-text3 mb-4">
                   <Zap className="w-12 h-12 mx-auto" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Nenhum Processamento Ativo
+                <h3 className="text-lg font-medium text-gray-900 dark:text-ios-dark-text mb-2">
+                  {t('queueBuilder.monitor.noActive')}
                 </h3>
-                <p className="text-gray-600">
-                  Vá para o Queue Builder para criar uma nova fila de processamento.
+                <p className="text-gray-600 dark:text-ios-dark-text3">
+                  {t('queueBuilder.monitor.noActiveDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -680,10 +656,10 @@ export const QueueBuilderTab: React.FC = () => {
         {/* TAB 3: HISTÓRICO */}
         <TabsContent value="history" className="space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Histórico de Processamentos</h3>
+            <h3 className="text-lg font-semibold">{t('queueBuilder.history.title')}</h3>
             <Button onClick={loadUserBatches} variant="outline" size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Atualizar
+              {t('queueBuilder.actions.refresh')}
             </Button>
           </div>
 
@@ -698,24 +674,24 @@ export const QueueBuilderTab: React.FC = () => {
                           <h4 className="font-medium">{batch.name}</h4>
                           {getBatchStatusBadge(batch.status)}
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-600 dark:text-ios-dark-text3 mb-2">
                           {batch.description}
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
                           <div>
-                            <span className="text-gray-500">Total:</span>
+                            <span className="text-gray-500 dark:text-ios-dark-text3">{t('queueBuilder.history.total')}</span>
                             <span className="ml-1 font-medium">{batch.total_regions}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Concluídas:</span>
+                            <span className="text-gray-500 dark:text-ios-dark-text3">{t('queueBuilder.history.completed')}</span>
                             <span className="ml-1 font-medium text-green-600">{batch.completed_regions}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Custo:</span>
+                            <span className="text-gray-500 dark:text-ios-dark-text3">{t('queueBuilder.history.cost')}</span>
                             <span className="ml-1 font-medium">${batch.actual_total_cost_usd.toFixed(2)}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">Criado:</span>
+                            <span className="text-gray-500 dark:text-ios-dark-text3">{t('queueBuilder.history.created')}</span>
                             <span className="ml-1 font-medium">
                               {new Date(batch.created_at).toLocaleDateString()}
                             </span>
@@ -724,12 +700,12 @@ export const QueueBuilderTab: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         {batch.status === 'running' && (
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             onClick={() => setState(prev => ({ ...prev, activeBatch: batch.id }))}
                           >
-                            Monitorar
+                            {t('queueBuilder.actions.monitor')}
                           </Button>
                         )}
                       </div>
@@ -741,14 +717,14 @@ export const QueueBuilderTab: React.FC = () => {
           ) : (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="text-gray-400 mb-4">
+                <div className="text-gray-400 dark:text-ios-dark-text3 mb-4">
                   <List className="w-12 h-12 mx-auto" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Nenhum Histórico
+                <h3 className="text-lg font-medium text-gray-900 dark:text-ios-dark-text mb-2">
+                  {t('queueBuilder.history.noHistory')}
                 </h3>
-                <p className="text-gray-600">
-                  Você ainda não executou nenhum processamento em lote.
+                <p className="text-gray-600 dark:text-ios-dark-text3">
+                  {t('queueBuilder.history.noHistoryDesc')}
                 </p>
               </CardContent>
             </Card>
@@ -757,18 +733,18 @@ export const QueueBuilderTab: React.FC = () => {
       </Tabs>
 
       {/* Instruções */}
-      <Card className="bg-green-50">
+      <Card className="bg-green-50 dark:bg-ios-green/10">
         <CardContent className="p-4">
-          <h3 className="font-semibold text-green-900 mb-2">🎯 Como Usar o Queue Builder</h3>
-          <ul className="text-sm text-green-800 space-y-1">
-            <li>• <strong>1. Configure:</strong> Escolha continente, tipos de região e filtros</li>
-            <li>• <strong>2. Preview:</strong> Veja quantas regiões serão processadas e o custo</li>
-            <li>• <strong>3. Execute:</strong> Crie a fila e acompanhe o progresso em tempo real</li>
-            <li>• <strong>4. Monitor:</strong> Pause, retome ou pare o processamento conforme necessário</li>
-            <li>• <strong>💡 Dica:</strong> Comece com poucos países para testar a qualidade dos prompts</li>
+          <h3 className="font-semibold text-green-900 dark:text-ios-green mb-2">{t('queueBuilder.instructions.title')}</h3>
+          <ul className="text-sm text-green-800 dark:text-ios-green space-y-1">
+            <li dangerouslySetInnerHTML={{ __html: t('queueBuilder.instructions.step1') }} />
+            <li dangerouslySetInnerHTML={{ __html: t('queueBuilder.instructions.step2') }} />
+            <li dangerouslySetInnerHTML={{ __html: t('queueBuilder.instructions.step3') }} />
+            <li dangerouslySetInnerHTML={{ __html: t('queueBuilder.instructions.step4') }} />
+            <li dangerouslySetInnerHTML={{ __html: t('queueBuilder.instructions.tip') }} />
           </ul>
         </CardContent>
       </Card>
     </div>
   );
-}; 
+};

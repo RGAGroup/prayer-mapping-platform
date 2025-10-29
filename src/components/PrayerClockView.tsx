@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PrayerClockModal } from './PrayerClockModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   getRegionClocks,
   getClockCoverage24h,
@@ -40,6 +41,7 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
   regionCode,
 }) => {
   const { user } = useAuth(); // Obter usuário atual
+  const { t } = useTranslation();
   const [clocks, setClocks] = useState<PrayerClock[]>([]);
   const [coverage, setCoverage] = useState<ClockCoverage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,13 +69,13 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja remover este compromisso?')) {
+    if (confirm(t('prayerClock.deleteConfirm'))) {
       const success = await deactivatePrayerClock(id);
       if (success) {
-        alert('✅ Compromisso removido com sucesso!');
+        alert(t('prayerClock.deleteSuccess'));
         loadData();
       } else {
-        alert('❌ Erro ao remover compromisso.');
+        alert(t('prayerClock.deleteError'));
       }
     }
   };
@@ -112,10 +114,10 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
                   <Clock className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                  <span className="truncate">Relógio de Oração 24/7</span>
+                  <span className="truncate">{t('prayerClock.title')}</span>
                 </h2>
                 <p className="text-ios-gray6 mt-1 text-xs sm:text-sm truncate">
-                  {regionName} • {regionType === 'country' ? 'País' : regionType === 'state' ? 'Estado' : 'Cidade'}
+                  {regionName} • {regionType === 'country' ? t('prayerClock.country') : regionType === 'state' ? t('prayerClock.state') : t('prayerClock.city')}
                 </p>
               </div>
               <Button
@@ -131,21 +133,21 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
             {/* Estatísticas de Cobertura */}
             <div className="mt-4 sm:mt-6 grid grid-cols-3 gap-2 sm:gap-4">
               <div className="bg-white/10 backdrop-blur-sm rounded-ios-lg p-2 sm:p-4">
-                <div className="text-ios-gray6 text-xs sm:text-sm">Cobertura</div>
+                <div className="text-ios-gray6 text-xs sm:text-sm">{t('prayerClock.coverage')}</div>
                 <div className="text-lg sm:text-2xl font-bold text-white">{coveragePercentage}%</div>
                 <div className="text-xs text-ios-gray6">{coveredHours}/24h</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-ios-lg p-2 sm:p-4">
-                <div className="text-ios-gray6 text-xs sm:text-sm">Intercessores</div>
+                <div className="text-ios-gray6 text-xs sm:text-sm">{t('prayerClock.intercessors')}</div>
                 <div className="text-lg sm:text-2xl font-bold text-white">
                   {coverage.reduce((sum, c) => sum + c.total_intercessors, 0)}
                 </div>
-                <div className="text-xs text-ios-gray6">Total</div>
+                <div className="text-xs text-ios-gray6">{t('prayerClock.total')}</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-ios-lg p-2 sm:p-4">
-                <div className="text-ios-gray6 text-xs sm:text-sm">Compromissos</div>
+                <div className="text-ios-gray6 text-xs sm:text-sm">{t('prayerClock.commitments')}</div>
                 <div className="text-lg sm:text-2xl font-bold text-white">{clocks.length}</div>
-                <div className="text-xs text-ios-gray6">Ativos</div>
+                <div className="text-xs text-ios-gray6">{t('prayerClock.active')}</div>
               </div>
             </div>
           </div>
@@ -174,7 +176,7 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
             {loading ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ios-blue mx-auto mb-4"></div>
-                <p className="text-ios-gray dark:text-ios-dark-text3 text-sm">Carregando...</p>
+                <p className="text-ios-gray dark:text-ios-dark-text3 text-sm">{t('prayerClock.loading')}</p>
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4">
@@ -184,7 +186,7 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
                   className="w-full bg-gradient-to-r from-ios-green to-ios-teal text-white rounded-ios-lg py-4 sm:py-6 text-sm sm:text-base font-semibold shadow-ios-lg hover:shadow-ios-xl transition-all"
                 >
                   <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Criar Novo Compromisso
+                  {t('prayerClock.createNew')}
                 </Button>
 
                 {/* Lista de Horários (0-23h) */}
@@ -219,10 +221,10 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="font-semibold text-gray-900 dark:text-ios-dark-text text-sm sm:text-base">
-                                {slot.is_covered ? '✅ Coberto' : '❌ Vazio'}
+                                {slot.is_covered ? t('prayerClock.covered') : t('prayerClock.empty')}
                               </div>
                               <div className="text-xs sm:text-sm text-gray-600 dark:text-ios-dark-text3 truncate">
-                                {slot.total_intercessors} intercessor(es) • {slot.total_duration_minutes}min
+                                {t('prayerClock.intercessorCount', { count: slot.total_intercessors })} • {t('prayerClock.minutes', { count: slot.total_duration_minutes })}
                               </div>
                             </div>
                           </div>
@@ -250,7 +252,7 @@ export const PrayerClockView: React.FC<PrayerClockViewProps> = ({
                                     <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-ios-blue flex-shrink-0" />
                                     <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-ios-dark-text truncate">
                                       {formatTime(clock.start_time)} • {formatDuration(clock.duration_minutes)}
-                                      {isOwner && <span className="ml-1 sm:ml-2 text-xs text-ios-blue">(Seu)</span>}
+                                      {isOwner && <span className="ml-1 sm:ml-2 text-xs text-ios-blue">{t('prayerClock.yours')}</span>}
                                     </span>
                                   </div>
                                   {/* Botão deletar - apenas para o dono */}

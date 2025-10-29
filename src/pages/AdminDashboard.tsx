@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   Users,
   Globe,
@@ -32,6 +33,7 @@ import { AdvancedAgentTab } from '@/components/admin/AdvancedAgentTab';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { stats, loading, error, isConnected } = useAdminData();
   const [activeTab, setActiveTab] = useState('overview');
   const [apiKey, setApiKey] = useState<string>('AIzaSyCbk0kgeAlS_eU3QFNsR-Cysk_sRsPXTW0');
@@ -57,7 +59,7 @@ const AdminDashboard = () => {
           <div className="w-16 h-16 rounded-ios-xl bg-ios-glass backdrop-blur-ios border border-white/20 flex items-center justify-center mb-6 animate-ios-bounce">
             <div className="w-8 h-8 border-3 border-ios-blue border-t-transparent rounded-full animate-spin"></div>
           </div>
-          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">Carregando dashboard admin...</p>
+          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">{t('adminDashboard.loading')}</p>
         </div>
       </div>
     );
@@ -76,10 +78,10 @@ const AdminDashboard = () => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0">
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-ios-dark-text tracking-tight truncate">
-                  Dashboard Administrativo
+                  {t('adminDashboard.title')}
                 </h1>
                 <p className="text-ios-gray dark:text-ios-dark-text3 font-medium mt-1 text-sm sm:text-base">
-                  Gerenciamento do Mapa Global de Intercessão
+                  {t('adminDashboard.subtitle')}
                 </p>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -134,21 +136,21 @@ const AdminDashboard = () => {
                   value="regions"
                   className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3"
                 >
-                  <span className="hidden sm:inline">🗺️ Mapeamento</span>
+                  <span className="hidden sm:inline">{t('adminDashboard.mapping')}</span>
                   <span className="sm:hidden">🗺️</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="prayer-stats"
                   className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 col-span-2 sm:col-span-1"
                 >
-                  <span className="hidden sm:inline">🙏 Oração</span>
-                  <span className="sm:hidden">🙏 Oração</span>
+                  <span className="hidden sm:inline">{t('adminDashboard.stats')}</span>
+                  <span className="sm:hidden">{t('adminDashboard.stats')}</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="queue-builder"
                   className="data-[state=active]:bg-ios-blue data-[state=active]:text-white data-[state=active]:shadow-ios-md rounded-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm px-2 sm:px-3 py-2 sm:py-3 hidden sm:inline-flex"
                 >
-                  🤖 Agente IA
+                  {t('adminDashboard.agent')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="analytics"
@@ -165,7 +167,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Total de Regiões</CardTitle>
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">{t('adminDashboard.totalRegions')}</CardTitle>
                     <div className="w-10 h-10 rounded-ios-md bg-ios-blue/10 flex items-center justify-center">
                       <Globe className="h-5 w-5 text-ios-blue" />
                     </div>
@@ -197,7 +199,7 @@ const AdminDashboard = () => {
 
                 <Card className="bg-white/70 dark:bg-ios-dark-bg2/70 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl shadow-ios-lg hover:shadow-ios-xl transition-all duration-300 hover:scale-105">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">Usuários Ativos</CardTitle>
+                    <CardTitle className="text-sm font-semibold text-ios-gray dark:text-ios-dark-text2">{t('adminDashboard.activeUsers')}</CardTitle>
                     <div className="w-10 h-10 rounded-ios-md bg-ios-purple/10 flex items-center justify-center">
                       <Users className="h-5 w-5 text-ios-purple" />
                     </div>

@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useState } from 'react';
 import { LocationData } from '@/types/Location';
 import { useHierarchicalData } from '@/hooks/useHierarchicalData';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface LocationPanelProps {
   location: LocationData;
@@ -16,6 +17,7 @@ interface LocationPanelProps {
 }
 
 const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: LocationPanelProps) => {
+  const { t } = useTranslation();
   const [isHierarchyOpen, setIsHierarchyOpen] = useState(false);
   
   // Hook para dados hierárquicos
@@ -56,11 +58,11 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
 
   const getLocationTypeLabel = (type: string) => {
     switch (type) {
-      case 'continent': return 'CONTINENTE';
-      case 'country': return 'PAÍS';
-      case 'state': return 'ESTADO/REGIÃO';
-      case 'city': return 'CIDADE';
-      case 'neighborhood': return 'BAIRRO';
+      case 'continent': return t('locationPanel.types.continent');
+      case 'country': return t('locationPanel.types.country');
+      case 'state': return t('locationPanel.types.state');
+      case 'city': return t('locationPanel.types.city');
+      case 'neighborhood': return t('locationPanel.types.neighborhood');
       default: return type.toUpperCase();
     }
   };
@@ -131,11 +133,11 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {hierarchy.length > 1 && (
           <Collapsible open={isHierarchyOpen} onOpenChange={setIsHierarchyOpen} className="mb-6">
             <CollapsibleTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="w-full justify-between text-sm bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 hover:bg-ios-gray6/50 dark:hover:bg-ios-dark-bg3/50 rounded-ios-lg transition-all duration-200 text-ios-gray dark:text-ios-dark-text2"
               >
-                <span>📍 Hierarquia Geográfica</span>
+                <span>📍 {t('locationPanel.hierarchy')}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </CollapsibleTrigger>
@@ -310,10 +312,10 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
         {/* Content Tabs */}
         <Tabs defaultValue="prophetic" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 bg-muted/50">
-            <TabsTrigger value="prophetic" className="text-xs">Proféticas</TabsTrigger>
-            <TabsTrigger value="prayer" className="text-xs">Oração</TabsTrigger>
-            <TabsTrigger value="testimonies" className="text-xs">Testemunhos</TabsTrigger>
-            <TabsTrigger value="missions" className="text-xs">Missões</TabsTrigger>
+            <TabsTrigger value="prophetic" className="text-xs">{t('locationPanel.tabs.prophetic')}</TabsTrigger>
+            <TabsTrigger value="prayer" className="text-xs">{t('locationPanel.tabs.prayer')}</TabsTrigger>
+            <TabsTrigger value="testimonies" className="text-xs">{t('locationPanel.tabs.testimonies')}</TabsTrigger>
+            <TabsTrigger value="missions" className="text-xs">{t('locationPanel.tabs.missions')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="prophetic" className="space-y-3 max-h-64 overflow-y-auto">
@@ -405,7 +407,7 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-muted-foreground">Est. {base.established}</span>
                       <Button size="sm" variant="outline" className="text-xs h-6">
-                        Contato
+                        {t('locationPanel.contact')}
                       </Button>
                     </div>
                   </CardContent>
@@ -423,12 +425,12 @@ const LocationPanel = ({ location, onClose, onContribute, isAuthenticated }: Loc
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-3">
-          <Button 
+          <Button
             onClick={onContribute}
             className="w-full bg-gradient-to-r from-celestial-500 to-divine-500 hover:from-celestial-600 hover:to-divine-600"
           >
             <Crown className="h-4 w-4 mr-2" />
-            Contribuir com Dados Espirituais
+            {t('locationPanel.contribute')}
           </Button>
           
           <Button 

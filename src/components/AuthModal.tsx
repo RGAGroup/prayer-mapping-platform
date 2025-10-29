@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useMobile } from '@/hooks/use-mobile';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -23,9 +24,10 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
     password: '',
     name: ''
   });
-  
+
   const { signIn, signUp, loading } = useAuth();
   const { isMobile, isMobileDevice, screenWidth } = useMobile();
+  const { t } = useTranslation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,9 +42,9 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
         let mobileError = error.message;
         if (isMobile) {
           if (error.message.includes('Invalid login credentials')) {
-            mobileError = 'Email ou senha incorretos.\nVerifique suas credenciais.';
+            mobileError = t('auth.errors.incorrectCredentials');
           } else if (error.message.includes('Network')) {
-            mobileError = 'Problema de conexão.\nVerifique sua internet e tente novamente.';
+            mobileError = t('auth.errors.networkError');
           } else if (error.message.includes('Too many requests')) {
             mobileError = 'Muitas tentativas.\nAguarde 5 minutos e tente novamente.';
           }
@@ -65,7 +67,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
     // Validar aceite dos termos
     if (!termsAccepted) {
-      setError('Você precisa aceitar os Termos de Uso e Política de Privacidade para criar uma conta.');
+      setError(t('auth.termsRequired'));
       return;
     }
 
@@ -78,21 +80,21 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
         let mobileError = error.message;
         if (isMobile) {
           if (error.message.includes('weak password')) {
-            mobileError = 'Senha muito fraca.\nUse pelo menos 6 caracteres.';
+            mobileError = t('auth.errors.weakPassword');
           } else if (error.message.includes('Invalid email')) {
-            mobileError = 'Email inválido.\nVerifique o formato.';
+            mobileError = t('auth.errors.invalidEmail');
           } else if (error.message.includes('already registered')) {
             mobileError = 'Email já cadastrado.\nTente fazer login ou usar outro email.';
           }
         }
-        
+
         setError(mobileError);
-        
+
         // Se a mensagem indica que a conta pode ter sido criada, sugere tentar login
         if (error.message.includes('Conta pode ter sido criada')) {
-          setError(error.message + (isMobile ? '\nOu tente fazer login.' : ' Ou tente fazer login na aba "Entrar".'));
+          setError(error.message + (isMobile ? '\n' : ' ') + t('auth.errors.accountMayExist'));
         }
-        
+
         return;
       }
       
@@ -101,7 +103,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
       onSuccess();
     } catch (err) {
       console.error('❌ Erro no registro:', err);
-      setError(isMobile ? 'Erro na conexão.\nTente novamente.' : 'Erro inesperado ao criar conta');
+      setError(isMobile ? t('auth.errors.networkError') : t('auth.errors.unexpectedError'));
     }
   };
 
@@ -139,15 +141,15 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
           <CardTitle className="space-y-2">
             <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-slate-900 dark:text-white tracking-tight`}>
-              Mapa Global de Intercessão
+              {t('auth.title')}
             </div>
             <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-600 dark:text-slate-400 font-medium`}>
-              Conecte-se com intercessores ao redor do mundo
+              {t('auth.subtitle')}
             </p>
             {isMobile && (
               <div className="flex items-center justify-center gap-2 mt-2">
                 <Smartphone className="h-4 w-4 text-ios-blue" />
-                <span className="text-xs text-ios-blue font-medium">Otimizado para mobile</span>
+                <span className="text-xs text-ios-blue font-medium">{t('auth.optimizedMobile')}</span>
               </div>
             )}
           </CardTitle>
@@ -167,17 +169,17 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
           
           <Tabs defaultValue="login" className="space-y-6">
             <TabsList className={`grid w-full grid-cols-2 bg-slate-100 dark:bg-slate-800 rounded-ios-xl p-1 ${isMobile ? 'h-10' : 'h-12'}`}>
-              <TabsTrigger 
-                value="login" 
+              <TabsTrigger
+                value="login"
                 className={`rounded-ios-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-semibold text-slate-700 dark:text-slate-300 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white ${isMobile ? 'text-sm' : ''}`}
               >
-                Entrar
+                {t('auth.login')}
               </TabsTrigger>
-              <TabsTrigger 
-                value="register" 
+              <TabsTrigger
+                value="register"
                 className={`rounded-ios-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-ios-md transition-all duration-200 hover:scale-105 active:scale-95 font-semibold text-slate-700 dark:text-slate-300 data-[state=active]:text-slate-900 dark:data-[state=active]:text-white ${isMobile ? 'text-sm' : ''}`}
               >
-                Registrar
+                {t('auth.register')}
               </TabsTrigger>
             </TabsList>
 
@@ -185,7 +187,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email" className={`text-slate-900 dark:text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                    Email
+                    {t('auth.email')}
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -193,7 +195,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="seu@email.com"
+                      placeholder={t('auth.yourEmail')}
                       className={`pl-10 ${isMobile ? 'h-10 text-sm' : 'h-12'} bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200`}
                       value={formData.email}
                       onChange={handleInputChange}
@@ -206,7 +208,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="password" className={`text-slate-900 dark:text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                    Senha
+                    {t('auth.password')}
                   </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -214,7 +216,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Sua senha"
+                      placeholder={t('auth.yourPassword')}
                       className={`pl-10 pr-10 ${isMobile ? 'h-10 text-sm' : 'h-12'} bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200`}
                       value={formData.password}
                       onChange={handleInputChange}
@@ -239,11 +241,11 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                   {loading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Entrando...</span>
+                      <span>{t('auth.loggingIn')}</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
-                      <span>Entrar</span>
+                      <span>{t('auth.login')}</span>
                       {isMobile && <Wifi className="h-4 w-4" />}
                     </div>
                   )}
@@ -255,7 +257,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className={`text-slate-900 dark:text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                    Nome
+                    {t('auth.name')}
                   </Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -263,7 +265,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                       id="name"
                       name="name"
                       type="text"
-                      placeholder="Seu nome"
+                      placeholder={t('auth.yourName')}
                       className={`pl-10 ${isMobile ? 'h-10 text-sm' : 'h-12'} bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-ios-lg text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:border-ios-blue focus:ring-ios-blue/20 transition-all duration-200`}
                       value={formData.name}
                       onChange={handleInputChange}
@@ -275,7 +277,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="email-register" className={`text-slate-900 dark:text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                    Email
+                    {t('auth.email')}
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -296,7 +298,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="password-register" className={`text-slate-900 dark:text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>
-                    Senha
+                    {t('auth.password')}
                   </Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-slate-400" />
@@ -332,7 +334,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                     className="mt-1 w-4 h-4 text-ios-blue bg-white border-gray-300 rounded focus:ring-ios-blue focus:ring-2 cursor-pointer"
                   />
                   <label htmlFor="terms" className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-700 dark:text-slate-300 cursor-pointer`}>
-                    Li e aceito os{' '}
+                    {t('auth.termsPrefix')}{' '}
                     <a
                       href="/terms"
                       target="_blank"
@@ -340,7 +342,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                       className="text-ios-blue hover:text-ios-blue/80 underline font-semibold"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Termos de Uso e Política de Privacidade
+                      {t('auth.termsLink')}
                     </a>
                     {' '}(LGPD)
                   </label>
@@ -354,11 +356,11 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                   {loading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Criando conta...</span>
+                      <span>{t('auth.creatingAccount')}</span>
                     </div>
                   ) : (
                     <div className="flex items-center justify-center space-x-2">
-                      <span>Criar conta</span>
+                      <span>{t('auth.createAccount')}</span>
                       {isMobile && <Wifi className="h-4 w-4" />}
                     </div>
                   )}
@@ -366,7 +368,7 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
 
                 {isMobile && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-2">
-                    Verifique sua conexão com a internet
+                    {t('auth.checkConnection')}
                   </p>
                 )}
               </form>

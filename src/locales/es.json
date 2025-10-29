@@ -29,7 +29,32 @@
     "loginRequired": "Inicio de sesión requerido",
     "invalidCredentials": "Credenciales inválidas",
     "welcomeBack": "¡Bienvenido de vuelta!",
-    "createAccount": "Crear cuenta"
+    "createAccount": "Crear cuenta",
+    "name": "Nombre",
+    "yourEmail": "Tu correo electrónico",
+    "yourPassword": "Tu contraseña",
+    "yourName": "Tu nombre",
+    "title": "Mapa Global de Intercesión",
+    "subtitle": "Conéctate con intercesores alrededor del mundo",
+    "optimizedMobile": "Optimizado para móvil",
+    "loggingIn": "Iniciando sesión...",
+    "creatingAccount": "Creando cuenta...",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "noAccount": "¿No tienes una cuenta?",
+    "loginHere": "Entra aquí",
+    "registerHere": "Regístrate aquí",
+    "termsPrefix": "He leído y acepto los",
+    "termsLink": "Términos de Uso y Política de Privacidad",
+    "termsRequired": "Debes aceptar los Términos de Uso y Política de Privacidad para crear una cuenta.",
+    "checkConnection": "Verifica tu conexión a internet",
+    "errors": {
+      "invalidEmail": "Correo electrónico inválido",
+      "weakPassword": "Contraseña muy débil.\nUsa al menos 6 caracteres.",
+      "incorrectCredentials": "Correo o contraseña incorrectos.\nVerifica tus credenciales.",
+      "networkError": "Error de conexión.\nIntenta nuevamente.",
+      "unexpectedError": "Error inesperado al crear cuenta",
+      "accountMayExist": "La cuenta puede haber sido creada.\nO intenta iniciar sesión."
+    }
   },
   "navigation": {
     "home": "Inicio",
@@ -39,6 +64,13 @@
     "settings": "Configuración",
     "help": "Ayuda",
     "about": "Acerca de"
+  },
+  "header": {
+    "subtitle": "Red mundial de oración estratégica",
+    "globalMovement": "Movimiento Global",
+    "activeWatcher": "Vigía Activo",
+    "administrator": "Administrador",
+    "moderator": "Moderador"
   },
   "map": {
     "title": "Mapa de Oración Global",
@@ -55,6 +87,23 @@
     "state": "Estado",
     "city": "Ciudad",
     "neighborhood": "Barrio"
+  },
+  "mapControls": {
+    "zoom": "Zoom: {{zoom}} ({{type}})",
+    "officialBorders": "Fronteras oficiales de Google",
+    "dataLoaded": "✅ Datos cargados",
+    "activeLayers": "Capas Activas:",
+    "countries": "🌍 Países",
+    "states": "🏛️ Estados",
+    "cities": "🏙️ Ciudades",
+    "localities": "📍 Localidades",
+    "zoomTip": "💡 Use el zoom para navegar entre niveles",
+    "regionTypes": {
+      "countries": "Países",
+      "countriesStates": "Países + Estados",
+      "statesCities": "Estados + Ciudades",
+      "citiesLocalities": "Ciudades + Localidades"
+    }
   },
   "spiritualPopup": {
     "regionNotIdentified": "Región no identificada",
@@ -107,12 +156,19 @@
     "regionNotIdentified": "Región no identificada",
     "geopoliticalSystem": "🏛️ Sistema Geopolítico",
     "intercessionTargets": "🔥 Objetivos de Intercesión",
+    "otherInformation": "📋 Otras Informaciones Importantes",
     "statistics": "📊 Estadísticas",
     "intercessors": "Intercesores",
     "activePrayers": "Oraciones Activas",
     "updatedData": "Datos Actualizados",
     "definedTargets": "Objetivos Definidos",
     "priorityPrayerTargets": "Objetivos de Oración Prioritarios",
+    "aiAgent": "Agente IA Atalaia",
+    "prayerNetwork": "Red de Oración",
+    "atalaiaSystem": "Sistema Atalaia",
+    "limitedSpiritualData": "⚠️ Datos Espirituales Limitados",
+    "noCompleteData": "Esta región aún no tiene datos espirituales completos generados por IA. Use el Panel Administrativo para generar contenido.",
+    "targetsIdentified": "objetivos específicos de oración identificados",
     "recentActivity": "Actividad Reciente",
     "noTargetsDefined": "Ningún objetivo de intercesión definido aún.",
     "geopoliticalInfoUnavailable": "Información del sistema geopolítico no disponible.",
@@ -163,5 +219,608 @@
     "dataDeleted": "Datos eliminados exitosamente",
     "dataUpdated": "Datos actualizados exitosamente",
     "operationCompleted": "Operación completada exitosamente"
+  },
+  "userDashboard": {
+    "title": "Mi Panel de Oración",
+    "subtitle": "Sigue tus estadísticas y compromisos de intercesión",
+    "loading": "Cargando tu panel...",
+    "yourStats": "📊 Tus Estadísticas",
+    "totalTime": "Tiempo Total",
+    "totalSessions": "Total de Sesiones",
+    "regionsReached": "Regiones Oradas",
+    "regionReached": "región alcanzada",
+    "regionsReachedPlural": "regiones alcanzadas",
+    "sessions": "sesiones",
+    "session": "sesión",
+    "topIntercessors": "🏆 Top Intercesores",
+    "topRegions": "🌍 Regiones Más Oradas",
+    "leastRegions": "🙏 Regiones Menos Oradas",
+    "yourReflections": "📝 Tus Reflexiones Personales",
+    "noReflections": "Aún no tienes reflexiones personales.",
+    "addReflections": "¡Agrega reflexiones durante tus sesiones de oración!",
+    "showingReflections": "Mostrando tus 10 reflexiones más recientes",
+    "yourPrayerClocks": "🕐 Tus Relojes de Oración",
+    "noPrayerClocks": "Aún no tienes compromisos de oración.",
+    "createFirstClock": "¡Haz clic en una región del mapa y crea tu primer reloj de oración!"
+  },
+  "adminDashboard": {
+    "title": "Panel Administrativo",
+    "subtitle": "Gestiona el sistema de mapeo espiritual",
+    "loading": "Cargando panel admin...",
+    "totalRegions": "Total de Regiones",
+    "regionsWithData": "Regiones con Datos",
+    "totalPrayers": "Total de Oraciones",
+    "activeUsers": "Usuarios Activos",
+    "mapping": "🗺️ Mapeo",
+    "stats": "📊 Estadísticas",
+    "queue": "⚙️ Cola",
+    "agent": "🤖 Agente IA"
+  },
+  "prayerClock": {
+    "title": "Reloj de Oración 24/7",
+    "createTitle": "Crear Compromiso de Oración",
+    "country": "País",
+    "state": "Estado",
+    "city": "Ciudad",
+    "coverage": "Cobertura",
+    "intercessors": "Intercesores",
+    "total": "Total",
+    "commitments": "Compromisos",
+    "active": "Activos",
+    "loading": "Cargando...",
+    "createNew": "Crear Nuevo Compromiso",
+    "covered": "✅ Cubierto",
+    "empty": "❌ Vacío",
+    "intercessorCount": "{{count}} intercesor(es)",
+    "minutes": "{{count}}min",
+    "yours": "(Tuyo)",
+    "deleteConfirm": "¿Estás seguro de que deseas eliminar este compromiso?",
+    "deleteSuccess": "✅ ¡Compromiso eliminado con éxito!",
+    "deleteError": "❌ Error al eliminar compromiso.",
+    "createSuccess": "✅ ¡Compromiso de oración creado con éxito!",
+    "createError": "❌ Error al crear compromiso. Inténtalo de nuevo.",
+    "scheduleType": "📅 Tipo de Programación",
+    "recurring": "Recurrente",
+    "recurringDesc": "Cada semana",
+    "oneTime": "Único",
+    "oneTimeDesc": "Fecha específica",
+    "dayOfWeek": "📆 Día de la Semana",
+    "specificDate": "📆 Fecha Específica",
+    "startTime": "🕐 Hora de Inicio",
+    "duration": "⏱️ Duración",
+    "durationMinutes": "{{count}} minutos",
+    "notifyBefore": "🔔 Notificar Antes",
+    "notifyMinutes": "{{count}} minutos antes",
+    "slotStatus": "📊 Estado del Horario",
+    "slotCovered": "✅ Horario ya cubierto",
+    "slotEmpty": "❌ Horario vacío - ¡sé el primero!",
+    "slotIntercessors": "{{count}} intercesor(es) en este horario",
+    "emptySlots": "💡 Horarios Vacíos Sugeridos",
+    "noEmptySlots": "🎉 ¡Todos los horarios están cubiertos!",
+    "cancel": "Cancelar",
+    "create": "Crear Compromiso",
+    "creating": "Creando..."
+  },
+  "prayerStats": {
+    "title": "Estadísticas de Oración",
+    "loading": "Cargando estadísticas...",
+    "updateRankings": "Actualizar Rankings",
+    "updating": "Actualizando...",
+    "topIntercessors": "🏆 Top Intercesores",
+    "topRegions": "🌍 Regiones Más Oradas",
+    "leastRegions": "🎯 Regiones Menos Oradas",
+    "reflections": "📖 Reflexiones Personales",
+    "allReflections": "📖 Todas las Reflexiones",
+    "yourReflections": "📖 Tus Reflexiones",
+    "noReflections": "Aún no hay reflexiones registradas.",
+    "position": "Posición",
+    "intercessor": "Intercesor",
+    "time": "Tiempo",
+    "level": "Nivel",
+    "region": "Región",
+    "prayers": "Oraciones",
+    "needsPrayer": "Necesita oración",
+    "reflection": "Reflexión",
+    "date": "Fecha",
+    "prayerTime": "Tiempo de Oración",
+    "errorLoading": "❌ Error al cargar estadísticas:",
+    "rankingsUpdated": "✅ ¡Rankings actualizados!",
+    "errorUpdating": "❌ Error al actualizar rankings:"
+  },
+  "regionsTab": {
+    "add": "Agregar",
+    "view": "Ver",
+    "edit": "Editar",
+    "generateAI": "Generar datos con IA",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "status": {
+      "draft": "Borrador",
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "rejected": "Rechazado"
+    },
+    "type": {
+      "country": "País",
+      "state": "Estado",
+      "city": "Ciudad",
+      "neighborhood": "Barrio"
+    },
+    "source": {
+      "manual": "Manual",
+      "imported": "Importado",
+      "ai_generated": "IA"
+    },
+    "googleMaps": {
+      "title": "Estado de Google Maps",
+      "api": "API:",
+      "geocoder": "Geocoder:",
+      "status": "Estado:",
+      "loaded": "Cargado",
+      "ready": "Listo",
+      "operational": "Operacional"
+    },
+    "existingData": {
+      "title": "Datos Existentes",
+      "countries": "🌍 Países:",
+      "states": "🏛️ Estados:",
+      "cities": "🏙️ Ciudades:",
+      "total": "📊 Total:"
+    },
+    "stats": {
+      "totalRegions": "Total de Regiones",
+      "approved": "Aprobadas",
+      "pending": "Pendientes",
+      "aiGenerated": "Generadas por IA"
+    },
+    "filters": {
+      "title": "Filtros",
+      "search": "Buscar",
+      "searchPlaceholder": "Nombre de la región...",
+      "status": "Estado",
+      "type": "Tipo",
+      "all": "Todos",
+      "allStatus": "Todos los estados",
+      "allTypes": "Todos los tipos"
+    },
+    "queueSystem": {
+      "title": "Sistema de Cola IA",
+      "description": "Cree colas de procesamiento para generar datos espirituales automáticamente",
+      "continent": "Continente",
+      "regionTypes": "Tipos de Región",
+      "continents": {
+        "americas": "Américas",
+        "europe": "Europa",
+        "asia": "Asia",
+        "africa": "África",
+        "oceania": "Oceanía"
+      },
+      "types": {
+        "countries": "Países",
+        "states": "Estados",
+        "cities": "Ciudades"
+      },
+      "estimates": {
+        "regions": "Regiones estimadas",
+        "cost": "Costo estimado",
+        "time": "Tiempo estimado"
+      },
+      "preview": "Generar Vista Previa",
+      "previewing": "Generando Vista Previa...",
+      "startProcessing": "Iniciar Procesamiento",
+      "processing": "Procesando...",
+      "reload": "Recargar Datos",
+      "inDevelopment": "🚧 Sistema en desarrollo - Funcionalidad completa próximamente"
+    },
+    "table": {
+      "title": "Regiones Mapeadas",
+      "description": "Lista de todas las regiones geográficas y espirituales registradas en el sistema",
+      "hierarchyDescription": "Vista jerárquica de las regiones geográficas y espirituales",
+      "name": "Nombre",
+      "type": "Tipo",
+      "status": "Estado",
+      "source": "Origen",
+      "updated": "Actualizado",
+      "actions": "Acciones",
+      "viewList": "Lista",
+      "viewHierarchy": "Jerárquica",
+      "noRegions": "No se encontraron regiones para vista jerárquica",
+      "totalRegions": "Total de regiones:",
+      "debugConsole": "Debug en Consola"
+    },
+    "viewModal": {
+      "title": "👁️ Ver:",
+      "description": "Datos espirituales guardados para esta región",
+      "noData": "📝 Ningún dato espiritual registrado aún",
+      "noDataHint": "Haga clic en \"Editar\" para agregar información",
+      "addData": "Agregar Datos Espirituales"
+    },
+    "editModal": {
+      "title": "✏️ Editar:",
+      "description": "Edite los datos espirituales para esta región",
+      "tabSpiritual": "Datos Espirituales",
+      "tabBasic": "Datos Básicos",
+      "geopoliticalSystem": "🏛️ Sistema Geopolítico Completo",
+      "geopoliticalPlaceholder": "Información sobre el sistema geopolítico, gobierno, estructuras de poder...",
+      "intercessionTargets": "🔥 Objetivos de Intercesión Completos",
+      "intercessionPlaceholder": "Liste los objetivos específicos de oración para esta región...",
+      "otherInfo": "📋 Otra Información Importante",
+      "otherInfoPlaceholder": "Información adicional sobre contexto espiritual, cultural, histórico...",
+      "legacyData": "📚 Datos de Estructura Antigua (Preservados)",
+      "localName": "Nombre Local",
+      "propheticWord": "Palabra Profética",
+      "regionName": "Nombre de la Región",
+      "regionType": "Tipo",
+      "noData": "📝 No se encontraron datos espirituales",
+      "noDataHint": "Use el botón \"⚡ Generar con IA\" para crear datos"
+    },
+    "spiritualData": {
+      "title": "📊 Datos Espirituales:",
+      "geopoliticalSystem": "🏛️ Sistema Geopolítico:",
+      "intercessionTargets": "🔥 Objetivos de Intercesión:",
+      "otherInfo": "📋 Otra Información Importante:"
+    },
+    "errors": {
+      "noPersona": "Ninguna persona seleccionada. Cargando persona predeterminada...",
+      "noPersonaFound": "No se encontró ninguna persona. Cree una persona primero.",
+      "personaNotFound": "Persona seleccionada no encontrada.",
+      "aiGenerationError": "Error al generar datos con IA. Verifique si la API de OpenAI está configurada correctamente.",
+      "saveError": "Error al guardar datos espirituales. Inténtelo de nuevo."
+    },
+    "success": {
+      "dataGenerated": "✅ Datos generados con éxito:",
+      "dataSaved": "✅ Datos guardados con éxito!"
+    },
+    "toast": {
+      "error": "Error",
+      "success": "Éxito",
+      "noPersonaSelected": "Ninguna persona seleccionada para generar datos.",
+      "previewSuccess": "Vista previa de la cola generada con éxito! Regiones:",
+      "previewError": "Error al generar vista previa de la cola. Verifique la conexión con la API.",
+      "noPreview": "Genere una vista previa primero antes de iniciar el procesamiento.",
+      "processingStarted": "Procesamiento de la cola iniciado con éxito!",
+      "processingError": "Error al iniciar el procesamiento de la cola. Verifique la conexión con la API."
+    }
+  },
+  "queueBuilder": {
+    "title": "🚀 Queue Builder - Procesamiento por Lotes",
+    "completed": "completado",
+    "tabs": {
+      "builder": "🔧 Queue Builder",
+      "monitor": "📊 Monitor",
+      "history": "📜 Historial"
+    },
+    "config": {
+      "title": "Configuración de la Cola",
+      "continent": "Continente",
+      "continents": {
+        "americas": "Américas",
+        "europe": "Europa",
+        "asia": "Asia",
+        "africa": "África",
+        "oceania": "Oceanía"
+      },
+      "regionTypes": "Tipos de Región",
+      "types": {
+        "countries": "🏛️ Países",
+        "countriesDesc": "Naciones y territorios",
+        "states": "🗺️ Estados/Provincias",
+        "statesDesc": "Divisiones administrativas",
+        "cities": "🏙️ Ciudades",
+        "citiesDesc": "Principales centros urbanos"
+      },
+      "advancedFilters": "Filtros Avanzados",
+      "filters": {
+        "christianMajority": "✝️ Solo regiones con mayoría cristiana",
+        "crisisRegions": "🆘 Regiones en crisis (persecución, conflicto, crisis humanitaria)",
+        "unreachedPeoples": "🌍 Regiones con pueblos no alcanzados"
+      },
+      "costPerRegion": "Costo Estimado por Región (USD)",
+      "customPrompt": "Prompt Personalizado (Opcional)",
+      "customPromptPlaceholder": "Dejar vacío para usar la plantilla predeterminada..."
+    },
+    "preview": {
+      "generate": "Generar Vista Previa de la Cola",
+      "generating": "Generando Vista Previa...",
+      "title": "Vista Previa de la Cola",
+      "totalRegions": "Total de Regiones",
+      "estimatedCost": "Costo Estimado",
+      "estimatedTime": "Tiempo Estimado",
+      "highPriority": "Alta Prioridad",
+      "breakdown": "Desglose:",
+      "countries": "🏛️ Países:",
+      "states": "🗺️ Estados:",
+      "cities": "🏙️ Ciudades:",
+      "firstRegions": "Primeras Regiones:",
+      "andMore": "... y {count} regiones más"
+    },
+    "summary": {
+      "title": "Resumen",
+      "continent": "Continente:",
+      "types": "Tipos:",
+      "filters": "Filtros:"
+    },
+    "actions": {
+      "createAndStart": "Crear y Ejecutar Cola",
+      "creating": "Creando Cola...",
+      "pause": "Pausar",
+      "continue": "Continuar",
+      "stop": "Detener",
+      "refresh": "Actualizar",
+      "monitor": "Monitorear"
+    },
+    "monitor": {
+      "title": "Procesamiento en Curso",
+      "progress": "Progreso",
+      "total": "Total",
+      "completed": "Completadas",
+      "failed": "Fallidas",
+      "processingNow": "🔄 Procesando ahora:",
+      "currentCost": "💰 Costo Actual:",
+      "noActive": "Sin Procesamiento Activo",
+      "noActiveDesc": "Ve al Queue Builder para crear una nueva cola de procesamiento."
+    },
+    "history": {
+      "title": "Historial de Procesamientos",
+      "noHistory": "Sin Historial",
+      "noHistoryDesc": "Aún no has ejecutado ningún procesamiento por lotes.",
+      "total": "Total:",
+      "completed": "Completadas:",
+      "cost": "Costo:",
+      "created": "Creado:"
+    },
+    "status": {
+      "created": "Creado",
+      "running": "En Ejecución",
+      "paused": "Pausado",
+      "completed": "Completado",
+      "cancelled": "Cancelado",
+      "failed": "Falló"
+    },
+    "instructions": {
+      "title": "🎯 Cómo Usar el Queue Builder",
+      "step1": "• <strong>1. Configurar:</strong> Elige continente, tipos de región y filtros",
+      "step2": "• <strong>2. Vista Previa:</strong> Ve cuántas regiones se procesarán y el costo",
+      "step3": "• <strong>3. Ejecutar:</strong> Crea la cola y sigue el progreso en tiempo real",
+      "step4": "• <strong>4. Monitorear:</strong> Pausa, reanuda o detén el procesamiento según sea necesario",
+      "tip": "• <strong>💡 Consejo:</strong> Comienza con pocos países para probar la calidad de los prompts"
+    }
+  },
+  "advancedAgent": {
+    "title": "🤖 Agente Avanzado - Control IA",
+    "tabs": {
+      "personas": "🧠 Personas",
+      "control": "⚙️ Control",
+      "monitor": "📊 Monitor"
+    },
+    "persona": {
+      "title": "Persona Seleccionada",
+      "noPersona": "Ninguna persona seleccionada",
+      "selectPersona": "Seleccionar Persona",
+      "changePersona": "Cambiar Persona",
+      "temp": "Temp:",
+      "tokens": "Tokens:",
+      "topP": "Top-P:"
+    },
+    "regions": {
+      "title": "Selección de Regiones",
+      "quickSelect": "Países (selección rápida)",
+      "selected": "regiones seleccionadas",
+      "taskTypes": "tipos de datos"
+    },
+    "dataTypes": {
+      "title": "Tipos de Datos",
+      "spiritual_data": "Datos Espirituales",
+      "spiritual_data_desc": "Análisis espiritual general de la región",
+      "prayer_points": "Puntos de Oración",
+      "prayer_points_desc": "Puntos específicos de intercesión",
+      "cultural_context": "Contexto Cultural",
+      "cultural_context_desc": "Tradiciones y cultura local",
+      "historical_context": "Contexto Histórico",
+      "historical_context_desc": "Historia espiritual de la región",
+      "demographic_data": "Datos Demográficos",
+      "demographic_data_desc": "Población y grupos étnicos",
+      "economic_context": "Contexto Económico",
+      "economic_context_desc": "Situación económica espiritual",
+      "religious_mapping": "Mapeo Religioso",
+      "religious_mapping_desc": "Denominaciones y religiones"
+    },
+    "estimates": {
+      "title": "Estimaciones",
+      "cost": "Costo estimado",
+      "time": "Tiempo estimado"
+    },
+    "actions": {
+      "start": "Iniciar Procesamiento",
+      "continue": "Continuar",
+      "pause": "Pausar",
+      "stop": "Detener",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "refresh": "Actualizar"
+    },
+    "progress": {
+      "title": "Progreso Actual",
+      "label": "Progreso",
+      "processing": "Procesando región {current} de {total}..."
+    },
+    "statistics": {
+      "title": "Estadísticas Generales",
+      "completed": "Completadas",
+      "pending": "Pendientes",
+      "successRate": "Tasa de éxito",
+      "totalCost": "Costo total",
+      "loading": "Cargando estadísticas..."
+    },
+    "pendingTasks": {
+      "title": "Tareas Pendientes de Aprobación",
+      "noTasks": "Sin tareas pendientes"
+    },
+    "alerts": {
+      "selectPersona": "Seleccione una persona primero",
+      "selectRegion": "Seleccione al menos una región"
+    },
+    "processingControls": {
+      "title": "Controles de Procesamiento",
+      "approvalSystem": "Sistema de Aprobación",
+      "automatic": "Automático",
+      "preview": "Vista Previa",
+      "manual": "Manual",
+      "batchSize": "Tamaño del Lote",
+      "delayBetweenRequests": "Retraso entre Solicitudes"
+    },
+    "messages": {
+      "rejectedByUser": "Rechazado por el usuario"
+    }
+  },
+  "propheticWord": {
+    "title": "Palabra Profética Recibida",
+    "subtitle": "Registre su experiencia de oración",
+    "wordReceived": "Palabra Recibida",
+    "copy": "Copiar",
+    "share": "Compartir",
+    "copied": "✅ ¡Palabra profética copiada!",
+    "copiedToShare": "📋 ¡Palabra profética copiada para compartir!",
+    "personalReflection": "Reflexión Personal",
+    "reflectionPlaceholder": "¿Cómo tocó esta palabra su corazón? ¿Qué le habló Dios durante esta oración?",
+    "save": "Guardar Reflexión",
+    "close": "Cerrar",
+    "errorSaving": "❌ Error inesperado",
+    "errorAuth": "❌ Error de autenticación. Por favor, inicie sesión nuevamente.",
+    "errorNotLogged": "⚠️ Debe iniciar sesión para guardar la oración.",
+    "errorSavingSession": "❌ Error al guardar la oración. Verifique la consola para más detalles.",
+    "errorSessionNotSaved": "❌ Error: La sesión no se guardó correctamente. Por favor, inténtelo de nuevo.",
+    "errorSavingReflection": "❌ Error al guardar la reflexión. Inténtelo de nuevo."
+  },
+  "contribution": {
+    "title": "Contribuir a la Visión Global",
+    "tabs": {
+      "prophetic": "Profética",
+      "prayer": "Oración",
+      "testimony": "Testimonio",
+      "mission": "Misión"
+    },
+    "prophetic": {
+      "title": "Liberar Palabra Profética",
+      "content": "Contenido de la Palabra",
+      "contentPlaceholder": "Ingrese la palabra profética recibida...",
+      "author": "Autor",
+      "authorPlaceholder": "Su nombre o iniciales",
+      "submit": "Liberar Palabra Profética",
+      "submitting": "Enviando...",
+      "errorRequired": "Por favor, complete el contenido de la palabra profética y el autor.",
+      "errorSubmit": "Hubo un problema al enviar su palabra profética. Inténtelo de nuevo."
+    },
+    "prayer": {
+      "title": "Registrar Objetivo de Oración",
+      "target": "Objetivo de Oración",
+      "targetPlaceholder": "Describa el objetivo de oración...",
+      "urgency": "Urgencia",
+      "urgencyPlaceholder": "Seleccione",
+      "urgencyLow": "Baja",
+      "urgencyMedium": "Media",
+      "urgencyHigh": "Alta",
+      "urgencyCritical": "Crítica",
+      "category": "Categoría",
+      "categoryPlaceholder": "Seleccione",
+      "categorySpiritual": "Espiritual",
+      "categorySocial": "Social",
+      "categoryPolitical": "Político",
+      "categoryEconomic": "Económico",
+      "categoryNatural": "Natural",
+      "submit": "Registrar Objetivo de Oración",
+      "submitting": "Enviando...",
+      "errorRequired": "Por favor, complete todos los campos del objetivo de oración.",
+      "errorSubmit": "Hubo un problema al registrar el objetivo de oración. Inténtelo de nuevo."
+    },
+    "testimony": {
+      "title": "Compartir Testimonio",
+      "content": "Testimonio",
+      "contentPlaceholder": "Comparta su testimonio...",
+      "author": "Autor",
+      "authorPlaceholder": "Su nombre o iniciales",
+      "category": "Categoría",
+      "categoryPlaceholder": "Seleccione",
+      "categoryHealing": "Sanación",
+      "categorySalvation": "Salvación",
+      "categoryBreakthrough": "Quebrantamiento",
+      "categoryRevival": "Avivamiento",
+      "categoryMiracle": "Milagro",
+      "submit": "Compartir Testimonio",
+      "submitting": "Enviando...",
+      "errorRequired": "Por favor, complete todos los campos del testimonio.",
+      "errorSubmit": "Hubo un problema al compartir el testimonio. Inténtelo de nuevo."
+    },
+    "mission": {
+      "title": "Registrar Base Misionera",
+      "name": "Nombre de la Base",
+      "namePlaceholder": "Nombre de la base misionera",
+      "leader": "Líder",
+      "leaderPlaceholder": "Nombre del líder",
+      "contact": "Contacto",
+      "contactPlaceholder": "Email o teléfono",
+      "established": "Año de Fundación",
+      "establishedPlaceholder": "Ej: 2020",
+      "submit": "Registrar Base Misionera",
+      "submitting": "Enviando...",
+      "errorRequired": "Por favor, complete todos los campos de la base misionera.",
+      "errorSubmit": "Hubo un problema al registrar la base misionera. Inténtelo de nuevo."
+    }
+  },
+  "globalWatch": {
+    "title": "Vigilia Global",
+    "modes": {
+      "normal": "Normal",
+      "vigil": "Vigilia"
+    },
+    "stats": {
+      "watchers": "Vigilantes",
+      "revivals": "Avivamientos",
+      "alerts": "Alertas",
+      "centersMonitored": "centros monitoreados",
+      "activeIntercessors": "intercesores activos"
+    },
+    "activity": {
+      "title": "Actividad Espiritual",
+      "realTime": "Tiempo Real",
+      "starting": "Iniciando vigilia espiritual...",
+      "connecting": "Conectando con centros globales",
+      "activateVigilMessage": "Active la vigilia para monitoreo en tiempo real"
+    },
+    "notifications": {
+      "newPrayerGroup": "Nuevo grupo de oración iniciado",
+      "spiritualBreakthrough": "Quebrantamiento espiritual reportado",
+      "revivalMoving": "¡Avivamiento en movimiento!",
+      "spiritualAlert": "Alerta espiritual activa"
+    },
+    "actions": {
+      "groups": "Grupos",
+      "alerts": "Alertas"
+    }
+  },
+  "locationPanel": {
+    "types": {
+      "continent": "CONTINENTE",
+      "country": "PAÍS",
+      "state": "ESTADO/REGIÓN",
+      "city": "CIUDAD",
+      "neighborhood": "BARRIO"
+    },
+    "tabs": {
+      "prophetic": "Proféticas",
+      "prayer": "Oración",
+      "testimonies": "Testimonios",
+      "missions": "Misiones"
+    },
+    "hierarchy": "Jerarquía",
+    "children": "Sub-regiones",
+    "contact": "Contacto",
+    "contribute": "Contribuir",
+    "criticalAlerts": "Alertas Críticas",
+    "noData": "No hay datos disponibles",
+    "verified": "Verificada",
+    "underReview": "En revisión"
   }
-} 
+}

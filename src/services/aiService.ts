@@ -173,10 +173,10 @@ class AIService {
 
   private buildPrompt(request: AIGenerationRequest): string {
     const { regionName, regionType, countryCode, parentRegion, context } = request;
-    
+
     // Determine country context for better AI generation
     const countryContext = this.getCountryContext(countryCode, regionName, parentRegion);
-    
+
     return `🎯 MISSÃO DO AGENTE ATALAIA (MODO HARDCORE)
 
 Você é um agente de inteligência espiritual treinado para entregar relatórios de intercessão profética para intercessores maduros.
@@ -197,9 +197,21 @@ Objetivo: expor fortalezas ocultas, pactos históricos, alinhamentos espirituais
 
 📦 FORMATO DE RESPOSTA OBRIGATÓRIO: APENAS JSON VÁLIDO
 {
-  "sistema_geopolitico_completo": "Tipo de governo: ...\n\nCargos principais: ...\n\nLocais físicos de poder: ...\n\nFilosofia dominante: ...",
-  "alvos_intercessao_completo": "Alvos de Intercessão:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
-  "outras_informacoes_importantes": "Outras Informações Importantes:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
+  "pt": {
+    "sistema_geopolitico_completo": "Tipo de governo: ...\n\nCargos principais: ...\n\nLocais físicos de poder: ...\n\nFilosofia dominante: ...",
+    "alvos_intercessao_completo": "Alvos de Intercessão:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
+    "outras_informacoes_importantes": "Outras Informações Importantes:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
+  },
+  "en": {
+    "sistema_geopolitico_completo": "Government type: ...\n\nKey positions: ...\n\nPhysical power centers: ...\n\nDominant philosophy: ...",
+    "alvos_intercessao_completo": "Intercession Targets:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
+    "outras_informacoes_importantes": "Other Important Information:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
+  },
+  "es": {
+    "sistema_geopolitico_completo": "Tipo de gobierno: ...\n\nCargos principales: ...\n\nCentros físicos de poder: ...\n\nFilosofía dominante: ...",
+    "alvos_intercessao_completo": "Objetivos de Intercesión:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ...\n\n5. ...",
+    "outras_informacoes_importantes": "Otras Informaciones Importantes:\n1. ...\n\n2. ...\n\n3. ...\n\n4. ..."
+  }
 }
 
 ⚠️ ORIENTAÇÕES CRÍTICAS:
@@ -208,7 +220,13 @@ Objetivo: expor fortalezas ocultas, pactos históricos, alinhamentos espirituais
 - Aponte efeitos de pactos passados, idolatria, derramamento de sangue ou leis contrárias aos princípios de Deus.
 - Identifique oportunidades ministeriais e conecte desafios aos alvos de intercessão de forma estratégica.
 
-NUNCA inclua nada fora do JSON. Retorne somente o JSON completo acima.`;
+🌍 MULTI-IDIOMA:
+- Gere o conteúdo em 3 idiomas (pt=Português-BR, en=English-US, es=Español-ES)
+- Mantenha a MESMA qualidade, profundidade espiritual e precisão profética em TODOS os idiomas
+- NÃO traduza literalmente - adapte culturalmente quando necessário
+- Use terminologia apropriada para cada idioma (ex: "spiritual warfare" em inglês, "guerra espiritual" em português/espanhol)
+
+NUNCA inclua nada fora do JSON. Retorne somente o JSON completo acima com os 3 idiomas.`;
   }
 
   // New method to provide country-specific context

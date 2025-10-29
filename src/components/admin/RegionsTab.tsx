@@ -2,6 +2,7 @@
 import { useDebounce } from 'use-debounce';
 import { supabase } from '../../integrations/supabase/client';
 import { Button } from '../ui/button';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
@@ -181,14 +182,14 @@ const StaticTextarea = memo(({
 });
 
 // Componente memoizado para arrays de strings
-const ArrayEditor = memo(({ 
-  title, 
-  icon, 
-  items, 
-  placeholder, 
-  onAdd, 
-  onUpdate, 
-  onRemove 
+const ArrayEditor = memo(({
+  title,
+  icon,
+  items,
+  placeholder,
+  onAdd,
+  onUpdate,
+  onRemove
 }: {
   title: string;
   icon: string;
@@ -198,6 +199,7 @@ const ArrayEditor = memo(({
   onUpdate: (index: number, value: string) => void;
   onRemove: (index: number) => void;
 }) => {
+  const { t } = useTranslation();
   const memoizedItems = useMemo(() => items, [items]);
   
   return (
@@ -207,7 +209,7 @@ const ArrayEditor = memo(({
           {icon} {title} ({memoizedItems.length})
           <Button onClick={onAdd} size="sm" className="bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border-ios-blue/20 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95">
             <Plus className="w-4 h-4 mr-2" />
-            Adicionar
+            {t('regionsTab.add')}
           </Button>
         </CardTitle>
       </CardHeader>
@@ -236,6 +238,7 @@ const ArrayEditor = memo(({
 });
 
 const RegionsTab = () => {
+  const { t } = useTranslation();
   const [regions, setRegions] = useState<SpiritualRegion[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -415,10 +418,10 @@ const RegionsTab = () => {
     
     try {
       if (!selectedPersonaId) {
-        alert('Nenhuma persona selecionada. Carregando persona padrão...');
+        alert(t('regionsTab.errors.noPersona'));
         const personas = await advancedAgentService.getPersonas();
         if (personas.length === 0) {
-          alert('Nenhuma persona encontrada. Crie uma persona primeiro.');
+          alert(t('regionsTab.errors.noPersonaFound'));
           return;
         }
         const defaultPersona = personas.find(p => p.is_default) || personas[0];
@@ -427,7 +430,7 @@ const RegionsTab = () => {
       }
       const persona = personas.find(p => p.id === selectedPersonaId);
       if (!persona) {
-        alert('Persona selecionada não encontrada.');
+        alert(t('regionsTab.errors.personaNotFound'));
         return;
       }
       // Criar contexto da região
@@ -451,7 +454,7 @@ const RegionsTab = () => {
       alert(`Dados espirituais gerados com sucesso para ${region.name}! Verifique na aba de edição.`);
     } catch (error) {
       console.error('❌ Erro ao gerar dados com IA:', error);
-      alert('Erro ao gerar dados com IA. Verifique se a API OpenAI está configurada corretamente.');
+      alert(t('regionsTab.errors.aiGenerationError'));
     }
   }, [selectedPersonaId, personas, loadRegionsData]);
 
@@ -485,7 +488,7 @@ const RegionsTab = () => {
       
     } catch (error) {
       console.error('❌ Erro ao salvar dados espirituais:', error);
-      alert('Erro ao salvar dados espirituais. Tente novamente.');
+      alert(t('regionsTab.errors.saveError'));
     } finally {
       setIsUpdatingSpiritualData(false);
     }
@@ -535,8 +538,8 @@ const RegionsTab = () => {
   const handlePreviewQueue = useCallback(async () => {
     if (!selectedPersonaId) {
       toast({
-        title: "Erro",
-        description: "Nenhuma persona selecionada para gerar dados.",
+        title: t('regionsTab.toast.error'),
+        description: t('regionsTab.toast.noPersonaSelected'),
         variant: "destructive"
       });
       return;
@@ -558,14 +561,14 @@ const RegionsTab = () => {
       const preview = await queueManagementService.buildQueuePreview(config);
       setQueuePreview(preview);
       toast({
-        title: "Sucesso",
-        description: `Preview da fila gerado com sucesso! Regiões: ${preview.summary.totalRegions}`
+        title: t('regionsTab.toast.success'),
+        description: `${t('regionsTab.toast.previewSuccess')} ${preview.summary.totalRegions}`
       });
     } catch (error) {
       console.error('❌ Erro ao gerar preview da fila:', error);
       toast({
-        title: "Erro",
-        description: "Erro ao gerar preview da fila. Verifique a conexão com a API.",
+        title: t('regionsTab.toast.error'),
+        description: t('regionsTab.toast.previewError'),
         variant: "destructive"
       });
     } finally {
@@ -576,16 +579,16 @@ const RegionsTab = () => {
   const handleStartProcessing = useCallback(async () => {
     if (!selectedPersonaId) {
       toast({
-        title: "Erro",
-        description: "Nenhuma persona selecionada para gerar dados.",
+        title: t('regionsTab.toast.error'),
+        description: t('regionsTab.toast.noPersonaSelected'),
         variant: "destructive"
       });
       return;
     }
     if (!queuePreview) {
       toast({
-        title: "Erro",
-        description: "Gere um preview primeiro antes de iniciar o processamento.",
+        title: t('regionsTab.toast.error'),
+        description: t('regionsTab.toast.noPreview'),
         variant: "destructive"
       });
       return;
@@ -613,22 +616,22 @@ const RegionsTab = () => {
       );
       await queueManagementService.startBatchProcessing(batchId);
       toast({
-        title: "Sucesso",
-        description: "Processamento da fila iniciado com sucesso!"
+        title: t('regionsTab.toast.success'),
+        description: t('regionsTab.toast.processingStarted')
       });
-      
+
       // Aguardar um pouco e depois parar o recarregamento automático
       setTimeout(() => {
         stopAutoReload();
         loadRegionsData(); // Recarregar uma última vez
       }, 180000); // 3 minutos
-      
+
     } catch (error) {
       console.error('❌ Erro ao iniciar processamento da fila:', error);
       stopAutoReload(); // Parar recarregamento em caso de erro
       toast({
-        title: "Erro",
-        description: "Erro ao iniciar processamento da fila. Verifique a conexão com a API.",
+        title: t('regionsTab.toast.error'),
+        description: t('regionsTab.toast.processingError'),
         variant: "destructive"
       });
     } finally {
@@ -639,14 +642,14 @@ const RegionsTab = () => {
   // Componentes auxiliares
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      'draft': { color: 'bg-ios-gray/10 text-ios-gray border-ios-gray/20', label: 'Rascunho' },
-      'pending': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', label: 'Pendente' },
-      'approved': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: 'Aprovado' },
-      'rejected': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', label: 'Rejeitado' }
+      'draft': { color: 'bg-ios-gray/10 text-ios-gray border-ios-gray/20', label: t('regionsTab.status.draft') },
+      'pending': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', label: t('regionsTab.status.pending') },
+      'approved': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: t('regionsTab.status.approved') },
+      'rejected': { color: 'bg-ios-red/10 text-ios-red border-ios-red/20', label: t('regionsTab.status.rejected') }
     };
-    
+
     const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.draft;
-    
+
     return (
       <Badge className={`${statusInfo.color} rounded-ios-sm`}>
         {statusInfo.label}
@@ -656,14 +659,14 @@ const RegionsTab = () => {
 
   const getTypeBadge = (type: string) => {
     const typeMap = {
-      'country': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', label: 'País' },
-      'state': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: 'Estado' },
-      'city': { color: 'bg-ios-purple/10 text-ios-purple border-ios-purple/20', label: 'Cidade' },
-      'neighborhood': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', label: 'Bairro' }
+      'country': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', label: t('regionsTab.type.country') },
+      'state': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: t('regionsTab.type.state') },
+      'city': { color: 'bg-ios-purple/10 text-ios-purple border-ios-purple/20', label: t('regionsTab.type.city') },
+      'neighborhood': { color: 'bg-ios-orange/10 text-ios-orange border-ios-orange/20', label: t('regionsTab.type.neighborhood') }
     };
-    
+
     const typeInfo = typeMap[type as keyof typeof typeMap] || typeMap.country;
-    
+
     return (
       <Badge className={`${typeInfo.color} rounded-ios-sm`}>
         {typeInfo.label}
@@ -673,13 +676,13 @@ const RegionsTab = () => {
 
   const getSourceBadge = (source: string) => {
     const sourceMap = {
-      'manual': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', label: 'Manual' },
-      'imported': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: 'Importado' },
-      'ai_generated': { color: 'bg-ios-purple/10 text-ios-purple border-ios-purple/20', label: 'IA' }
+      'manual': { color: 'bg-ios-blue/10 text-ios-blue border-ios-blue/20', label: t('regionsTab.source.manual') },
+      'imported': { color: 'bg-ios-green/10 text-ios-green border-ios-green/20', label: t('regionsTab.source.imported') },
+      'ai_generated': { color: 'bg-ios-purple/10 text-ios-purple border-ios-purple/20', label: t('regionsTab.source.ai_generated') }
     };
-    
+
     const sourceInfo = sourceMap[source as keyof typeof sourceMap] || sourceMap.manual;
-    
+
     return (
       <Badge className={`${sourceInfo.color} rounded-ios-sm`}>
         {sourceInfo.label}
@@ -693,27 +696,27 @@ const RegionsTab = () => {
       <CardHeader>
         <CardTitle className="flex items-center text-gray-900 dark:text-ios-dark-text">
           <MapPin className="w-4 h-4 mr-2" />
-          Google Maps Status
+          {t('regionsTab.googleMaps.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">API:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.googleMaps.api')}</span>
             <Badge className="bg-ios-green/10 text-ios-green border-ios-green/20 rounded-ios-sm">
-              Carregado
+              {t('regionsTab.googleMaps.loaded')}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Geocoder:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.googleMaps.geocoder')}</span>
             <Badge className="bg-ios-green/10 text-ios-green border-ios-green/20 rounded-ios-sm">
-              Pronto
+              {t('regionsTab.googleMaps.ready')}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">Status:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.googleMaps.status')}</span>
             <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm">
-              Operacional
+              {t('regionsTab.googleMaps.operational')}
             </Badge>
           </div>
         </div>
@@ -726,31 +729,31 @@ const RegionsTab = () => {
       <CardHeader>
         <CardTitle className="flex items-center text-gray-900 dark:text-ios-dark-text">
           <Database className="w-4 h-4 mr-2" />
-          Dados Existentes
+          {t('regionsTab.existingData.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🌍 Países:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.existingData.countries')}</span>
             <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 rounded-ios-sm">
               {existingData.countries}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏛️ Estados:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.existingData.states')}</span>
             <Badge className="bg-ios-green/10 text-ios-green border-ios-green/20 rounded-ios-sm">
               {existingData.states}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">🏙️ Cidades:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.existingData.cities')}</span>
             <Badge className="bg-ios-purple/10 text-ios-purple border-ios-purple/20 rounded-ios-sm">
               {existingData.cities}
             </Badge>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">📊 Total:</span>
+            <span className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.existingData.total')}</span>
             <Badge className="bg-ios-orange/10 text-ios-orange border-ios-orange/20 rounded-ios-sm">
               {existingData.total}
             </Badge>
@@ -973,10 +976,10 @@ const RegionsTab = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-gray-900 dark:text-ios-dark-text">
-              Regiões Mapeadas ({filteredRegions.length})
+              {t('regionsTab.table.title')} ({filteredRegions.length})
             </CardTitle>
             <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
-              Visualização hierárquica das regiões geográficas e espirituais
+              {t('regionsTab.table.hierarchyDescription')}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
@@ -985,26 +988,26 @@ const RegionsTab = () => {
               size="sm"
               onClick={() => setViewMode('list')}
               className={`rounded-ios-sm transition-all duration-200 ${
-                viewMode === 'list' 
-                  ? 'bg-ios-blue text-white border-ios-blue' 
+                viewMode === 'list'
+                  ? 'bg-ios-blue text-white border-ios-blue'
                   : 'text-ios-blue border-ios-blue/20 hover:bg-ios-blue/10'
               }`}
             >
               <List className="w-4 h-4 mr-1" />
-              Lista
+              {t('regionsTab.table.viewList')}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setViewMode('hierarchy')}
               className={`rounded-ios-sm transition-all duration-200 ${
-                viewMode === 'hierarchy' 
-                  ? 'bg-ios-blue text-white border-ios-blue' 
+                viewMode === 'hierarchy'
+                  ? 'bg-ios-blue text-white border-ios-blue'
                   : 'text-ios-blue border-ios-blue/20 hover:bg-ios-blue/10'
               }`}
             >
               <Folder className="w-4 h-4 mr-1" />
-              Hierárquica
+              {t('regionsTab.table.viewHierarchy')}
             </Button>
           </div>
         </div>
@@ -1018,17 +1021,17 @@ const RegionsTab = () => {
           ) : (
             <div className="text-center py-8 text-ios-gray dark:text-ios-dark-text3">
               <Folder className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Nenhuma região encontrada para visualização hierárquica</p>
+              <p className="text-sm">{t('regionsTab.table.noRegions')}</p>
               <p className="text-xs mt-1">
-                Total de regiões: {filteredRegions.length}
+                {t('regionsTab.table.totalRegions')} {filteredRegions.length}
               </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className="mt-3"
                 onClick={() => console.log('Dados filtrados:', filteredRegions.slice(0, 5))}
               >
-                Debug no Console
+                {t('regionsTab.table.debugConsole')}
               </Button>
             </div>
           )}
@@ -1044,10 +1047,10 @@ const RegionsTab = () => {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-gray-900 dark:text-ios-dark-text">
-              Regiões Mapeadas ({filteredRegions.length})
+              {t('regionsTab.table.title')} ({filteredRegions.length})
             </CardTitle>
             <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
-              Lista de todas as regiões geográficas e espirituais cadastradas no sistema
+              {t('regionsTab.table.description')}
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
@@ -1056,26 +1059,26 @@ const RegionsTab = () => {
               size="sm"
               onClick={() => setViewMode('list')}
               className={`rounded-ios-sm transition-all duration-200 ${
-                viewMode === 'list' 
-                  ? 'bg-ios-blue text-white border-ios-blue' 
+                viewMode === 'list'
+                  ? 'bg-ios-blue text-white border-ios-blue'
                   : 'text-ios-blue border-ios-blue/20 hover:bg-ios-blue/10'
               }`}
             >
               <List className="w-4 h-4 mr-1" />
-              Lista
+              {t('regionsTab.table.viewList')}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setViewMode('hierarchy')}
               className={`rounded-ios-sm transition-all duration-200 ${
-                viewMode === 'hierarchy' 
-                  ? 'bg-ios-blue text-white border-ios-blue' 
+                viewMode === 'hierarchy'
+                  ? 'bg-ios-blue text-white border-ios-blue'
                   : 'text-ios-blue border-ios-blue/20 hover:bg-ios-blue/10'
               }`}
             >
               <Folder className="w-4 h-4 mr-1" />
-              Hierárquica
+              {t('regionsTab.table.viewHierarchy')}
             </Button>
           </div>
         </div>
@@ -1084,12 +1087,12 @@ const RegionsTab = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Nome</TableHead>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Tipo</TableHead>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Status</TableHead>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Origem</TableHead>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Atualizado</TableHead>
-              <TableHead className="text-gray-900 dark:text-ios-dark-text">Ações</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.name')}</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.type')}</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.status')}</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.source')}</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.updated')}</TableHead>
+              <TableHead className="text-gray-900 dark:text-ios-dark-text">{t('regionsTab.table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1114,30 +1117,30 @@ const RegionsTab = () => {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleView(region)}
                       className="w-8 h-8 rounded-ios-sm bg-ios-blue/10 hover:bg-ios-blue/20 text-ios-blue border-none transition-all duration-200 hover:scale-105 active:scale-95"
-                      title="Visualizar"
+                      title={t('regionsTab.view')}
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleEdit(region)}
                       className="w-8 h-8 rounded-ios-sm bg-ios-orange/10 hover:bg-ios-orange/20 text-ios-orange border-none transition-all duration-200 hover:scale-105 active:scale-95"
-                      title="Editar"
+                      title={t('regionsTab.edit')}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       className="w-8 h-8 rounded-ios-sm bg-ios-purple/10 hover:bg-ios-purple/20 text-ios-purple border-none transition-all duration-200 hover:scale-105 active:scale-95"
                       onClick={() => handleGenerateWithAI(region)}
-                      title="Gerar dados com IA"
+                      title={t('regionsTab.generateAI')}
                     >
                       <Zap className="w-4 h-4" />
                     </Button>
@@ -1205,43 +1208,43 @@ const RegionsTab = () => {
       if (data.sistema_geopolitico_completo) {
         sections.push(
           <div key="sistema" className="mb-4">
-            <h4 className="font-bold text-ios-blue mb-2">🏛️ Sistema Geopolítico:</h4>
+            <h4 className="font-bold text-ios-blue mb-2">{t('regionsTab.spiritualData.geopoliticalSystem')}</h4>
             <div className="bg-ios-blue/10 border border-ios-blue/20 p-3 rounded-ios-lg backdrop-blur-ios">
               <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.sistema_geopolitico_completo}</pre>
             </div>
           </div>
         );
       }
-      
+
       // Alvos de Intercessão
       if (data.alvos_intercessao_completo) {
         sections.push(
           <div key="alvos" className="mb-4">
-            <h4 className="font-bold text-ios-red mb-2">🔥 Alvos de Intercessão:</h4>
+            <h4 className="font-bold text-ios-red mb-2">{t('regionsTab.spiritualData.intercessionTargets')}</h4>
             <div className="bg-ios-red/10 border border-ios-red/20 p-3 rounded-ios-lg backdrop-blur-ios">
               <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.alvos_intercessao_completo}</pre>
             </div>
           </div>
         );
       }
-      
+
       // Outras Informações Importantes
       if (data.outras_informacoes_importantes) {
         sections.push(
           <div key="outras" className="mb-4">
-            <h4 className="font-bold text-ios-purple mb-2">📋 Outras Informações Importantes:</h4>
+            <h4 className="font-bold text-ios-purple mb-2">{t('regionsTab.spiritualData.otherInfo')}</h4>
             <div className="bg-ios-purple/10 border border-ios-purple/20 p-3 rounded-ios-lg backdrop-blur-ios">
               <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{data.outras_informacoes_importantes}</pre>
             </div>
           </div>
         );
       }
-      
+
       // Se não encontrou os campos específicos, mostrar dados brutos
       if (sections.length === 0) {
         sections.push(
           <div key="raw" className="mb-4">
-            <h4 className="font-bold text-ios-gray mb-2">📊 Dados Espirituais:</h4>
+            <h4 className="font-bold text-ios-gray mb-2">{t('regionsTab.spiritualData.title')}</h4>
             <div className="bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 border border-ios-gray5/20 dark:border-ios-dark-bg4/20 p-3 rounded-ios-lg backdrop-blur-ios">
               <pre className="whitespace-pre-wrap text-sm text-gray-900 dark:text-ios-dark-text">{JSON.stringify(data, null, 2)}</pre>
             </div>
@@ -1259,13 +1262,13 @@ const RegionsTab = () => {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-2xl shadow-ios-2xl">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-ios-dark-text">
-              👁️ Visualizar: {selectedRegion.name}
+              {t('regionsTab.viewModal.title')} {selectedRegion.name}
             </DialogTitle>
             <DialogDescription className="text-ios-gray dark:text-ios-dark-text3">
-              Dados espirituais salvos para esta região
+              {t('regionsTab.viewModal.description')}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {selectedRegion.spiritual_data && (typeof selectedRegion.spiritual_data === 'string' ? selectedRegion.spiritual_data.trim() : Object.keys(selectedRegion.spiritual_data).length > 0) ? (
               <div className="mt-2">
@@ -1273,26 +1276,26 @@ const RegionsTab = () => {
               </div>
             ) : (
               <div className="text-center py-8 text-ios-gray dark:text-ios-dark-text3">
-                <p className="text-lg">📝 Nenhum dado espiritual cadastrado ainda</p>
-                <p className="text-sm mt-2">Clique em "Editar" para adicionar informações</p>
-                <Button 
-                  className="mt-4 bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95" 
+                <p className="text-lg">{t('regionsTab.viewModal.noData')}</p>
+                <p className="text-sm mt-2">{t('regionsTab.viewModal.noDataHint')}</p>
+                <Button
+                  className="mt-4 bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
                   onClick={() => {
                     handleClose();
                     handleEditFromView(selectedRegion);
                   }}
                 >
                   <Edit className="w-4 h-4 mr-2" />
-                  Adicionar Dados Espirituais
+                  {t('regionsTab.viewModal.addData')}
                 </Button>
               </div>
             )}
             <div className="flex justify-end pt-4">
-              <Button 
+              <Button
                 onClick={handleClose}
                 className="bg-ios-gray6/50 hover:bg-ios-gray6 text-ios-gray dark:bg-ios-dark-bg3/50 dark:hover:bg-ios-dark-bg3 dark:text-ios-dark-text2 border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                Fechar
+                {t('regionsTab.close')}
               </Button>
             </div>
           </div>
@@ -1319,58 +1322,58 @@ const RegionsTab = () => {
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-2xl shadow-ios-2xl">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-ios-dark-text">
-              ✏️ Editar: {selectedRegion.name}
+              {t('regionsTab.editModal.title')} {selectedRegion.name}
             </DialogTitle>
             <DialogDescription className="text-ios-gray dark:text-ios-dark-text3">
-              Edite os dados espirituais para esta região
+              {t('regionsTab.editModal.description')}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {spiritualData ? (
               <Tabs defaultValue="spiritual" className="space-y-4">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="spiritual">Dados Espirituais</TabsTrigger>
-                  <TabsTrigger value="basic">Dados Básicos</TabsTrigger>
+                  <TabsTrigger value="spiritual">{t('regionsTab.editModal.tabSpiritual')}</TabsTrigger>
+                  <TabsTrigger value="basic">{t('regionsTab.editModal.tabBasic')}</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="spiritual" className="space-y-4">
                   {/* Sistema Geopolítico Completo */}
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2">
-                      🏛️ Sistema Geopolítico Completo
+                      {t('regionsTab.editModal.geopoliticalSystem')}
                     </label>
                     <Textarea
                       value={spiritualData.sistema_geopolitico_completo || ''}
                       onChange={(e) => setSpiritualData(prev => prev ? {...prev, sistema_geopolitico_completo: e.target.value} : null)}
                       className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg min-h-32"
-                      placeholder="Informações sobre o sistema geopolítico, governo, estruturas de poder..."
+                      placeholder={t('regionsTab.editModal.geopoliticalPlaceholder')}
                     />
                   </div>
 
                   {/* Alvos de Intercessão Completo */}
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2">
-                      🔥 Alvos de Intercessão Completo
+                      {t('regionsTab.editModal.intercessionTargets')}
                     </label>
                     <Textarea
                       value={spiritualData.alvos_intercessao_completo || ''}
                       onChange={(e) => setSpiritualData(prev => prev ? {...prev, alvos_intercessao_completo: e.target.value} : null)}
                       className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg min-h-32"
-                      placeholder="Liste os alvos específicos de oração para esta região..."
+                      placeholder={t('regionsTab.editModal.intercessionPlaceholder')}
                     />
                   </div>
 
                   {/* Outras Informações Importantes */}
                   <div>
                     <label className="block text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2">
-                      📋 Outras Informações Importantes
+                      {t('regionsTab.editModal.otherInfo')}
                     </label>
                     <Textarea
                       value={spiritualData.outras_informacoes_importantes || ''}
                       onChange={(e) => setSpiritualData(prev => prev ? {...prev, outras_informacoes_importantes: e.target.value} : null)}
                       className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg min-h-32"
-                      placeholder="Informações adicionais sobre contexto espiritual, cultural, histórico..."
+                      placeholder={t('regionsTab.editModal.otherInfoPlaceholder')}
                     />
                   </div>
 
@@ -1378,13 +1381,13 @@ const RegionsTab = () => {
                   {(spiritualData.nome_local || spiritualData.palavra_profetica || spiritualData.alvos_intercessao || spiritualData.alertas_espirituais) && (
                     <div className="border-t pt-4 mt-6">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-ios-dark-text mb-4">
-                        📚 Dados da Estrutura Antiga (Preservados)
+                        {t('regionsTab.editModal.legacyData')}
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {spiritualData.nome_local && (
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-ios-dark-text mb-1">
-                              Nome Local
+                              {t('regionsTab.editModal.localName')}
                             </label>
                             <Input
                               value={spiritualData.nome_local}
@@ -1396,7 +1399,7 @@ const RegionsTab = () => {
                         {spiritualData.palavra_profetica && (
                           <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-ios-dark-text mb-1">
-                              Palavra Profética
+                              {t('regionsTab.editModal.propheticWord')}
                             </label>
                             <Textarea
                               value={spiritualData.palavra_profetica}
@@ -1414,7 +1417,7 @@ const RegionsTab = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2">
-                        Nome da Região
+                        {t('regionsTab.editModal.regionName')}
                       </label>
                       <Input
                         value={selectedRegion.name}
@@ -1424,7 +1427,7 @@ const RegionsTab = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-900 dark:text-ios-dark-text mb-2">
-                        Tipo
+                        {t('regionsTab.editModal.regionType')}
                       </label>
                       <Input
                         value={selectedRegion.region_type}
@@ -1437,19 +1440,19 @@ const RegionsTab = () => {
               </Tabs>
             ) : (
               <div className="text-center py-8 text-ios-gray dark:text-ios-dark-text3">
-                <p className="text-lg">📝 Nenhum dado espiritual encontrado</p>
-                <p className="text-sm mt-2">Use o botão "⚡ Gerar com IA" para criar dados</p>
+                <p className="text-lg">{t('regionsTab.editModal.noData')}</p>
+                <p className="text-sm mt-2">{t('regionsTab.editModal.noDataHint')}</p>
               </div>
             )}
-            
+
             <div className="flex justify-end gap-2 pt-4">
-              <Button 
+              <Button
                 onClick={handleClose}
                 className="bg-ios-gray6/50 hover:bg-ios-gray6 text-ios-gray dark:bg-ios-dark-bg3/50 dark:hover:bg-ios-dark-bg3 dark:text-ios-dark-text2 border border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                Cancelar
+                {t('regionsTab.cancel')}
               </Button>
-              <Button 
+              <Button
                 onClick={handleSaveSpiritualData}
                 disabled={isUpdatingSpiritualData}
                 className="bg-ios-blue hover:bg-ios-blue/80 text-white border-none rounded-ios-lg transition-all duration-200 hover:scale-105 active:scale-95"
@@ -1457,12 +1460,12 @@ const RegionsTab = () => {
                 {isUpdatingSpiritualData ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Salvando...
+                    {t('regionsTab.saving')}
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Salvar
+                    {t('regionsTab.save')}
                   </>
                 )}
               </Button>
@@ -1481,7 +1484,7 @@ const RegionsTab = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">Total de Regiões</p>
+                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.stats.totalRegions')}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.length}</p>
               </div>
               <div className="w-12 h-12 rounded-ios-xl bg-ios-blue/10 flex items-center justify-center">
@@ -1495,7 +1498,7 @@ const RegionsTab = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">Aprovadas</p>
+                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.stats.approved')}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.status === 'approved').length}</p>
               </div>
               <div className="w-12 h-12 rounded-ios-xl bg-ios-green/10 flex items-center justify-center">
@@ -1509,7 +1512,7 @@ const RegionsTab = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">Pendentes</p>
+                <p className="text-sm font-medium text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.stats.pending')}</p>
                 <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.status === 'pending').length}</p>
               </div>
               <div className="w-12 h-12 rounded-ios-xl bg-ios-orange/10 flex items-center justify-center">
@@ -1519,7 +1522,7 @@ const RegionsTab = () => {
             <div className="mt-4">
               <div>
                 <p className="text-3xl font-bold text-gray-900 dark:text-ios-dark-text">{regions.filter(r => r.data_source === 'ai_generated').length}</p>
-                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">Geradas por IA</p>
+                <p className="text-sm text-ios-gray dark:text-ios-dark-text3">{t('regionsTab.stats.aiGenerated')}</p>
               </div>
             </div>
           </CardContent>
@@ -1531,17 +1534,17 @@ const RegionsTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center text-gray-900 dark:text-ios-dark-text">
             <Filter className="w-4 h-4 mr-2" />
-            Filtros
+            {t('regionsTab.filters.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Buscar</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{t('regionsTab.filters.search')}</label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-ios-gray dark:text-ios-dark-text3" />
                 <StaticInput
-                  placeholder="Nome da região..."
+                  placeholder={t('regionsTab.filters.searchPlaceholder')}
                   className="pl-9 bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg"
                   defaultValue={searchTerm}
                   onSave={setSearchTerm}
@@ -1549,32 +1552,32 @@ const RegionsTab = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Status</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{t('regionsTab.filters.status')}</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
-                  <SelectValue placeholder="Todos os status" />
+                  <SelectValue placeholder={t('regionsTab.filters.allStatus')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="draft">Rascunho</SelectItem>
-                  <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="approved">Aprovado</SelectItem>
-                  <SelectItem value="rejected">Rejeitado</SelectItem>
+                  <SelectItem value="all">{t('regionsTab.filters.all')}</SelectItem>
+                  <SelectItem value="draft">{t('regionsTab.status.draft')}</SelectItem>
+                  <SelectItem value="pending">{t('regionsTab.status.pending')}</SelectItem>
+                  <SelectItem value="approved">{t('regionsTab.status.approved')}</SelectItem>
+                  <SelectItem value="rejected">{t('regionsTab.status.rejected')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Tipo</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{t('regionsTab.filters.type')}</label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
-                  <SelectValue placeholder="Todos os tipos" />
+                  <SelectValue placeholder={t('regionsTab.filters.allTypes')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="country">País</SelectItem>
-                  <SelectItem value="state">Estado</SelectItem>
-                  <SelectItem value="city">Cidade</SelectItem>
-                  <SelectItem value="neighborhood">Bairro</SelectItem>
+                  <SelectItem value="all">{t('regionsTab.filters.all')}</SelectItem>
+                  <SelectItem value="country">{t('regionsTab.type.country')}</SelectItem>
+                  <SelectItem value="state">{t('regionsTab.type.state')}</SelectItem>
+                  <SelectItem value="city">{t('regionsTab.type.city')}</SelectItem>
+                  <SelectItem value="neighborhood">{t('regionsTab.type.neighborhood')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1587,52 +1590,52 @@ const RegionsTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center text-gray-900 dark:text-ios-dark-text">
             <Zap className="w-5 h-5 mr-2 text-ios-blue" />
-            Sistema de Fila AI
+            {t('regionsTab.queueSystem.title')}
           </CardTitle>
           <CardDescription className="text-ios-gray dark:text-ios-dark-text3">
-            Crie filas de processamento para gerar dados espirituais automaticamente
+            {t('regionsTab.queueSystem.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Continente</label>
+                <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{t('regionsTab.queueSystem.continent')}</label>
                 <Select defaultValue="Americas">
                   <SelectTrigger className="bg-ios-gray6/30 dark:bg-ios-dark-bg3/30 border-ios-gray5/30 dark:border-ios-dark-bg4/30 rounded-ios-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white/95 dark:bg-ios-dark-bg2/95 backdrop-blur-ios border-ios-gray5/20 dark:border-ios-dark-bg4/20 rounded-ios-xl">
-                    <SelectItem value="Americas">Américas</SelectItem>
-                    <SelectItem value="Europe">Europa</SelectItem>
-                    <SelectItem value="Asia">Ásia</SelectItem>
-                    <SelectItem value="Africa">África</SelectItem>
-                    <SelectItem value="Oceania">Oceania</SelectItem>
+                    <SelectItem value="Americas">{t('regionsTab.queueSystem.continents.americas')}</SelectItem>
+                    <SelectItem value="Europe">{t('regionsTab.queueSystem.continents.europe')}</SelectItem>
+                    <SelectItem value="Asia">{t('regionsTab.queueSystem.continents.asia')}</SelectItem>
+                    <SelectItem value="Africa">{t('regionsTab.queueSystem.continents.africa')}</SelectItem>
+                    <SelectItem value="Oceania">{t('regionsTab.queueSystem.continents.oceania')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">Tipos de Região</label>
+                <label className="text-sm font-medium text-gray-900 dark:text-ios-dark-text">{t('regionsTab.queueSystem.regionTypes')}</label>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="outline" className="bg-ios-blue/10 text-ios-blue border-ios-blue/20">
-                    Países
+                    {t('regionsTab.queueSystem.types.countries')}
                   </Badge>
                   <Badge variant="outline" className="bg-ios-green/10 text-ios-green border-ios-green/20">
-                    Estados
+                    {t('regionsTab.queueSystem.types.states')}
                   </Badge>
                   <Badge variant="outline" className="bg-ios-orange/10 text-ios-orange border-ios-orange/20">
-                    Cidades
+                    {t('regionsTab.queueSystem.types.cities')}
                   </Badge>
                 </div>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-ios-blue/10 border-ios-blue/20 rounded-ios-lg">
                 <CardContent className="p-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-ios-blue">~150</p>
-                    <p className="text-sm text-ios-blue">Regiões estimadas</p>
+                    <p className="text-sm text-ios-blue">{t('regionsTab.queueSystem.estimates.regions')}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -1640,7 +1643,7 @@ const RegionsTab = () => {
                 <CardContent className="p-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-ios-green">$4.50</p>
-                    <p className="text-sm text-ios-green">Custo estimado</p>
+                    <p className="text-sm text-ios-green">{t('regionsTab.queueSystem.estimates.cost')}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -1648,14 +1651,14 @@ const RegionsTab = () => {
                 <CardContent className="p-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-ios-orange">~2h</p>
-                    <p className="text-sm text-ios-orange">Tempo estimado</p>
+                    <p className="text-sm text-ios-orange">{t('regionsTab.queueSystem.estimates.time')}</p>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             <div className="flex gap-2">
-              <Button 
+              <Button
                 className="ios-button bg-ios-blue hover:bg-ios-blue/80 text-white rounded-ios-lg"
                 disabled={isPreviewing}
                 onClick={handlePreviewQueue}
@@ -1663,16 +1666,16 @@ const RegionsTab = () => {
                 {isPreviewing ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Gerando Preview...
+                    {t('regionsTab.queueSystem.previewing')}
                   </>
                 ) : (
                   <>
                     <Eye className="w-4 h-4 mr-2" />
-                    Gerar Preview
+                    {t('regionsTab.queueSystem.preview')}
                   </>
                 )}
               </Button>
-              <Button 
+              <Button
                 className="ios-button bg-ios-green hover:bg-ios-green/80 text-white rounded-ios-lg"
                 disabled={isProcessing}
                 onClick={handleStartProcessing}
@@ -1680,27 +1683,27 @@ const RegionsTab = () => {
                 {isProcessing ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Processando...
+                    {t('regionsTab.queueSystem.processing')}
                   </>
                 ) : (
                   <>
                     <Play className="w-4 h-4 mr-2" />
-                    Iniciar Processamento
+                    {t('regionsTab.queueSystem.startProcessing')}
                   </>
                 )}
               </Button>
-              <Button 
+              <Button
                 className="ios-button bg-ios-gray hover:bg-ios-gray/80 text-white rounded-ios-lg"
                 onClick={loadRegionsData}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Recarregar Dados
+                {t('regionsTab.queueSystem.reload')}
               </Button>
             </div>
 
             <div className="text-center py-4 bg-ios-gray6/20 dark:bg-ios-dark-bg3/20 rounded-ios-lg">
               <p className="text-sm text-ios-gray dark:text-ios-dark-text3">
-                🚧 Sistema em desenvolvimento - Funcionalidade completa em breve
+                {t('regionsTab.queueSystem.inDevelopment')}
               </p>
             </div>
           </div>

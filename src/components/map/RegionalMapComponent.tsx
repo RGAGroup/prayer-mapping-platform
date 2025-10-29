@@ -7,6 +7,8 @@ import { PropheticWordModal } from '../PropheticWordModal';
 import { supabase } from '@/integrations/supabase/client';
 import { aiService } from '@/services/aiService';
 import advancedAgentService from '@/services/advancedAgentService';
+import { useTranslation } from '@/hooks/useTranslation';
+import { getSpiritualDataTranslated } from '@/utils/spiritualDataHelpers';
 
 interface RegionalMapComponentProps {
   onRegionSelect: (regionName: string, regionType: string) => void;
@@ -19,7 +21,10 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
   const [currentZoom, setCurrentZoom] = useState(3);
   const [isGoogleLoaded, setIsGoogleLoaded] = useState(false);
   const [boundaries, setBoundaries] = useState<google.maps.Polygon[]>([]);
-  
+
+  // Hook de tradução para multi-idioma
+  const { currentLanguage, t } = useTranslation();
+
   // Estados para o popup espiritual e sidebar
   const [showPopup, setShowPopup] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -608,26 +613,28 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
   const processRegionData = async (rawSpiritualData: any, regionName: string, regionType: string) => {
     try {
       console.log(`🔄 Processando dados para ${regionName}:`, rawSpiritualData);
-        
-        // Converter dados do Supabase para o formato esperado pelo SpiritualPopup
-      const spiritualData = rawSpiritualData as any;
-        
-        // NOVA ESTRUTURA - dados salvos pelo admin (mesma estrutura do modal Visualizar)
-        const hasNewStructure = spiritualData.sistema_geopolitico_completo || spiritualData.alvos_intercessao_completo || spiritualData.outras_informacoes_importantes;
+      console.log(`🌍 Idioma atual: ${currentLanguage}`);
+
+      // Obter dados traduzidos usando o helper
+      const translatedData = getSpiritualDataTranslated(rawSpiritualData, currentLanguage);
+      console.log(`✅ Dados traduzidos obtidos:`, translatedData);
+
+      // NOVA ESTRUTURA - dados salvos pelo admin (mesma estrutura do modal Visualizar)
+      const hasNewStructure = translatedData.sistema_geopolitico_completo || translatedData.alvos_intercessao_completo || translatedData.outras_informacoes_importantes;
         
         if (hasNewStructure) {
           console.log('🆕 Usando nova estrutura de dados (compatível com modal Visualizar)');
-          
+
           // Extrair alvos de intercessão do texto - melhor processamento
-          const alvosText = spiritualData.alvos_intercessao_completo || '';
+          const alvosText = translatedData.alvos_intercessao_completo || '';
           let prayerTargets = [];
-          
+
           if (alvosText.trim()) {
             // Tentar diferentes delimitadores para extrair alvos
             const alvosLines = alvosText.split(/[\n\r•\-\*]/)
               .map(line => line.trim())
               .filter(line => line.length > 3); // Filtra linhas muito pequenas
-            
+
             prayerTargets = alvosLines.map((line: string, index: number) => ({
             id: `target-${index}`,
             title: line.length > 50 ? line.substring(0, 50) + '...' : line,
@@ -636,61 +643,61 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
             intercessors: Math.floor(Math.random() * 20) + 5,
           }));
           }
-          
+
           return {
             region: regionName,
             type: regionType as 'continent' | 'country' | 'state' | 'city' | 'neighborhood',
-            
+
             stats: {
               totalIntercessors: prayerTargets.length * 10,
               activePrayers: prayerTargets.length,
-              propheticWords: spiritualData.sistema_geopolitico_completo ? 1 : 0,
+              propheticWords: translatedData.sistema_geopolitico_completo ? 1 : 0,
               testimonies: 0,
               missionBases: 0,
               alerts: 0,
             },
-            
+
             recentActivity: [
               // Sistema Geopolítico (sempre incluir se existe)
-              ...(spiritualData.sistema_geopolitico_completo ? [{
+              ...(translatedData.sistema_geopolitico_completo ? [{
                 id: 'sistema-geo',
                 type: 'prophetic_word' as const,
-                title: '🏛️ Sistema Geopolítico',
-                description: spiritualData.sistema_geopolitico_completo,
-                author: 'Agente IA Atalaia',
+                title: t('spiritualPopup.geopoliticalSystem'),
+                description: translatedData.sistema_geopolitico_completo,
+                author: t('spiritualPopup.aiAgent'),
                 date: new Date().toISOString(),
                 priority: 'high' as const,
               }] : []),
-              
+
               // Alvos de Intercessão (só se tiver alvos)
               ...(prayerTargets.length > 0 ? [{
                 id: 'alvos-intercesao',
                 type: 'prayer_target' as const,
-                title: '🔥 Alvos de Intercessão',
-                description: `${prayerTargets.length} alvos específicos de oração identificados:\n\n${prayerTargets.map(t => `• ${t.description}`).join('\n')}`,
-                author: 'Rede de Oração',
+                title: t('spiritualPopup.intercessionTargets'),
+                description: `${prayerTargets.length} ${t('spiritualPopup.targetsIdentified')}:\n\n${prayerTargets.map(t => `• ${t.description}`).join('\n')}`,
+                author: t('spiritualPopup.prayerNetwork'),
                 date: new Date().toISOString(),
                 priority: 'high' as const,
               }] : []),
-              
+
               // Outras Informações Importantes
-              ...(spiritualData.outras_informacoes_importantes ? [{
+              ...(translatedData.outras_informacoes_importantes ? [{
                 id: 'outras-info',
                 type: 'mission_base' as const,
-                title: '📋 Outras Informações Importantes',
-                description: spiritualData.outras_informacoes_importantes,
-                author: 'Agente IA Atalaia',
+                title: t('spiritualPopup.otherInformation'),
+                description: translatedData.outras_informacoes_importantes,
+                author: t('spiritualPopup.aiAgent'),
                 date: new Date().toISOString(),
                 priority: 'medium' as const,
               }] : []),
-              
+
               // Fallback se não tiver nenhum dado
-              ...(!spiritualData.sistema_geopolitico_completo && prayerTargets.length === 0 && !spiritualData.outras_informacoes_importantes ? [{
+              ...(!translatedData.sistema_geopolitico_completo && prayerTargets.length === 0 && !translatedData.outras_informacoes_importantes ? [{
                 id: 'no-data',
                 type: 'alert' as const,
-                title: '⚠️ Dados Espirituais Limitados',
-                description: 'Esta região ainda não possui dados espirituais completos gerados pela IA. Use o Dashboard Administrativo para gerar conteúdo.',
-                author: 'Sistema Atalaia',
+                title: t('spiritualPopup.limitedSpiritualData'),
+                description: t('spiritualPopup.noCompleteData'),
+                author: t('spiritualPopup.atalaiaSystem'),
                 date: new Date().toISOString(),
                 priority: 'low' as const,
               }] : [])
@@ -797,10 +804,10 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
 
   // Determinar tipo de região baseado no zoom
   const determineRegionType = (zoom: number): string => {
-    if (zoom <= 4) return 'Países';
-    if (zoom <= 7) return 'Países + Estados';
-    if (zoom <= 10) return 'Estados + Cidades';
-    return 'Cidades + Localidades';
+    if (zoom <= 4) return t('mapControls.regionTypes.countries');
+    if (zoom <= 7) return t('mapControls.regionTypes.countriesStates');
+    if (zoom <= 10) return t('mapControls.regionTypes.statesCities');
+    return t('mapControls.regionTypes.citiesLocalities');
   };
 
   // Determinar quais camadas estão ativas
@@ -1349,46 +1356,46 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
       />
 
       {/* Controles de Zoom e Legenda - Mobile Otimizado */}
-      <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2 md:p-3 space-y-1 md:space-y-2 z-30 text-xs md:text-sm">
-        <div className="text-xs md:text-sm font-medium text-gray-700">
-          Zoom: {currentZoom.toFixed(1)} ({determineRegionType(currentZoom)})
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 bg-white/90 dark:bg-ios-dark-bg2/90 backdrop-blur-sm rounded-lg shadow-lg p-2 md:p-3 space-y-1 md:space-y-2 z-30 text-xs md:text-sm">
+        <div className="text-xs md:text-sm font-medium text-gray-700 dark:text-ios-dark-text1">
+          {t('mapControls.zoom', { zoom: currentZoom.toFixed(1), type: determineRegionType(currentZoom) })}
         </div>
-        <div className="hidden md:block text-xs text-gray-500">
-          Fronteiras oficiais Google
+        <div className="hidden md:block text-xs text-gray-500 dark:text-ios-dark-text3">
+          {t('mapControls.officialBorders')}
         </div>
-        <div className="text-xs text-green-600 font-medium">
-          ✅ Dados carregados
+        <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+          {t('mapControls.dataLoaded')}
         </div>
-        <div className="border-t pt-1 md:pt-2 mt-1 md:mt-2">
-          <div className="text-xs font-medium text-gray-600 mb-1">Camadas Ativas:</div>
+        <div className="border-t border-gray-200 dark:border-ios-dark-bg4 pt-1 md:pt-2 mt-1 md:mt-2">
+          <div className="text-xs font-medium text-gray-600 dark:text-ios-dark-text2 mb-1">{t('mapControls.activeLayers')}</div>
           <div className="space-y-0.5 md:space-y-1">
             {getActiveLayers(currentZoom).includes('countries') && (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-0.5 bg-red-500"></div>
-                <span className="text-xs">🌍 Países</span>
+                <span className="text-xs dark:text-ios-dark-text2">{t('mapControls.countries')}</span>
               </div>
             )}
             {getActiveLayers(currentZoom).includes('states') && (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-0.5 bg-teal-400"></div>
-                <span className="text-xs">🏛️ Estados</span>
+                <span className="text-xs dark:text-ios-dark-text2">{t('mapControls.states')}</span>
               </div>
             )}
             {getActiveLayers(currentZoom).includes('cities') && (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-0.5 bg-blue-500"></div>
-                <span className="text-xs">🏙️ Cidades</span>
+                <span className="text-xs dark:text-ios-dark-text2">{t('mapControls.cities')}</span>
               </div>
             )}
             {getActiveLayers(currentZoom).includes('localities') && (
               <div className="flex items-center gap-2">
                 <div className="w-3 h-0.5 bg-orange-400"></div>
-                <span className="text-xs">📍 Localidades</span>
+                <span className="text-xs dark:text-ios-dark-text2">{t('mapControls.localities')}</span>
               </div>
             )}
           </div>
-          <div className="hidden md:block text-xs text-gray-500 mt-2">
-            💡 Use o zoom para navegar entre níveis
+          <div className="hidden md:block text-xs text-gray-500 dark:text-ios-dark-text3 mt-2">
+            {t('mapControls.zoomTip')}
           </div>
         </div>
       </div>

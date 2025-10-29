@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLocations } from '@/hooks/useLocations';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface GlobalWatchProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface GlobalWatchProps {
 }
 
 const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
+  const { t } = useTranslation();
   const { data: locations = [] } = useLocations();
   const [watchMode, setWatchMode] = useState<'normal' | 'vigilia'>('normal');
   const [notifications, setNotifications] = useState<Array<{
@@ -34,22 +36,22 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
         const activities = [
           {
             type: 'prayer' as const,
-            message: `Novo grupo de oração iniciado`,
+            message: t('globalWatch.notifications.newPrayerGroup'),
             severity: 'info' as const
           },
           {
             type: 'breakthrough' as const,
-            message: `Quebrantamento espiritual reportado`,
+            message: t('globalWatch.notifications.spiritualBreakthrough'),
             severity: 'warning' as const
           },
           {
             type: 'revival' as const,
-            message: `Avivamento em movimento!`,
+            message: t('globalWatch.notifications.revivalMoving'),
             severity: 'critical' as const
           },
           {
             type: 'alert' as const,
-            message: `Alerta espiritual ativo`,
+            message: t('globalWatch.notifications.spiritualAlert'),
             severity: 'warning' as const
           }
         ];
@@ -142,34 +144,34 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
           <CardTitle className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-2">
               <Eye className="h-4 w-4 text-purple-400" />
-              <span>Vigília Global</span>
+              <span>{t('globalWatch.title')}</span>
               {watchMode === 'vigilia' && (
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
               )}
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onToggle}
               className="text-white hover:bg-white/10"
             >
               ×
             </Button>
           </CardTitle>
-          
+
           {/* Estatísticas Globais */}
           <div className="grid grid-cols-3 gap-2 text-xs">
             <div className="text-center p-2 bg-white/5 rounded">
               <div className="text-purple-400 font-bold">{getTotalIntercessors()}</div>
-              <div className="text-gray-300">Vigias</div>
+              <div className="text-gray-300">{t('globalWatch.stats.watchers')}</div>
             </div>
             <div className="text-center p-2 bg-white/5 rounded">
               <div className="text-orange-400 font-bold">{getRevivalCenters()}</div>
-              <div className="text-gray-300">Avivamentos</div>
+              <div className="text-gray-300">{t('globalWatch.stats.revivals')}</div>
             </div>
             <div className="text-center p-2 bg-white/5 rounded">
               <div className="text-red-400 font-bold">{getActiveAlerts()}</div>
-              <div className="text-gray-300">Alertas</div>
+              <div className="text-gray-300">{t('globalWatch.stats.alerts')}</div>
             </div>
           </div>
         </CardHeader>
@@ -184,7 +186,7 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
               className="flex-1 text-xs"
             >
               <Globe className="h-3 w-3 mr-1" />
-              Normal
+              {t('globalWatch.modes.normal')}
             </Button>
             <Button
               variant={watchMode === 'vigilia' ? 'default' : 'outline'}
@@ -193,16 +195,16 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
               className="flex-1 text-xs bg-gradient-to-r from-purple-600 to-blue-600"
             >
               <Bell className="h-3 w-3 mr-1" />
-              Vigília
+              {t('globalWatch.modes.vigil')}
             </Button>
           </div>
 
           {/* Feed de Atividade */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-300">Atividade Espiritual</span>
+              <span className="text-xs text-gray-300">{t('globalWatch.activity.title')}</span>
               <Badge variant="outline" className="text-xs">
-                Tempo Real
+                {t('globalWatch.activity.realTime')}
               </Badge>
             </div>
 
@@ -211,8 +213,8 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
                 {watchMode === 'vigilia' && notifications.length === 0 && (
                   <div className="text-center py-8 text-gray-400">
                     <Zap className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-xs">Iniciando vigília espiritual...</p>
-                    <p className="text-xs opacity-70">Conectando com centros globais</p>
+                    <p className="text-xs">{t('globalWatch.activity.starting')}</p>
+                    <p className="text-xs opacity-70">{t('globalWatch.activity.connecting')}</p>
                   </div>
                 )}
 
@@ -238,9 +240,9 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
                 {watchMode === 'normal' && (
                   <div className="text-center py-4 text-gray-400">
                     <div className="text-xs space-y-1">
-                      <p>🌍 {locations.length} centros monitorados</p>
-                      <p>📿 {getTotalIntercessors()} intercessores ativos</p>
-                      <p className="opacity-70">Ative a vigília para monitoramento em tempo real</p>
+                      <p>🌍 {locations.length} {t('globalWatch.stats.centersMonitored')}</p>
+                      <p>📿 {getTotalIntercessors()} {t('globalWatch.stats.activeIntercessors')}</p>
+                      <p className="opacity-70">{t('globalWatch.activity.activateVigilMessage')}</p>
                     </div>
                   </div>
                 )}
@@ -256,7 +258,7 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
               className="flex-1 text-xs border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
             >
               <Users className="h-3 w-3 mr-1" />
-              Grupos
+              {t('globalWatch.actions.groups')}
             </Button>
             <Button
               size="sm"
@@ -264,7 +266,7 @@ const GlobalWatch = ({ isOpen, onToggle }: GlobalWatchProps) => {
               className="flex-1 text-xs border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
             >
               <AlertTriangle className="h-3 w-3 mr-1" />
-              Alertas
+              {t('globalWatch.actions.alerts')}
             </Button>
           </div>
         </CardContent>

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Tipos para o sistema de idiomas
-export type SupportedLanguage = 'pt' | 'en' | 'es' | 'fr' | 'de' | 'zh' | 'ar' | 'ru' | 'hi' | 'ja';
+// Tipos para o sistema de idiomas - APENAS 3 IDIOMAS PRINCIPAIS
+export type SupportedLanguage = 'pt' | 'en' | 'es';
 
 export interface LanguageInfo {
   code: SupportedLanguage;
@@ -11,18 +11,11 @@ export interface LanguageInfo {
   rtl?: boolean;
 }
 
-// Idiomas suportados
+// Idiomas suportados - Português, Inglês, Espanhol
 export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
   { code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇧🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-  { code: 'ar', name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', rtl: true },
-  { code: 'ru', name: 'Russian', nativeName: 'Русский', flag: '🇷🇺' },
-  { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
 ];
 
 // Interface do contexto

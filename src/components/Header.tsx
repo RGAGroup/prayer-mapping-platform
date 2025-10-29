@@ -68,7 +68,7 @@ const Header = ({ onAuthClick }: HeaderProps) => {
               </h1>
               {/* Mobile: Sem subtítulo */}
               <p className="hidden md:block text-sm text-ios-gray dark:text-ios-dark-text3 font-medium">
-                Rede mundial de oração estratégica
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                 </div>
                 <div className="w-px h-4 bg-ios-gray4 dark:bg-ios-dark-bg4"></div>
                 <Badge className="bg-ios-blue/10 text-ios-blue border-ios-blue/20 font-medium">
-                  Movimento Global
+                  {t('header.globalMovement')}
                 </Badge>
               </div>
             </div>
@@ -157,8 +157,8 @@ const Header = ({ onAuthClick }: HeaderProps) => {
                       {userProfile?.display_name || t('spiritualPopup.intercessors')}
                     </p>
                     <p className="text-xs text-ios-gray dark:text-ios-dark-text3 font-medium">
-                      {userProfile?.role === 'admin' ? 'Administrador' : 
-                       userProfile?.role === 'moderator' ? 'Moderador' : 'Vigia Ativo'}
+                      {userProfile?.role === 'admin' ? t('header.administrator') :
+                       userProfile?.role === 'moderator' ? t('header.moderator') : t('header.activeWatcher')}
                     </p>
                   </div>
                   

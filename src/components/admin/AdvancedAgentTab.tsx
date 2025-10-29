@@ -15,9 +15,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Play, 
-  Pause, 
+import { useTranslation } from '@/hooks/useTranslation';
+import {
+  Play,
+  Pause,
   Square,
   Settings,
   Brain,
@@ -39,10 +40,10 @@ import {
 } from 'lucide-react';
 import PersonaManager from './PersonaManager';
 import advancedAgentService from '@/services/advancedAgentService';
-import type { 
-  AgentPersona, 
-  AgentTask, 
-  AgentSession, 
+import type {
+  AgentPersona,
+  AgentTask,
+  AgentSession,
   AgentUserControls,
   AgentResult,
   AgentTaskType,
@@ -50,6 +51,7 @@ import type {
 } from '@/types/Agent';
 
 export const AdvancedAgentTab: React.FC = () => {
+  const { t } = useTranslation();
   // Estados principais
   const [selectedPersona, setSelectedPersona] = useState<AgentPersona | null>(null);
   const [session, setSession] = useState<AgentSession | null>(null);
@@ -163,12 +165,12 @@ export const AdvancedAgentTab: React.FC = () => {
   // =====================================================
   const startProcessing = async () => {
     if (!selectedPersona) {
-      alert('Selecione uma persona primeiro');
+      alert(t('advancedAgent.alerts.selectPersona'));
       return;
     }
 
     if (userControls.selectedRegions.length === 0) {
-      alert('Selecione pelo menos uma região');
+      alert(t('advancedAgent.alerts.selectRegion'));
       return;
     }
 
@@ -273,7 +275,7 @@ export const AdvancedAgentTab: React.FC = () => {
       if (approved) {
         await advancedAgentService.approveTask(taskId);
       } else {
-        await advancedAgentService.rejectTask(taskId, 'Rejeitado pelo usuário');
+        await advancedAgentService.rejectTask(taskId, t('advancedAgent.messages.rejectedByUser'));
       }
       await loadPendingTasks();
     } catch (error) {
@@ -288,7 +290,7 @@ export const AdvancedAgentTab: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Brain className="w-5 h-5" />
-          Persona Selecionada
+          {t('advancedAgent.persona.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -297,20 +299,20 @@ export const AdvancedAgentTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-semibold">{selectedPersona.name}</h4>
-                <p className="text-sm text-gray-600">{selectedPersona.description}</p>
+                <p className="text-sm text-gray-600 dark:text-ios-dark-text3">{selectedPersona.description}</p>
               </div>
               <Badge variant="secondary">{selectedPersona.model}</Badge>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="bg-gray-50 p-2 rounded">
-                <span className="font-medium">Temp:</span> {selectedPersona.temperature}
+              <div className="bg-gray-50 dark:bg-ios-dark-bg3/30 p-2 rounded">
+                <span className="font-medium">{t('advancedAgent.persona.temp')}</span> {selectedPersona.temperature}
               </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <span className="font-medium">Tokens:</span> {selectedPersona.max_tokens}
+              <div className="bg-gray-50 dark:bg-ios-dark-bg3/30 p-2 rounded">
+                <span className="font-medium">{t('advancedAgent.persona.tokens')}</span> {selectedPersona.max_tokens}
               </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <span className="font-medium">Top-P:</span> {selectedPersona.top_p}
+              <div className="bg-gray-50 dark:bg-ios-dark-bg3/30 p-2 rounded">
+                <span className="font-medium">{t('advancedAgent.persona.topP')}</span> {selectedPersona.top_p}
               </div>
             </div>
 
@@ -320,15 +322,15 @@ export const AdvancedAgentTab: React.FC = () => {
               onClick={() => setActiveTab('personas')}
             >
               <Settings className="w-4 h-4 mr-1" />
-              Alterar Persona
+              {t('advancedAgent.persona.changePersona')}
             </Button>
           </div>
         ) : (
           <div className="text-center py-4">
-            <Brain className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-600 mb-3">Nenhuma persona selecionada</p>
+            <Brain className="w-8 h-8 text-gray-400 dark:text-ios-dark-text3 mx-auto mb-2" />
+            <p className="text-gray-600 dark:text-ios-dark-text3 mb-3">{t('advancedAgent.persona.noPersona')}</p>
             <Button onClick={() => setActiveTab('personas')}>
-              Selecionar Persona
+              {t('advancedAgent.persona.selectPersona')}
             </Button>
           </div>
         )}
@@ -341,17 +343,14 @@ export const AdvancedAgentTab: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapPin className="w-5 h-5" />
-          Seleção de Regiões
+          {t('advancedAgent.regions.title')}
         </CardTitle>
-        <CardDescription>
-          Escolha os países e estados que deseja processar
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Seleção rápida por país */}
           <div>
-            <Label className="text-sm font-medium">Países (seleção rápida)</Label>
+            <Label className="text-sm font-medium">{t('advancedAgent.regions.quickSelect')}</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
               {(countries || []).slice(0, 6).map(country => (
                 <Button
@@ -371,11 +370,11 @@ export const AdvancedAgentTab: React.FC = () => {
           <div className="flex gap-4 text-sm">
             <div className="flex items-center gap-1">
               <Badge variant="secondary">{userControls.selectedRegions.length}</Badge>
-              <span>regiões selecionadas</span>
+              <span>{t('advancedAgent.regions.selected')}</span>
             </div>
             <div className="flex items-center gap-1">
               <Badge variant="secondary">{getSelectedTaskTypes().length}</Badge>
-              <span>tipos de dados</span>
+              <span>{t('advancedAgent.regions.taskTypes')}</span>
             </div>
           </div>
         </div>
@@ -386,10 +385,7 @@ export const AdvancedAgentTab: React.FC = () => {
   const renderDataTypeSelector = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Tipos de Dados</CardTitle>
-        <CardDescription>
-          Selecione quais tipos de dados espirituais gerar
-        </CardDescription>
+        <CardTitle>{t('advancedAgent.dataTypes.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -397,22 +393,10 @@ export const AdvancedAgentTab: React.FC = () => {
             <div key={type} className="flex items-center justify-between">
               <div>
                 <Label className="text-sm font-medium">
-                  {type === 'spiritual_data' && 'Dados Espirituais'}
-                  {type === 'prayer_points' && 'Pontos de Oração'}
-                  {type === 'cultural_context' && 'Contexto Cultural'}
-                  {type === 'historical_context' && 'Contexto Histórico'}
-                  {type === 'demographic_data' && 'Dados Demográficos'}
-                  {type === 'economic_context' && 'Contexto Econômico'}
-                  {type === 'religious_mapping' && 'Mapeamento Religioso'}
+                  {t(`advancedAgent.dataTypes.${type}`)}
                 </Label>
-                <p className="text-xs text-gray-500">
-                  {type === 'spiritual_data' && 'Análise espiritual geral da região'}
-                  {type === 'prayer_points' && 'Pontos específicos de intercessão'}
-                  {type === 'cultural_context' && 'Tradições e cultura local'}
-                  {type === 'historical_context' && 'História espiritual da região'}
-                  {type === 'demographic_data' && 'População e grupos étnicos'}
-                  {type === 'economic_context' && 'Situação econômica espiritual'}
-                  {type === 'religious_mapping' && 'Denominações e religiões'}
+                <p className="text-xs text-gray-500 dark:text-ios-dark-text3">
+                  {t(`advancedAgent.dataTypes.${type}_desc`)}
                 </p>
               </div>
               <Switch
@@ -434,16 +418,16 @@ export const AdvancedAgentTab: React.FC = () => {
   const renderProcessingControls = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Controles de Processamento</CardTitle>
+        <CardTitle>{t('advancedAgent.processingControls.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Aprovação */}
           <div className="space-y-2">
-            <Label>Sistema de Aprovação</Label>
-            <Select 
-              value={userControls.approvalLevel} 
-              onValueChange={(value: 'automatic' | 'preview' | 'manual') => 
+            <Label>{t('advancedAgent.processingControls.approvalSystem')}</Label>
+            <Select
+              value={userControls.approvalLevel}
+              onValueChange={(value: 'automatic' | 'preview' | 'manual') =>
                 setUserControls(prev => ({ ...prev, approvalLevel: value }))
               }
             >
@@ -451,16 +435,16 @@ export const AdvancedAgentTab: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="automatic">Automático</SelectItem>
-                <SelectItem value="preview">Preview</SelectItem>
-                <SelectItem value="manual">Manual</SelectItem>
+                <SelectItem value="automatic">{t('advancedAgent.processingControls.automatic')}</SelectItem>
+                <SelectItem value="preview">{t('advancedAgent.processingControls.preview')}</SelectItem>
+                <SelectItem value="manual">{t('advancedAgent.processingControls.manual')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Tamanho do lote */}
           <div>
-            <Label>Tamanho do Lote: {userControls.batchSize}</Label>
+            <Label>{t('advancedAgent.processingControls.batchSize')}: {userControls.batchSize}</Label>
             <Slider
               value={[userControls.batchSize]}
               onValueChange={([value]) => setUserControls(prev => ({ ...prev, batchSize: value }))}
@@ -473,7 +457,7 @@ export const AdvancedAgentTab: React.FC = () => {
 
           {/* Delay entre requests */}
           <div>
-            <Label>Delay entre Requests: {userControls.delayBetweenRequests}ms</Label>
+            <Label>{t('advancedAgent.processingControls.delayBetweenRequests')}: {userControls.delayBetweenRequests}ms</Label>
             <Slider
               value={[userControls.delayBetweenRequests]}
               onValueChange={([value]) => setUserControls(prev => ({ ...prev, delayBetweenRequests: value }))}
@@ -493,7 +477,7 @@ export const AdvancedAgentTab: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
-          Estimativas
+          {t('advancedAgent.estimates.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -505,7 +489,7 @@ export const AdvancedAgentTab: React.FC = () => {
                 ${calculateEstimatedCost().toFixed(4)}
               </span>
             </div>
-            <p className="text-xs text-gray-500">Custo estimado</p>
+            <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.estimates.cost')}</p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-blue-600">
@@ -514,7 +498,7 @@ export const AdvancedAgentTab: React.FC = () => {
                 {calculateEstimatedTime()}min
               </span>
             </div>
-            <p className="text-xs text-gray-500">Tempo estimado</p>
+            <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.estimates.time')}</p>
           </div>
         </div>
       </CardContent>
@@ -524,7 +508,7 @@ export const AdvancedAgentTab: React.FC = () => {
   const renderExecutionControls = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Execução</CardTitle>
+        <CardTitle>{t('advancedAgent.progress.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -533,24 +517,24 @@ export const AdvancedAgentTab: React.FC = () => {
             {!isRunning ? (
               <Button onClick={startProcessing} className="flex-1">
                 <Play className="w-4 h-4 mr-2" />
-                Iniciar Processamento
+                {t('advancedAgent.actions.start')}
               </Button>
             ) : (
               <>
                 {isPaused ? (
                   <Button onClick={resumeProcessing} className="flex-1">
                     <Play className="w-4 h-4 mr-2" />
-                    Continuar
+                    {t('advancedAgent.actions.continue')}
                   </Button>
                 ) : (
                   <Button onClick={pauseProcessing} variant="outline" className="flex-1">
                     <Pause className="w-4 h-4 mr-2" />
-                    Pausar
+                    {t('advancedAgent.actions.pause')}
                   </Button>
                 )}
                 <Button onClick={stopProcessing} variant="destructive">
                   <Square className="w-4 h-4 mr-2" />
-                  Parar
+                  {t('advancedAgent.actions.stop')}
                 </Button>
               </>
             )}
@@ -560,12 +544,12 @@ export const AdvancedAgentTab: React.FC = () => {
           {isRunning && (
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Progresso</span>
+                <span>{t('advancedAgent.progress.label')}</span>
                 <span>75%</span>
               </div>
               <Progress value={75} />
-              <p className="text-xs text-gray-500">
-                Processando região 15 de 20...
+              <p className="text-xs text-gray-500 dark:text-ios-dark-text3">
+                {t('advancedAgent.progress.processing', { current: 15, total: 20 })}
               </p>
             </div>
           )}
@@ -577,7 +561,7 @@ export const AdvancedAgentTab: React.FC = () => {
   const renderStatistics = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Estatísticas</CardTitle>
+        <CardTitle>{t('advancedAgent.statistics.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         {statistics ? (
@@ -586,29 +570,29 @@ export const AdvancedAgentTab: React.FC = () => {
               <div className="text-2xl font-bold text-green-600">
                 {statistics.completed_tasks}
               </div>
-              <p className="text-xs text-gray-500">Concluídas</p>
+              <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.statistics.completed')}</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {statistics.pending_tasks}
               </div>
-              <p className="text-xs text-gray-500">Pendentes</p>
+              <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.statistics.pending')}</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
                 {statistics.success_rate.toFixed(1)}%
               </div>
-              <p className="text-xs text-gray-500">Taxa de sucesso</p>
+              <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.statistics.successRate')}</p>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
                 ${statistics.estimated_cost.toFixed(4)}
               </div>
-              <p className="text-xs text-gray-500">Custo total</p>
+              <p className="text-xs text-gray-500 dark:text-ios-dark-text3">{t('advancedAgent.statistics.totalCost')}</p>
             </div>
           </div>
         ) : (
-          <p className="text-gray-500 text-center">Carregando estatísticas...</p>
+          <p className="text-gray-500 dark:text-ios-dark-text3 text-center">{t('advancedAgent.statistics.loading')}</p>
         )}
       </CardContent>
     </Card>
@@ -617,23 +601,20 @@ export const AdvancedAgentTab: React.FC = () => {
   const renderPendingTasks = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Tarefas Pendentes</CardTitle>
-        <CardDescription>
-          Tarefas aguardando sua aprovação
-        </CardDescription>
+        <CardTitle>{t('advancedAgent.pendingTasks.title')}</CardTitle>
       </CardHeader>
       <CardContent>
         {pendingTasks.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">
-            Nenhuma tarefa pendente
+          <p className="text-gray-500 dark:text-ios-dark-text3 text-center py-4">
+            {t('advancedAgent.pendingTasks.noTasks')}
           </p>
         ) : (
           <div className="space-y-3">
             {pendingTasks.map(task => (
-              <div key={task.task_id} className="flex items-center justify-between p-3 border rounded">
+              <div key={task.task_id} className="flex items-center justify-between p-3 border dark:border-ios-dark-border rounded">
                 <div className="flex-1">
                   <p className="font-medium">{task.region_name}</p>
-                  <p className="text-sm text-gray-600">{task.task_type}</p>
+                  <p className="text-sm text-gray-600 dark:text-ios-dark-text3">{task.task_type}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -664,9 +645,9 @@ export const AdvancedAgentTab: React.FC = () => {
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="personas">🧠 Personas</TabsTrigger>
-          <TabsTrigger value="control">⚙️ Controles</TabsTrigger>
-          <TabsTrigger value="monitor">📊 Monitor</TabsTrigger>
+          <TabsTrigger value="personas">{t('advancedAgent.tabs.personas')}</TabsTrigger>
+          <TabsTrigger value="control">{t('advancedAgent.tabs.control')}</TabsTrigger>
+          <TabsTrigger value="monitor">{t('advancedAgent.tabs.monitor')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="personas" className="space-y-6">
