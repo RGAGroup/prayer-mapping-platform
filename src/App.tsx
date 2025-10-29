@@ -7,6 +7,7 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 import Index from "./pages/Index";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
+import TermsOfService from "./pages/TermsOfService";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import { useAuth } from "./hooks/useAuth";
@@ -97,56 +98,67 @@ const LoginScreen = () => {
   );
 };
 
+// Componente que requer autenticação
+const AuthenticatedApp = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute requireAdmin>
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <UserDashboard />
+          </ProtectedRoute>
+        }
+      />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
 
-  // Loading state with iOS design
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-ios-gray6 to-white dark:from-ios-dark-bg to-ios-dark-bg2 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-ios-2xl bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 flex items-center justify-center mb-6 animate-ios-bounce shadow-ios-lg">
-            <div className="w-8 h-8 border-3 border-ios-blue border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-ios-dark-text mb-2">
-            Verificando autenticação
-          </h3>
-          <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">
-            Aguarde um momento...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Se não estiver autenticado, mostrar tela de login
-  if (!isAuthenticated) {
-    return <LoginScreen />;
-  }
-
-  // Se estiver autenticado, mostrar o app normal
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
+        {/* Rota pública - acessível sem login */}
+        <Route path="/terms" element={<TermsOfService />} />
+
+        {/* Todas as outras rotas requerem autenticação */}
         <Route
-          path="/admin"
+          path="/*"
           element={
-            <ProtectedRoute requireAdmin>
-              <AdminDashboard />
-            </ProtectedRoute>
+            loading ? (
+              <div className="min-h-screen bg-gradient-to-br from-ios-gray6 to-white dark:from-ios-dark-bg to-ios-dark-bg2 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-20 h-20 rounded-ios-2xl bg-white/80 dark:bg-ios-dark-bg2/80 backdrop-blur-ios border border-ios-gray5/20 dark:border-ios-dark-bg4/20 flex items-center justify-center mb-6 animate-ios-bounce shadow-ios-lg">
+                    <div className="w-8 h-8 border-3 border-ios-blue border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-ios-dark-text mb-2">
+                    Verificando autenticação
+                  </h3>
+                  <p className="text-ios-gray dark:text-ios-dark-text2 font-medium">
+                    Aguarde um momento...
+                  </p>
+                </div>
+              </div>
+            ) : !isAuthenticated ? (
+              <LoginScreen />
+            ) : (
+              <AuthenticatedApp />
+            )
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <UserDashboard />
-            </ProtectedRoute>
-          }
-        />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

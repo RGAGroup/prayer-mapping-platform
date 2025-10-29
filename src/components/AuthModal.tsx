@@ -17,6 +17,7 @@ interface AuthModalProps {
 const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -61,10 +62,16 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
+    // Validar aceite dos termos
+    if (!termsAccepted) {
+      setError('Você precisa aceitar os Termos de Uso e Política de Privacidade para criar uma conta.');
+      return;
+    }
+
     try {
       console.log('📝 Tentando criar conta...', { isMobile, isMobileDevice, screenWidth });
-      const { data, error } = await signUp(formData.email, formData.password, formData.name);
+      const { data, error } = await signUp(formData.email, formData.password, formData.name, termsAccepted);
       
       if (error) {
         // Melhorar mensagens de erro para mobile
@@ -315,10 +322,34 @@ const AuthModal = ({ onClose, onSuccess }: AuthModalProps) => {
                   </div>
                 </div>
 
+                {/* Aceite de Termos - LGPD */}
+                <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-slate-700/50 rounded-ios-lg border border-blue-200 dark:border-slate-600">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-ios-blue bg-white border-gray-300 rounded focus:ring-ios-blue focus:ring-2 cursor-pointer"
+                  />
+                  <label htmlFor="terms" className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-700 dark:text-slate-300 cursor-pointer`}>
+                    Li e aceito os{' '}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ios-blue hover:text-ios-blue/80 underline font-semibold"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Termos de Uso e Política de Privacidade
+                    </a>
+                    {' '}(LGPD)
+                  </label>
+                </div>
+
                 <Button
                   type="submit"
                   className={`w-full ${isMobile ? 'h-10 text-sm' : 'h-12 text-base'} bg-gradient-to-r from-ios-green to-ios-blue hover:from-ios-green/90 hover:to-ios-blue/90 text-white border-0 rounded-ios-lg font-semibold shadow-ios-lg transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-ios-xl`}
-                  disabled={loading}
+                  disabled={loading || !termsAccepted}
                 >
                   {loading ? (
                     <div className="flex items-center space-x-2">

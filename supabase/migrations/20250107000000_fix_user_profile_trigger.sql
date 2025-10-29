@@ -19,11 +19,21 @@ BEGIN
   INSERT INTO public.user_profiles (
     user_id,
     role,
-    display_name
+    display_name,
+    terms_accepted,
+    terms_accepted_at,
+    terms_version
   ) VALUES (
     NEW.id,
     user_role,
-    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1))
+    COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1)),
+    COALESCE((NEW.raw_user_meta_data->>'terms_accepted')::boolean, FALSE),
+    CASE
+      WHEN (NEW.raw_user_meta_data->>'terms_accepted')::boolean = TRUE
+      THEN (NEW.raw_user_meta_data->>'terms_accepted_at')::timestamptz
+      ELSE NULL
+    END,
+    COALESCE(NEW.raw_user_meta_data->>'terms_version', '1.0')
   );
 
   RETURN NEW;

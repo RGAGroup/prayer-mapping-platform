@@ -342,7 +342,7 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  const signUp = async (email: string, password: string, displayName?: string, termsAccepted: boolean = false) => {
     setLoading(true);
     try {
       console.log('📝 Tentando criar conta:', email);
@@ -351,7 +351,10 @@ export const useAuth = () => {
         password,
         options: {
           data: {
-            display_name: displayName || email.split('@')[0]
+            display_name: displayName || email.split('@')[0],
+            terms_accepted: termsAccepted,
+            terms_accepted_at: termsAccepted ? new Date().toISOString() : null,
+            terms_version: '1.0'
           }
         }
       });
