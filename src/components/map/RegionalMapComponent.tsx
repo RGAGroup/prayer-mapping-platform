@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { LocationData } from '@/types/Location';
 import { SpiritualPopup } from './SpiritualPopup';
 import { RegionalSidebar } from './RegionalSidebar';
@@ -33,6 +33,7 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
   const [selectedRegionType, setSelectedRegionType] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [spiritualData, setSpiritualData] = useState<any>(null);
+  const [rawSpiritualData, setRawSpiritualData] = useState<any>(null); // Dados brutos do banco
   const [loadingSpiritualData, setLoadingSpiritualData] = useState(false);
 
   // Estados para o cronômetro de oração
@@ -43,6 +44,30 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
   const [showPropheticModal, setShowPropheticModal] = useState(false);
   const [prayerDuration, setPrayerDuration] = useState(0);
   const [lastClickCoordinates, setLastClickCoordinates] = useState<{ lat: number, lng: number } | null>(null);
+
+  // 🌍 useEffect para reprocessar dados quando o idioma mudar
+  useEffect(() => {
+    console.log(`🔍 useEffect disparado - currentLanguage: ${currentLanguage}, rawSpiritualData:`, !!rawSpiritualData, `selectedRegion:`, selectedRegion);
+
+    // Se há dados brutos, reprocessá-los com o novo idioma
+    if (rawSpiritualData && selectedRegion && selectedRegionType) {
+      console.log(`🌍 Idioma mudou para ${currentLanguage}, reprocessando dados...`);
+
+      // Reprocessar de forma assíncrona
+      processRegionData(rawSpiritualData, selectedRegion, selectedRegionType).then((data) => {
+        console.log(`✅ Dados reprocessados em ${currentLanguage}:`, data);
+        setSpiritualData(data);
+      }).catch((error) => {
+        console.error(`❌ Erro ao reprocessar dados:`, error);
+      });
+    } else {
+      console.log(`⚠️ Não reprocessou - faltam dados:`, {
+        hasRawData: !!rawSpiritualData,
+        hasRegion: !!selectedRegion,
+        hasType: !!selectedRegionType
+      });
+    }
+  }, [currentLanguage, rawSpiritualData, selectedRegion, selectedRegionType]); // Monitora todas as dependências
 
   // 🎯 Função para detectar hierarquia automaticamente
   const detectRegionHierarchy = async (regionName: string, regionType: string) => {
@@ -472,6 +497,7 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
         
         if (regionWithNewData) {
           console.log(`✅ Usando região com estrutura nova: "${regionWithNewData.name}" (${regionWithNewData.region_type})`);
+          setRawSpiritualData(regionWithNewData.spiritual_data);
           return await processRegionData(regionWithNewData.spiritual_data, regionName, regionType);
         }
         
@@ -479,8 +505,9 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
         const anyRegionWithData = allRegions.find(r => r.spiritual_data && Object.keys(r.spiritual_data).length > 0);
         if (anyRegionWithData) {
           console.log(`✅ Usando fallback com dados: "${anyRegionWithData.name}" (${anyRegionWithData.region_type})`);
-          
+
           // 🎯 MARCAR COMO REGIÃO NÃO MAPEADA pois está usando fallback
+          setRawSpiritualData(anyRegionWithData.spiritual_data);
           const fallbackData = await processRegionData(anyRegionWithData.spiritual_data, regionName, regionType);
           fallbackData.recentActivity = [
             {
@@ -508,6 +535,8 @@ const RegionalMapComponent = ({ onRegionSelect, onOpenPrayerClock }: RegionalMap
 
       if (regionData?.spiritual_data) {
         console.log(`✅ Dados espirituais encontrados para ${regionName}:`, regionData.spiritual_data);
+        // Salvar dados brutos para reprocessamento quando idioma mudar
+        setRawSpiritualData(regionData.spiritual_data);
         return await processRegionData(regionData.spiritual_data, regionName, regionType);
       } else if (regionData) {
         console.log(`📋 Região ${regionName} encontrada mas sem dados espirituais, criando estrutura básica`);

@@ -350,6 +350,7 @@ export const useAuth = () => {
         email,
         password,
         options: {
+          emailRedirectTo: undefined, // Não redirecionar para confirmação de email
           data: {
             display_name: displayName || email.split('@')[0],
             terms_accepted: termsAccepted,
@@ -357,6 +358,14 @@ export const useAuth = () => {
             terms_version: '1.0'
           }
         }
+      });
+
+      console.log('📊 Resultado do signUp:', {
+        hasData: !!data,
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        hasError: !!error,
+        errorMessage: error?.message
       });
 
       if (error) {
@@ -421,10 +430,41 @@ export const useAuth = () => {
 
       // Se chegou aqui, a conta foi criada com sucesso
       console.log('✅ Conta criada com sucesso');
-      
+
       // Aguarda um pouco para o trigger processar
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      // 🔐 FAZER LOGIN AUTOMÁTICO após criar conta
+      // Se a confirmação de email está desabilitada, o Supabase já retorna a sessão
+      // Mas vamos garantir fazendo login manual
+      if (!data.session) {
+        console.log('🔄 Sessão não criada automaticamente, fazendo login manual...');
+        try {
+          const loginResult = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (loginResult.data?.session) {
+            console.log('✅ Login automático realizado com sucesso!');
+            return { data: loginResult.data, error: null };
+          } else if (loginResult.error) {
+            console.error('❌ Erro no login automático:', loginResult.error.message);
+            // Se o login falhou, pode ser porque precisa confirmar email
+            if (loginResult.error.message.includes('Email not confirmed')) {
+              return {
+                data: null,
+                error: { message: 'Conta criada! Verifique seu email para confirmar a conta antes de fazer login.' }
+              };
+            }
+          }
+        } catch (loginError) {
+          console.error('❌ Erro ao tentar login automático:', loginError);
+        }
+      } else {
+        console.log('✅ Sessão criada automaticamente pelo Supabase!');
+      }
+
       return { data, error: null };
     } catch (error: any) {
       console.error('❌ Erro no signUp:', error);
